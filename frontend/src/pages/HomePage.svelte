@@ -1,0 +1,293 @@
+<script lang="ts">
+	import {
+		ArrowRight,
+		FileText,
+		Image,
+		MapPin,
+		PlusCircle,
+		Save,
+		Search,
+		SmilePlus,
+		Star,
+		Tag,
+		Type
+	} from '@lucide/svelte';
+	import FamousThoughts from '../components/FamousThoughts.svelte';
+
+	type DashboardStats = {
+		total: number;
+		categories: number;
+		highMood: number;
+		withImages: number;
+	};
+
+	type RecentThought = {
+		id: number;
+		title: string;
+		author: string;
+		category: string;
+		moodScore: number;
+		thought: string;
+		editUrl: string;
+	};
+
+	type Routes = {
+		create: string;
+		search: string;
+		thoughts: string;
+	};
+
+	interface Props {
+		stats: DashboardStats;
+		recentThoughts: RecentThought[];
+		routes: Routes;
+		heroImageUrl: string;
+		apiUrl: string;
+	}
+
+	let { stats, recentThoughts, routes, heroImageUrl, apiUrl }: Props = $props();
+
+	function renderMood(score: number): string {
+		return '★'.repeat(score);
+	}
+</script>
+
+<section class="border-b border-mist">
+	<div class="max-w-6xl mx-auto px-6 py-16 lg:px-8 lg:py-24">
+		<div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+			<div>
+				<p class="text-sm font-medium uppercase tracking-widest text-stone mb-4">CISY 7203</p>
+				<h1 class="font-display text-display-lg text-ink mb-6">
+					A collection of happy thoughts for brighter days.
+				</h1>
+				<p class="text-stone leading-relaxed mb-8 max-w-lg">
+					This content management system demonstrates PHP, SQLite, Svelte, and modern web
+					development. Create, browse, and search through moments of joy.
+				</p>
+				<div class="flex flex-wrap gap-4">
+					<a href={routes.create} class="btn-primary">
+						<PlusCircle size={16} />
+						Add a Happy Thought
+					</a>
+					<a href={routes.thoughts} class="btn-secondary">
+						<FileText size={16} />
+						Browse Collection
+					</a>
+				</div>
+			</div>
+
+			<div class="relative">
+				<img
+					src={heroImageUrl}
+					alt="Spring flowers in warm light"
+					class="aspect-[4/3] w-full object-cover"
+				/>
+				<div class="absolute -bottom-4 -left-4 hidden bg-white p-4 shadow-lg lg:block">
+					<SmilePlus size={20} class="text-coral mb-2" />
+					<p class="font-display text-2xl text-ink">{stats.total}</p>
+					<p class="text-sm text-stone">Happy thoughts collected</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="border-b border-mist bg-white">
+	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+		<div class="grid grid-cols-2 divide-x divide-mist md:grid-cols-4">
+			<div class="px-4 py-8 text-center">
+				<FileText size={20} class="text-coral mx-auto mb-2" />
+				<p class="font-display text-3xl text-ink">{stats.total}</p>
+				<p class="text-sm text-stone mt-1">Total Records</p>
+			</div>
+			<div class="px-4 py-8 text-center">
+				<Tag size={20} class="text-coral mx-auto mb-2" />
+				<p class="font-display text-3xl text-ink">{stats.categories}</p>
+				<p class="text-sm text-stone mt-1">Categories</p>
+			</div>
+			<div class="px-4 py-8 text-center">
+				<Star size={20} class="text-coral mx-auto mb-2" />
+				<p class="font-display text-3xl text-ink">{stats.highMood}</p>
+				<p class="text-sm text-stone mt-1">High Mood (4-5★)</p>
+			</div>
+			<div class="px-4 py-8 text-center">
+				<Image size={20} class="text-coral mx-auto mb-2" />
+				<p class="font-display text-3xl text-ink">{stats.withImages}</p>
+				<p class="text-sm text-stone mt-1">With Images</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="section-padding">
+	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+		<div class="mb-8 flex items-end justify-between gap-4">
+			<div>
+				<h2 class="font-display text-display-md text-ink mb-2">Recent Entries</h2>
+				<p class="text-stone">The latest happy thoughts from our collection</p>
+			</div>
+			<a href={routes.thoughts} class="editorial-link inline-flex items-center gap-2 text-sm">
+				View all thoughts
+				<ArrowRight size={16} />
+			</a>
+		</div>
+
+		<div class="overflow-hidden border border-mist">
+			<table class="data-table">
+				<caption class="sr-only">Recent happy thoughts from the database</caption>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Author</th>
+						<th>Category</th>
+						<th class="text-right">Mood</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each recentThoughts as thought (thought.id)}
+						<tr>
+							<td>
+								<a
+									href={thought.editUrl}
+									class="font-medium text-ink transition-colors hover:text-coral"
+								>
+									{thought.title}
+								</a>
+								<p class="text-sm text-stone line-clamp-1 mt-1">{thought.thought}</p>
+							</td>
+							<td class="text-stone">{thought.author}</td>
+							<td>
+								<span
+									class="bg-mist/50 text-stone inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
+								>
+									{thought.category}
+								</span>
+							</td>
+							<td class="text-right text-wheat">{renderMood(thought.moodScore)}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+
+<section class="section-padding border-t border-mist bg-white">
+	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+		<div class="grid gap-16 lg:grid-cols-2">
+			<div>
+				<h2 class="font-display text-display-md text-ink mb-6">What This Site Demonstrates</h2>
+				<div class="space-y-4">
+					<div class="flex gap-4">
+						<span class="text-coral inline-flex items-center gap-2 font-medium">
+							<FileText size={16} />
+							01
+						</span>
+						<div>
+							<p class="font-medium text-ink">Template System</p>
+							<p class="text-sm text-stone">
+								Shared header and footer includes for consistent layout
+							</p>
+						</div>
+					</div>
+					<div class="flex gap-4">
+						<span class="text-coral inline-flex items-center gap-2 font-medium">
+							<Type size={16} />
+							02
+						</span>
+						<div>
+							<p class="font-medium text-ink">HTML Structure</p>
+							<p class="text-sm text-stone">
+								Tables, headings, lists, images, and semantic elements
+							</p>
+						</div>
+					</div>
+					<div class="flex gap-4">
+						<span class="text-coral inline-flex items-center gap-2 font-medium">
+							<Save size={16} />
+							03
+						</span>
+						<div>
+							<p class="font-medium text-ink">Server-Side Processing</p>
+							<p class="text-sm text-stone">
+								Form handling, validation, and database operations
+							</p>
+						</div>
+					</div>
+					<div class="flex gap-4">
+						<span class="text-coral inline-flex items-center gap-2 font-medium">
+							<Search size={16} />
+							04
+						</span>
+						<div>
+							<p class="font-medium text-ink">AJAX Integration</p>
+							<p class="text-sm text-stone">
+								Fetch API for loading famous quotes dynamically
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<h2 class="font-display text-display-md text-ink mb-6">Quick Links</h2>
+				<nav class="space-y-3" aria-label="Primary actions">
+					<a
+						href={routes.create}
+						class="group border-mist flex items-center justify-between border-b py-3"
+					>
+						<span
+							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
+						>
+							<PlusCircle size={16} />
+							Create a new record
+						</span>
+						<ArrowRight size={16} class="text-stone" />
+					</a>
+					<a
+						href={routes.search}
+						class="group border-mist flex items-center justify-between border-b py-3"
+					>
+						<span
+							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
+						>
+							<Search size={16} />
+							Search the database
+						</span>
+						<ArrowRight size={16} class="text-stone" />
+					</a>
+					<a
+						href={routes.thoughts}
+						class="group border-mist flex items-center justify-between border-b py-3"
+					>
+						<span
+							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
+						>
+							<FileText size={16} />
+							Manage all records
+						</span>
+						<ArrowRight size={16} class="text-stone" />
+					</a>
+				</nav>
+
+				<div class="border-mist mt-8 border-t pt-8">
+					<h3 class="font-display text-lg text-ink mb-3 inline-flex items-center gap-2">
+						<MapPin size={16} class="text-coral" />
+						Contact
+					</h3>
+					<address class="text-stone not-italic text-sm leading-relaxed">
+						Happy Thoughts Studio<br />
+						123 Campus Garden Walk<br />
+						Boston, MA 02115
+					</address>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="section-padding border-t border-mist">
+	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+		<FamousThoughts {apiUrl} />
+	</div>
+</section>

@@ -1,6 +1,20 @@
 import './styles.css';
 import { mount } from 'svelte';
 
+function parseJsonScript<T>(scriptId: string): T | null {
+	const element = document.getElementById(scriptId);
+
+	if (!(element instanceof HTMLScriptElement)) {
+		return null;
+	}
+
+	try {
+		return JSON.parse(element.textContent ?? '') as T;
+	} catch {
+		return null;
+	}
+}
+
 if (document.querySelector('[data-lucide]')) {
 	import('lucide').then(
 		({
@@ -70,10 +84,24 @@ if (document.querySelector('[data-lucide]')) {
 	);
 }
 
+const homePageTarget = document.querySelector<HTMLElement>('[data-home-page]');
+if (homePageTarget) {
+	const props = parseJsonScript<Record<string, unknown>>('home-page-props');
+
+	if (props) {
+		import('./pages/HomePage.svelte').then(({ default: HomePage }) => {
+			mount(HomePage, {
+				target: homePageTarget,
+				props
+			});
+		});
+	}
+}
+
 const dashboardTarget = document.querySelector<HTMLElement>('[data-happy-dashboard]');
 if (dashboardTarget) {
-	import('./App.svelte').then(({ default: App }) => {
-		mount(App, {
+	import('./components/FamousThoughts.svelte').then(({ default: FamousThoughts }) => {
+		mount(FamousThoughts, {
 			target: dashboardTarget,
 			props: {
 				apiUrl: dashboardTarget.dataset.apiUrl ?? 'api/famous-thoughts.php'

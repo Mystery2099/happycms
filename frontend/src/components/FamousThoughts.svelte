@@ -15,19 +15,23 @@
 	let quotes = $state<Quote[]>([]);
 	let index = $state(0);
 
-	// Derived: current quote
 	let currentQuote = $derived(quotes[index] ?? null);
 
 	function go(direction: number) {
-		if (!quotes.length) return;
+		if (!quotes.length) {
+			return;
+		}
+
 		index = (index + direction + quotes.length) % quotes.length;
 	}
 
 	onMount(() => {
-		// Load quotes
 		fetch(apiUrl)
 			.then((response) => {
-				if (!response.ok) throw new Error('Unable to load quotes');
+				if (!response.ok) {
+					throw new Error('Unable to load quotes');
+				}
+
 				return response.json();
 			})
 			.then((payload) => {
@@ -42,7 +46,6 @@
 </script>
 
 <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
-	<!-- Client Controls -->
 	<div>
 		<h2 class="font-display text-display-md text-ink mb-4">Interactive Display</h2>
 		<p class="text-stone mb-8">
@@ -85,7 +88,6 @@
 		</div>
 	</div>
 
-	<!-- Famous Quotes (AJAX) -->
 	<div class="border-mist border-l pl-0 lg:pl-12">
 		<div class="mb-6 flex items-center justify-between">
 			<div>
@@ -98,7 +100,7 @@
 		</div>
 
 		{#if loading}
-			<div class="py-12 text-center">
+			<div class="py-12 text-center" aria-live="polite">
 				<div class="relative inline-block">
 					<div class="border-mist border-t-coral h-8 w-8 animate-spin rounded-full border-2"></div>
 					<div
@@ -108,13 +110,14 @@
 				<p class="text-stone mt-4 animate-pulse text-sm">Loading quotes...</p>
 			</div>
 		{:else if error}
-			<div class="bg-coral/10 border-coral/20 border px-6 py-8">
+			<div class="bg-coral/10 border-coral/20 border px-6 py-8" role="status" aria-live="polite">
 				<p class="text-coral text-sm">{error}</p>
 			</div>
 		{:else if currentQuote}
 			<div class="relative">
 				<span
 					class="quote-mark absolute -top-4 -left-2 transition-transform duration-500 hover:scale-110"
+					aria-hidden="true"
 					>"</span
 				>
 				<blockquote
@@ -123,7 +126,7 @@
 					{currentQuote.quote}
 				</blockquote>
 
-				<div class="mt-8 flex items-center justify-between">
+				<div class="mt-8 flex items-center justify-between gap-4">
 					<div>
 						<p class="text-ink font-medium">{currentQuote.author}</p>
 						<p class="text-stone text-sm">{currentQuote.category}</p>

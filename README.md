@@ -1,6 +1,12 @@
 # HappyCMS
 
-HappyCMS is a small PHP + SQLite content management system with a Svelte frontend bundle for interactive controls.
+HappyCMS is a small PHP + SQLite content management system where PHP is used for backend responsibilities and Svelte is used as aggressively as possible for the frontend.
+
+## Architecture
+
+- PHP handles routing, request validation, sessions, security headers, and SQLite persistence.
+- Svelte handles the client-side UI layer, including the home page shell, theme controls, list controls, and Fetch API quote browser.
+- The split is intended to satisfy the PHP assignment requirements in [docs/assignment-requirements.md](docs/assignment-requirements.md) without treating PHP templates as the primary frontend technology.
 
 ## Quick Start
 
