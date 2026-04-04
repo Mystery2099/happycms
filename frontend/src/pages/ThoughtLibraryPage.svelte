@@ -83,7 +83,16 @@
 			? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
 			: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'
 	);
-	let tableCellClass = $derived(density === 'compact' ? 'py-3' : 'py-4');
+	let tableCellClass = $derived(density === 'compact' ? 'py-2.5' : 'py-5');
+	let tableCellPadding = $derived(density === 'compact' ? '0.625rem' : '1.25rem');
+	let cardBodyClass = $derived(
+		density === 'compact' ? 'space-y-2 p-4' : 'space-y-4 p-5 md:p-6'
+	);
+	let cardTitleClass = $derived(
+		density === 'compact' ? 'text-lg md:text-lg' : 'text-lg md:text-xl'
+	);
+	let cardMetaClass = $derived(density === 'compact' ? 'pt-2' : 'pt-3');
+	let cardActionRowClass = $derived(density === 'compact' ? 'gap-3 pt-1' : 'gap-4 pt-2');
 
 	function updateViewportWidth() {
 		viewportWidth = window.innerWidth;
@@ -317,7 +326,7 @@
 							<tbody>
 								{#each visibleThoughts as thought (thought.id)}
 									<tr>
-										<td class="max-w-md {tableCellClass}">
+										<td class="max-w-md {tableCellClass}" style:padding-block={tableCellPadding}>
 											<p class="font-medium text-ink">{thought.title}</p>
 											<p class="mt-1 text-sm text-stone whitespace-normal break-words">
 												{thought.thought}
@@ -329,16 +338,20 @@
 												</span>
 											{/if}
 										</td>
-										<td class="text-stone {tableCellClass}">{thought.author}</td>
-										<td class={tableCellClass}>
+										<td class="text-stone {tableCellClass}" style:padding-block={tableCellPadding}>
+											{thought.author}
+										</td>
+										<td class={tableCellClass} style:padding-block={tableCellPadding}>
 											<span
 												class="bg-mist/50 text-stone inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
 											>
 												{thought.category}
 											</span>
 										</td>
-										<td class="text-wheat {tableCellClass}">{renderMood(thought.moodScore)}</td>
-										<td class="text-right {tableCellClass}">
+										<td class="text-wheat {tableCellClass}" style:padding-block={tableCellPadding}>
+											{renderMood(thought.moodScore)}
+										</td>
+										<td class="text-right {tableCellClass}" style:padding-block={tableCellPadding}>
 											<div class="flex items-center justify-end gap-2">
 													<a
 														href={thought.editUrl}
@@ -377,26 +390,28 @@
 										/>
 									</div>
 								{/if}
-								<div class:space-y-2={density === 'compact'} class:space-y-3={density !== 'compact'} class="p-4 md:p-5">
-									<div class="flex items-start justify-between gap-3">
-										<h3 class="font-display text-lg text-ink leading-tight md:text-xl">{thought.title}</h3>
-										<span
-											class="bg-coral/10 text-coral inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium"
-										>
+									<div class={cardBodyClass}>
+										<div class="flex items-start justify-between gap-3">
+											<h3 class={['font-display text-ink leading-tight', cardTitleClass]}>
+												{thought.title}
+											</h3>
+											<span
+												class="bg-coral/10 text-coral inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium"
+											>
 											{thought.category}
 										</span>
 									</div>
 									<p class="text-sm text-stone leading-relaxed whitespace-normal break-words">
 										{thought.thought}
 									</p>
-									<div class="border-mist/60 flex items-center justify-between border-t pt-3">
-										<span class="text-sm font-medium text-ink">{thought.author}</span>
-										<span class="text-wheat text-sm">{renderMood(thought.moodScore)}</span>
-									</div>
-										<div class="flex items-center gap-4 pt-2">
-											<a
-												href={thought.editUrl}
-												class="text-stone flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
+										<div class={['border-mist/60 flex items-center justify-between border-t', cardMetaClass]}>
+											<span class="text-sm font-medium text-ink">{thought.author}</span>
+											<span class="text-wheat text-sm">{renderMood(thought.moodScore)}</span>
+										</div>
+										<div class={['flex items-center', cardActionRowClass]}>
+												<a
+													href={thought.editUrl}
+													class="text-stone flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
 											>
 												<Pencil size={14} />
 												Edit
@@ -405,10 +420,10 @@
 												href={thought.deleteUrl}
 												class="text-coral flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
 											>
-												<Trash2 size={14} />
-												Delete
-										</a>
-									</div>
+													<Trash2 size={14} />
+													Delete
+											</a>
+										</div>
 								</div>
 							</article>
 						{/each}
