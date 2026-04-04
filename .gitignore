@@ -1,0 +1,4 @@
+node_modules/
+public/assets/
+.idea/
+.DS_Store

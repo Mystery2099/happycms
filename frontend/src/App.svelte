@@ -1,0 +1,146 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
+
+	type Quote = {
+		author: string;
+		quote: string;
+		category: string;
+	};
+
+	let { apiUrl = 'api/famous-thoughts.php' } = $props<{ apiUrl?: string }>();
+
+	let loading = $state(true);
+	let error = $state('');
+	let quotes = $state<Quote[]>([]);
+	let index = $state(0);
+
+	// Derived: current quote
+	let currentQuote = $derived(quotes[index] ?? null);
+
+	function go(direction: number) {
+		if (!quotes.length) return;
+		index = (index + direction + quotes.length) % quotes.length;
+	}
+
+	onMount(() => {
+		// Load quotes
+		fetch(apiUrl)
+			.then((response) => {
+				if (!response.ok) throw new Error('Unable to load quotes');
+				return response.json();
+			})
+			.then((payload) => {
+				quotes = payload.quotes ?? [];
+				loading = false;
+			})
+			.catch((caught) => {
+				error = caught instanceof Error ? caught.message : 'Unable to load quotes';
+				loading = false;
+			});
+	});
+</script>
+
+<div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+	<!-- Client Controls -->
+	<div>
+		<h2 class="font-display text-display-md text-ink mb-4">Interactive Display</h2>
+		<p class="text-stone mb-8">
+			Three client-driven formatting changes demonstrate JavaScript interactivity:
+		</p>
+
+		<div class="space-y-6">
+			<div class="flex items-start gap-4">
+				<span
+					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					>1</span
+				>
+				<div>
+					<p class="text-ink font-medium">View Modes</p>
+					<p class="text-stone text-sm">Toggle between table and grid layouts</p>
+				</div>
+			</div>
+
+			<div class="flex items-start gap-4">
+				<span
+					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					>2</span
+				>
+				<div>
+					<p class="text-ink font-medium">Density Control</p>
+					<p class="text-stone text-sm">Adjust spacing for compact or comfortable viewing</p>
+				</div>
+			</div>
+
+			<div class="flex items-start gap-4">
+				<span
+					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					>3</span
+				>
+				<div>
+					<p class="text-ink font-medium">AJAX Content</p>
+					<p class="text-stone text-sm">Dynamic famous quotes loaded via Fetch API</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Famous Quotes (AJAX) -->
+	<div class="border-mist border-l pl-0 lg:pl-12">
+		<div class="mb-6 flex items-center justify-between">
+			<div>
+				<p class="text-stone text-sm font-medium tracking-wider uppercase">Fetch API</p>
+				<h3 class="font-display text-ink text-2xl">Famous Happy Thoughts</h3>
+			</div>
+			{#if !loading && !error}
+				<span class="text-stone text-sm">{index + 1} / {quotes.length}</span>
+			{/if}
+		</div>
+
+		{#if loading}
+			<div class="py-12 text-center">
+				<div
+					class="border-mist border-t-coral inline-block h-6 w-6 animate-spin rounded-full border-2"
+				></div>
+				<p class="text-stone mt-3 text-sm">Loading quotes...</p>
+			</div>
+		{:else if error}
+			<div class="bg-coral/10 border-coral/20 border px-6 py-8">
+				<p class="text-coral text-sm">{error}</p>
+			</div>
+		{:else if currentQuote}
+			<div class="relative">
+				<span class="quote-mark absolute -top-4 -left-2">"</span>
+				<blockquote class="font-display text-ink pl-6 text-2xl leading-relaxed lg:text-3xl">
+					{currentQuote.quote}
+				</blockquote>
+
+				<div class="mt-8 flex items-center justify-between">
+					<div>
+						<p class="text-ink font-medium">{currentQuote.author}</p>
+						<p class="text-stone text-sm">{currentQuote.category}</p>
+					</div>
+
+					<div class="flex gap-2">
+						<button
+							type="button"
+							class="border-mist hover:border-ink flex h-10 w-10 items-center justify-center border transition-colors"
+							onclick={() => go(-1)}
+							aria-label="Previous quote"
+						>
+							<ChevronLeft size={16} />
+						</button>
+						<button
+							type="button"
+							class="bg-ink text-canvas hover:bg-coral flex h-10 w-10 items-center justify-center transition-colors"
+							onclick={() => go(1)}
+							aria-label="Next quote"
+						>
+							<ChevronRight size={16} />
+						</button>
+					</div>
+				</div>
+			</div>
+		{/if}
+	</div>
+</div>

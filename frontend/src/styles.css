@@ -1,0 +1,340 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		@apply scroll-smooth;
+		scroll-bar-gutter: stable;
+	}
+
+	body {
+		font-family: 'Sora', system-ui, sans-serif;
+		@apply bg-canvas text-ink antialiased;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: 'Sora', system-ui, sans-serif;
+		font-weight: 500;
+	}
+
+	/* Theme: Dark mode - Tailwind dark class */
+	html.dark {
+		--canvas: #0f172a;
+		--canvas-elevated: #1e293b;
+		--ink: #f8fafc;
+		--stone: #94a3b8;
+		--mist: #334155;
+		--coral: #fb7185;
+		--coral-soft: rgba(251, 113, 133, 0.15);
+	}
+
+	html.dark body {
+		background-color: var(--canvas);
+		color: var(--ink);
+	}
+
+	html.dark .bg-canvas {
+		background-color: var(--canvas);
+	}
+
+	html.dark .text-ink {
+		color: var(--ink);
+	}
+
+	html.dark .text-stone {
+		color: var(--stone);
+	}
+
+	html.dark .text-coral {
+		color: var(--coral);
+	}
+
+	html.dark .text-wheat {
+		color: #fbbf24;
+	}
+
+	html.dark .border-mist {
+		border-color: var(--mist);
+	}
+
+	html.dark .bg-white {
+		background-color: var(--canvas-elevated);
+	}
+
+	html.dark .bg-white\/50 {
+		background-color: rgba(30, 41, 59, 0.5);
+	}
+
+	html.dark .bg-mist\/50 {
+		background-color: rgba(51, 65, 85, 0.5);
+	}
+
+	html.dark .control-btn:hover {
+		color: var(--ink);
+		border-color: var(--mist);
+	}
+
+	html.dark .control-btn.active {
+		color: var(--coral);
+		border-color: var(--coral);
+	}
+
+	html.dark .editorial-link {
+		color: var(--ink);
+		text-decoration-color: var(--coral);
+	}
+
+	html.dark .input-minimal {
+		background-color: transparent;
+		border-color: var(--mist);
+		color: var(--ink);
+	}
+
+	html.dark .input-minimal::placeholder {
+		color: var(--stone);
+	}
+
+	html.dark .input-minimal:focus {
+		border-color: var(--coral);
+		background-color: var(--canvas-elevated);
+	}
+
+	html.dark select.input-minimal {
+		background-color: var(--canvas);
+	}
+
+	html.dark .btn-primary {
+		background-color: var(--ink);
+		color: var(--canvas);
+	}
+
+	html.dark .btn-primary:hover {
+		background-color: var(--coral);
+	}
+
+	html.dark .btn-secondary {
+		border-color: var(--mist);
+		color: var(--ink);
+	}
+
+	html.dark .btn-secondary:hover {
+		border-color: var(--coral);
+		background-color: var(--canvas-elevated);
+	}
+
+	html.dark .data-table th {
+		color: var(--stone);
+		border-color: var(--mist);
+	}
+
+	html.dark .data-table td {
+		border-color: var(--mist);
+	}
+
+	html.dark .data-table tr:hover td {
+		background-color: var(--canvas-elevated);
+	}
+
+	html.dark .quote-mark {
+		color: var(--coral);
+		opacity: 0.4;
+	}
+}
+
+@layer components {
+	/* Subtle control buttons */
+	.control-btn {
+		@apply text-stone px-4 py-2 text-sm font-medium;
+		@apply border-b-2 border-transparent;
+		transition:
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.control-btn:hover {
+		@apply text-ink border-mist;
+	}
+
+	.control-btn.active {
+		@apply text-ink border-coral;
+	}
+
+	/* Editorial link style */
+	.editorial-link {
+		@apply text-ink decoration-coral/40 underline underline-offset-4;
+		transition: text-decoration-color 0.2s ease;
+	}
+
+	.editorial-link:hover {
+		@apply decoration-coral;
+	}
+
+	/* Form inputs - minimal */
+	.input-minimal {
+		@apply border-mist w-full border-b-2 bg-transparent px-1 py-3;
+		@apply text-ink placeholder:text-stone/60;
+		transition:
+			border-color 0.2s ease,
+			background-color 0.2s ease;
+	}
+
+	.input-minimal:focus {
+		@apply bg-white/50;
+	}
+
+	/* Strong focus-visible states */
+	.input-minimal:focus-visible {
+		@apply border-coral outline-none;
+		outline: 2px solid var(--coral, #dc5f50);
+		outline-offset: 2px;
+	}
+
+	/* Primary button - refined */
+	.btn-primary {
+		@apply inline-flex items-center gap-2 px-6 py-3;
+		@apply bg-ink text-canvas text-sm font-medium;
+		transition:
+			background-color 0.2s ease,
+			transform 0.1s ease;
+	}
+
+	.btn-primary:hover {
+		@apply bg-coral;
+	}
+
+	.btn-primary:focus-visible {
+		outline: 2px solid var(--coral, #dc5f50);
+		outline-offset: 2px;
+	}
+
+	/* Secondary button */
+	.btn-secondary {
+		@apply inline-flex items-center gap-2 px-6 py-3;
+		@apply border-mist text-ink border text-sm font-medium;
+		transition:
+			border-color 0.2s ease,
+			background-color 0.2s ease,
+			transform 0.1s ease;
+	}
+
+	.btn-secondary:hover {
+		@apply border-ink bg-white;
+	}
+
+	.btn-secondary:focus-visible {
+		@apply outline-coral outline outline-2 outline-offset-2;
+	}
+
+	/* Destructive Button */
+	.btn-destructive {
+		@apply inline-flex items-center justify-center border px-6 py-3 text-sm font-medium transition-colors duration-200;
+		background-color: #dc5f50;
+		color: #faf9f7;
+		border-color: #dc5f50;
+	}
+
+	.btn-destructive:hover {
+		background-color: #c45245;
+		border-color: #c45245;
+	}
+
+	.btn-destructive:focus-visible {
+		@apply outline-coral outline outline-2 outline-offset-2;
+	}
+
+	html.dark .btn-destructive {
+		background-color: #fb7185;
+		color: #0f172a;
+		border-color: #fb7185;
+	}
+
+	html.dark .btn-destructive:hover {
+		background-color: #f43f5e;
+		border-color: #f43f5e;
+	}
+
+	/* Utility Classes */
+	.text-balance {
+		text-wrap: balance;
+	}
+
+	.aspect-card {
+		aspect-ratio: 4 / 3;
+	}
+}
+
+@layer utilities {
+	/* Screen reader only */
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.line-clamp-3 {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	/* Editorial spacing */
+	.section-padding {
+		@apply py-16 lg:py-24;
+	}
+}
+
+/* Thought library density modes */
+[data-thought-library][data-density='compact'] [data-thought-item] {
+	@apply py-3;
+}
+
+[data-thought-library][data-density='comfortable'] [data-thought-item] {
+	@apply py-6;
+}
+
+[data-thought-item][hidden] {
+	display: none !important;
+}
+
+/* Table refinements */
+.data-table {
+	@apply w-full border-collapse text-left;
+}
+
+.data-table th {
+	@apply text-stone border-mist border-b-2 px-4 py-4 text-xs font-semibold tracking-wider uppercase;
+}
+
+.data-table td {
+	@apply border-mist/50 border-b px-4 py-4;
+}
+
+.data-table tr:hover td {
+	@apply bg-white/50;
+}
+
+/* Quote styling */
+.quote-mark {
+	font-family: 'Sora', system-ui, sans-serif;
+	@apply text-coral/30 text-6xl leading-none select-none;
+}
