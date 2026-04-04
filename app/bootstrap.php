@@ -12,6 +12,7 @@ require_once __DIR__ . '/lib/errors.php';
 require_once __DIR__ . '/lib/validation.php';
 require_once __DIR__ . '/lib/thoughts.php';
 require_once __DIR__ . '/lib/famous-thoughts.php';
+require_once __DIR__ . '/lib/shell.php';
 
 boot_session();
 install_error_handlers();
