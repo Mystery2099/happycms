@@ -2,6 +2,7 @@ import './styles.css';
 import { mount } from 'svelte';
 import App from './App.svelte';
 import ThoughtControls from './components/ThoughtControls.svelte';
+import ThemeDropdown from './components/ThemeDropdown.svelte';
 import {
 	createIcons,
 	Monitor,
@@ -93,6 +94,44 @@ if (thoughtControlsTarget) {
 		target: thoughtControlsTarget,
 		props: {
 			categories
+		}
+	});
+}
+
+// Mount FormDropdown for category selector
+const categoryDropdownTarget = document.querySelector<HTMLElement>('[data-category-dropdown]');
+if (categoryDropdownTarget) {
+	import('./components/FormDropdown.svelte').then(({ default: FormDropdown }) => {
+		const categories = JSON.parse(categoryDropdownTarget.dataset.categories ?? '[]');
+		const selected = categoryDropdownTarget.dataset.selected ?? '';
+		mount(FormDropdown, {
+			target: categoryDropdownTarget,
+			props: {
+				name: 'category',
+				options: categories,
+				selected,
+				ariaLabel: 'Category'
+			}
+		});
+	});
+}
+
+const themeDropdownTarget = document.querySelector<HTMLElement>('[data-theme-dropdown]');
+if (themeDropdownTarget) {
+	mount(ThemeDropdown, {
+		target: themeDropdownTarget,
+		props: {
+			variant: 'desktop'
+		}
+	});
+}
+
+const mobileThemeDropdownTarget = document.querySelector<HTMLElement>('[data-mobile-theme-dropdown]');
+if (mobileThemeDropdownTarget) {
+	mount(ThemeDropdown, {
+		target: mobileThemeDropdownTarget,
+		props: {
+			variant: 'mobile'
 		}
 	});
 }

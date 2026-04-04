@@ -83,224 +83,6 @@ $navIcons = [
             }
         }
 
-        /* Mobile nav drawer */
-        .mobile-drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0);
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
-            z-index: 998;
-            pointer-events: none;
-            transition: 
-                background-color 0.3s ease,
-                backdrop-filter 0.3s ease;
-        }
-
-        .mobile-drawer-overlay.is-visible {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            pointer-events: auto;
-        }
-
-        .mobile-drawer {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 999;
-            background: #faf9f7;
-            border-radius: 24px 24px 0 0;
-            transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .mobile-drawer.is-open {
-            transform: translateY(0);
-        }
-
-        html.dark .mobile-drawer {
-            background: #0f172a;
-        }
-
-        .mobile-drawer-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px 12px;
-            border-bottom: 1px solid rgba(231, 229, 228, 0.6);
-        }
-
-        html.dark .mobile-drawer-header {
-            border-color: rgba(51, 65, 85, 0.5);
-        }
-
-        .mobile-drawer-handle {
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 36px;
-            height: 4px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 2px;
-        }
-
-        html.dark .mobile-drawer-handle {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .mobile-drawer-nav {
-            padding: 8px 16px;
-        }
-
-        .mobile-drawer-nav a {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            font-size: 17px;
-            font-weight: 500;
-            color: var(--stone, #57534e);
-            border-radius: 12px;
-            transition: all 0.15s ease;
-            text-decoration: none;
-        }
-
-        .mobile-drawer-nav a:hover,
-        .mobile-drawer-nav a:active {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--ink, #1a1a1a);
-        }
-
-        html.dark .mobile-drawer-nav a {
-            color: #94a3b8;
-        }
-
-        html.dark .mobile-drawer-nav a:hover,
-        html.dark .mobile-drawer-nav a:active {
-            background: rgba(255, 255, 255, 0.08);
-            color: #f8fafc;
-        }
-
-        .mobile-drawer-nav a.is-active {
-            background: rgba(220, 95, 80, 0.12);
-            color: #dc5f50;
-        }
-
-        html.dark .mobile-drawer-nav a.is-active {
-            background: rgba(251, 113, 133, 0.15);
-            color: #fb7185;
-        }
-
-        .mobile-drawer-nav a svg {
-            flex-shrink: 0;
-            opacity: 0.7;
-        }
-
-        .mobile-drawer-footer {
-            padding: 12px 20px 24px;
-            border-top: 1px solid rgba(231, 229, 228, 0.6);
-        }
-
-        html.dark .mobile-drawer-footer {
-            border-color: rgba(51, 65, 85, 0.5);
-        }
-
-        .mobile-drawer-close {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            color: var(--stone, #57534e);
-            background: transparent;
-            border: none;
-            transition: all 0.15s ease;
-            cursor: pointer;
-        }
-
-        .mobile-drawer-close:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--ink, #1a1a1a);
-        }
-
-        html.dark .mobile-drawer-close {
-            color: #94a3b8;
-        }
-
-        html.dark .mobile-drawer-close:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #f8fafc;
-        }
-
-        .mobile-drawer-theme {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 4px;
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--stone, #57534e);
-            background: transparent;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        html.dark .mobile-drawer-theme {
-            color: #94a3b8;
-        }
-
-        .mobile-drawer-theme-options {
-            display: flex;
-            gap: 12px;
-        }
-
-        .mobile-drawer-theme-option {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.04);
-            border: 2px solid transparent;
-            color: var(--stone, #57534e);
-            transition: all 0.15s ease;
-            cursor: pointer;
-        }
-
-        .mobile-drawer-theme-option:hover {
-            background: rgba(0, 0, 0, 0.08);
-        }
-
-        .mobile-drawer-theme-option.is-active {
-            border-color: #dc5f50;
-            background: rgba(220, 95, 80, 0.1);
-            color: #dc5f50;
-        }
-
-        html.dark .mobile-drawer-theme-option {
-            background: rgba(255, 255, 255, 0.06);
-            color: #94a3b8;
-        }
-
-        html.dark .mobile-drawer-theme-option:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        html.dark .mobile-drawer-theme-option.is-active {
-            border-color: #fb7185;
-            background: rgba(251, 113, 133, 0.15);
-            color: #fb7185;
-        }
-
         /* Theme selector dropdown */
         .theme-selector {
             position: relative;
@@ -353,7 +135,8 @@ $navIcons = [
             z-index: 100;
         }
 
-        .theme-dropdown.is-open {
+        .theme-dropdown.is-open,
+        .theme-dropdown--mounted {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
@@ -533,7 +316,6 @@ $navIcons = [
 
         /* Mobile theme button in header */
         .mobile-theme-btn {
-            display: flex;
             align-items: center;
             justify-content: center;
             width: 40px;
@@ -561,116 +343,6 @@ $navIcons = [
             color: #f8fafc;
         }
 
-        /* Preferences Drawer Content */
-        .mobile-drawer-content {
-            padding: 8px 16px 24px;
-        }
-
-        .preferences-section {
-            margin-bottom: 24px;
-        }
-
-        .preferences-section-title {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--stone, #57534e);
-            margin-bottom: 12px;
-            padding-left: 12px;
-        }
-
-        html.dark .preferences-section-title {
-            color: #94a3b8;
-        }
-
-        .preferences-options {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .preferences-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            background: transparent;
-            border: none;
-            color: var(--ink, #1a1a1a);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            text-align: left;
-            width: 100%;
-        }
-
-        .preferences-option:hover {
-            background: rgba(0, 0, 0, 0.04);
-        }
-
-        html.dark .preferences-option {
-            color: #f8fafc;
-        }
-
-        html.dark .preferences-option:hover {
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .preferences-option.is-active {
-            background: rgba(220, 95, 80, 0.1);
-        }
-
-        html.dark .preferences-option.is-active {
-            background: rgba(251, 113, 133, 0.15);
-        }
-
-        .preferences-option-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.04);
-            color: var(--stone, #57534e);
-        }
-
-        html.dark .preferences-option-icon {
-            background: rgba(255, 255, 255, 0.06);
-            color: #94a3b8;
-        }
-
-        .preferences-option.is-active .preferences-option-icon {
-            background: rgba(220, 95, 80, 0.15);
-            color: #dc5f50;
-        }
-
-        html.dark .preferences-option.is-active .preferences-option-icon {
-            background: rgba(251, 113, 133, 0.2);
-            color: #fb7185;
-        }
-
-        .preferences-option-label {
-            flex: 1;
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .preferences-option-check {
-            opacity: 0;
-            color: #dc5f50;
-            transition: opacity 0.15s ease;
-        }
-
-        html.dark .preferences-option-check {
-            color: #fb7185;
-        }
-
-        .preferences-option.is-active .preferences-option-check {
-            opacity: 1;
-        }
-
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -679,13 +351,8 @@ $navIcons = [
         <div class="max-w-6xl mx-auto px-6 lg:px-8">
             <div class="header-inner flex items-center justify-between">
                 <!-- Logo -->
-                <a href="<?= h(route_url('home')) ?>" class="flex items-center gap-3 group">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-coral/10 text-coral transition-transform duration-200 group-hover:scale-110">
-                        <i data-lucide="sun" class="w-5 h-5"></i>
-                    </span>
-                    <div>
-                        <span class="font-display text-xl text-ink tracking-tight">Happy Thoughts</span>
-                    </div>
+                <a href="<?= h(route_url('home')) ?>" class="group">
+                    <span class="font-display text-xl text-ink tracking-tight">Happy Thoughts</span>
                 </a>
 
                 <!-- Desktop Navigation -->
@@ -704,98 +371,15 @@ $navIcons = [
                     <?php endforeach; ?>
 
                     <!-- Theme Selector -->
-                    <div class="theme-selector" data-theme-selector>
-                        <button class="theme-selector-btn" aria-label="Select theme" aria-expanded="false" aria-haspopup="menu">
-                            <span data-theme-icon-system class="theme-btn-icon">
-                                <i data-lucide="monitor" class="w-4 h-4"></i>
-                            </span>
-                            <span data-theme-icon-sun class="theme-btn-icon hidden">
-                                <i data-lucide="sun" class="w-4 h-4"></i>
-                            </span>
-                            <span data-theme-icon-moon class="theme-btn-icon hidden">
-                                <i data-lucide="moon" class="w-4 h-4"></i>
-                            </span>
-                            <span data-theme-label>System</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <div class="theme-dropdown" role="menu" aria-label="Theme options">
-                            <button class="theme-option" data-theme-value="system" role="menuitem" aria-checked="true">
-                                <i data-lucide="monitor" class="w-4 h-4"></i>
-                                System
-                            </button>
-                            <button class="theme-option" data-theme-value="light" role="menuitem" aria-checked="false">
-                                <i data-lucide="sun" class="w-4 h-4"></i>
-                                Light
-                            </button>
-                            <button class="theme-option" data-theme-value="dark" role="menuitem" aria-checked="false">
-                                <i data-lucide="moon" class="w-4 h-4"></i>
-                                Dark
-                            </button>
-                        </div>
-                    </div>
+                    <div class="theme-selector" data-theme-dropdown></div>
                 </nav>
 
                 <!-- Mobile theme toggle button -->
-                <button
-                    type="button"
-                    class="mobile-theme-btn flex md:hidden"
-                    aria-label="Toggle theme"
-                    data-mobile-theme-toggle
-                >
-                    <span data-theme-icon-system><i data-lucide="monitor" class="w-5 h-5"></i></span>
-                    <span data-theme-icon-sun class="hidden"><i data-lucide="sun" class="w-5 h-5"></i></span>
-                    <span data-theme-icon-moon class="hidden"><i data-lucide="moon" class="w-5 h-5"></i></span>
-                </button>
+                <div class="md:hidden" data-mobile-theme-dropdown></div>
             </div>
 
         </div>
     </header>
-
-    <!-- Mobile Preferences Drawer -->
-    <div class="mobile-drawer-overlay md:hidden" data-preferences-overlay aria-hidden="true"></div>
-    <div class="mobile-drawer md:hidden" data-preferences-drawer id="preferences-drawer" aria-hidden="true" inert>
-        <div class="mobile-drawer-handle" aria-hidden="true"></div>
-        <div class="mobile-drawer-header">
-            <span class="font-display text-xl text-ink">Preferences</span>
-            <button class="mobile-drawer-close" data-preferences-close aria-label="Close preferences">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-        </div>
-        <div class="mobile-drawer-content">
-            <div class="preferences-section">
-                <h3 class="preferences-section-title">Appearance</h3>
-                <div class="preferences-options">
-                    <button class="preferences-option" data-pref-theme="system">
-                        <span class="preferences-option-icon">
-                            <i data-lucide="monitor" class="w-5 h-5"></i>
-                        </span>
-                        <span class="preferences-option-label">System</span>
-                        <span class="preferences-option-check" data-check-system>
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                        </span>
-                    </button>
-                    <button class="preferences-option" data-pref-theme="light">
-                        <span class="preferences-option-icon">
-                            <i data-lucide="sun" class="w-5 h-5"></i>
-                        </span>
-                        <span class="preferences-option-label">Light</span>
-                        <span class="preferences-option-check" data-check-light>
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                        </span>
-                    </button>
-                    <button class="preferences-option" data-pref-theme="dark">
-                        <span class="preferences-option-icon">
-                            <i data-lucide="moon" class="w-5 h-5"></i>
-                        </span>
-                        <span class="preferences-option-label">Dark</span>
-                        <span class="preferences-option-check" data-check-dark>
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <?php if ($flash): ?>
         <div class="border-b border-mist bg-white">
@@ -843,13 +427,12 @@ $navIcons = [
 
             // Theme management
             const THEME_STORAGE_KEY = 'happy-thoughts-theme';
-            const themeLabels = { system: 'System', light: 'Light', dark: 'Dark' };
             
             // Get saved theme or default to system
             let currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
             
             // Apply theme to document
-            function applyTheme(theme) {
+            function setDocumentTheme(theme) {
                 const html = document.documentElement;
                 
                 if (theme === 'system') {
@@ -860,114 +443,39 @@ $navIcons = [
                 } else {
                     html.classList.remove('dark');
                 }
-                
+            }
+
+            function syncThemeState(theme) {
                 currentTheme = theme;
                 localStorage.setItem(THEME_STORAGE_KEY, theme);
                 updateThemeUI();
             }
+
+            function broadcastTheme(theme) {
+                window.dispatchEvent(new CustomEvent('happy-theme-change', {
+                    detail: { theme }
+                }));
+            }
+
+            function applyTheme(theme) {
+                setDocumentTheme(theme);
+                syncThemeState(theme);
+                broadcastTheme(theme);
+            }
             
             // Update UI elements
             function updateThemeUI() {
-                // Update desktop selector label
-                const themeLabel = document.querySelector('[data-theme-label]');
-                if (themeLabel) themeLabel.textContent = themeLabels[currentTheme];
-
-                // Update desktop dropdown options
-                document.querySelectorAll('[data-theme-value]').forEach(btn => {
-                    const isActive = btn.getAttribute('data-theme-value') === currentTheme;
-                    btn.classList.toggle('is-active', isActive);
-                    btn.setAttribute('aria-checked', isActive.toString());
-                    btn.setAttribute('aria-selected', isActive.toString());
-                });
-
-                // Update header icons (both desktop and mobile)
-                const iconMap = {
-                    'system': document.querySelectorAll('[data-theme-icon-system]'),
-                    'light': document.querySelectorAll('[data-theme-icon-sun]'),
-                    'dark': document.querySelectorAll('[data-theme-icon-moon]')
-                };
-
-                Object.values(iconMap).flat().forEach(el => el?.classList.add('hidden'));
-                iconMap[currentTheme]?.forEach(el => el?.classList.remove('hidden'));
-
-                // Update preferences drawer options
-                document.querySelectorAll('[data-pref-theme]').forEach(btn => {
-                    const isActive = btn.getAttribute('data-pref-theme') === currentTheme;
-                    btn.classList.toggle('is-active', isActive);
-                });
-            }
-            
-            // Desktop theme dropdown
-            const themeSelector = document.querySelector('[data-theme-selector]');
-            const themeBtn = themeSelector?.querySelector('button');
-            const themeDropdown = themeSelector?.querySelector('.theme-dropdown');
-
-            if (themeBtn && themeDropdown) {
-                const closeDropdown = () => {
-                    themeDropdown.classList.remove('is-open');
-                    themeBtn.setAttribute('aria-expanded', 'false');
-                };
-
-                themeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const willOpen = !themeDropdown.classList.contains('is-open');
-                    themeDropdown.classList.toggle('is-open', willOpen);
-                    themeBtn.setAttribute('aria-expanded', willOpen.toString());
-                });
-
-                document.addEventListener('click', closeDropdown);
-
-                themeDropdown.querySelectorAll('[data-theme-value]').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        applyTheme(btn.getAttribute('data-theme-value'));
-                        closeDropdown();
-                    });
-                });
-            }
-            
-            // Mobile Preferences Drawer
-            const prefToggle = document.querySelector('[data-mobile-theme-toggle]');
-            const prefDrawer = document.querySelector('[data-preferences-drawer]');
-            const prefOverlay = document.querySelector('[data-preferences-overlay]');
-            const prefClose = document.querySelector('[data-preferences-close]');
-            const isOpen = () => prefDrawer?.classList.contains('is-open');
-
-            function setDrawerState(open) {
-                prefDrawer?.classList.toggle('is-open', open);
-                prefDrawer?.setAttribute('aria-hidden', (!open).toString());
-                open ? prefDrawer?.removeAttribute('inert') : prefDrawer?.setAttribute('inert', '');
-
-                prefOverlay?.classList.toggle('is-visible', open);
-                prefOverlay?.setAttribute('aria-hidden', (!open).toString());
-
-                prefToggle?.setAttribute('aria-expanded', open.toString());
-                document.body.style.overflow = open ? 'hidden' : '';
+                // Theme triggers are Svelte components and sync through the shared event.
             }
 
-            function openPreferences() {
-                setDrawerState(true);
-                prefDrawer?.querySelector('button[data-pref-theme]')?.focus();
-            }
-
-            function closePreferences() {
-                setDrawerState(false);
-                prefToggle?.focus();
-            }
-
-            prefToggle?.addEventListener('click', openPreferences);
-            prefClose?.addEventListener('click', closePreferences);
-            prefOverlay?.addEventListener('click', closePreferences);
-
-            // Handle theme selection from preferences drawer
-            document.querySelectorAll('[data-pref-theme]').forEach(btn => {
-                btn.addEventListener('click', () => applyTheme(btn.getAttribute('data-pref-theme')));
+            window.addEventListener('happy-theme-change', (event) => {
+                const nextTheme = event.detail?.theme;
+                if (nextTheme === 'system' || nextTheme === 'light' || nextTheme === 'dark') {
+                    setDocumentTheme(nextTheme);
+                    syncThemeState(nextTheme);
+                }
             });
-
-            // Close preferences on Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isOpen()) closePreferences();
-            });
-
+            
             // Listen for system theme changes
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             mediaQuery.addEventListener('change', () => {
