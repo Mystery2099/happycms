@@ -10,7 +10,7 @@ export default {
 				ink: '#1a1a1a',
 				stone: '#57534e',
 				mist: '#e7e5e4',
-				coral: '#dc5f50',
+				coral: '#bf4233', // WCAG AA compliant (4.94:1 on canvas)
 				moss: '#5c7c66',
 				wheat: '#d4a574'
 			},

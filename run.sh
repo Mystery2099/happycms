@@ -24,7 +24,7 @@ fi
 
 echo "Building frontend assets..."
 cd "${PROJECT_ROOT}"
-npm run build
+bun run build
 
 echo "Starting HappyCMS at http://${HOST}:${PORT}"
 echo "Press Ctrl+C to stop."

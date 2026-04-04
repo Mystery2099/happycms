@@ -71,17 +71,15 @@ $formAction = $formAction ?? '';
         <!-- Category & Mood -->
         <div class="grid md:grid-cols-2 gap-8">
             <div>
-                <label for="thought-category" class="block text-sm font-medium text-stone mb-2 inline-flex items-center gap-2">
+                <label class="block text-sm font-medium text-stone mb-2 inline-flex items-center gap-2">
                     <i data-lucide="tag" class="w-4 h-4"></i>
                     Category
                 </label>
-                <select id="thought-category" name="category" class="input-minimal bg-transparent">
-                    <?php foreach (THOUGHT_CATEGORIES as $category): ?>
-                        <option value="<?= h($category) ?>" <?= $thoughtData['category'] === $category ? 'selected' : '' ?>>
-                            <?= h($category) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <div 
+                    data-category-dropdown 
+                    data-categories="<?= h(json_encode(THOUGHT_CATEGORIES)) ?>"
+                    data-selected="<?= h($thoughtData['category']) ?>"
+                ></div>
                 <?php if (isset($errors['category'])): ?>
                     <p class="mt-2 text-sm text-coral"><?= h($errors['category']) ?></p>
                 <?php endif; ?>

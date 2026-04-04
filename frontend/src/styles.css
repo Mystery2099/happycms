@@ -148,13 +148,12 @@
 }
 
 @layer components {
-	/* Subtle control buttons */
+	/* Subtle control buttons with microinteractions */
 	.control-btn {
 		@apply text-stone px-4 py-2 text-sm font-medium;
 		@apply border-b-2 border-transparent;
-		transition:
-			color 0.2s ease,
-			border-color 0.2s ease;
+		@apply transition-all duration-200 ease-out;
+		@apply relative;
 	}
 
 	.control-btn:hover {
@@ -165,27 +164,50 @@
 		@apply text-ink border-coral;
 	}
 
-	/* Editorial link style */
+	.control-btn::after {
+		content: '';
+		@apply bg-coral absolute bottom-0 left-1/2 h-0.5 w-0;
+		@apply transition-all duration-300 ease-out;
+		transform: translateX(-50%);
+	}
+
+	.control-btn:hover::after {
+		@apply w-full;
+	}
+
+	.control-btn.active::after {
+		@apply w-full;
+	}
+
+	/* Editorial link style with microinteractions */
 	.editorial-link {
 		@apply text-ink decoration-coral/40 underline underline-offset-4;
-		transition: text-decoration-color 0.2s ease;
+		@apply transition-all duration-200 ease-out;
+		@apply relative;
 	}
 
 	.editorial-link:hover {
 		@apply decoration-coral;
+		@apply underline-offset-8;
 	}
 
-	/* Form inputs - minimal */
+	.editorial-link:active {
+		@apply opacity-80;
+	}
+
+	/* Form inputs - minimal with microinteractions */
 	.input-minimal {
 		@apply border-mist w-full border-b-2 bg-transparent px-1 py-3;
 		@apply text-ink placeholder:text-stone/60;
-		transition:
-			border-color 0.2s ease,
-			background-color 0.2s ease;
+		@apply transition-all duration-300 ease-out;
+	}
+
+	.input-minimal:hover {
+		@apply border-stone;
 	}
 
 	.input-minimal:focus {
-		@apply bg-white/50;
+		@apply border-coral bg-white/50;
 	}
 
 	/* Strong focus-visible states */
@@ -195,17 +217,17 @@
 		outline-offset: 2px;
 	}
 
-	/* Primary button - refined */
+	/* Primary button - refined with microinteractions */
 	.btn-primary {
 		@apply inline-flex items-center gap-2 px-6 py-3;
 		@apply bg-ink text-canvas text-sm font-medium;
-		transition:
-			background-color 0.2s ease,
-			transform 0.1s ease;
+		@apply transition-all duration-200 ease-out;
+		@apply hover:shadow-coral/20 hover:shadow-lg;
+		@apply active:scale-95;
 	}
 
 	.btn-primary:hover {
-		@apply bg-coral;
+		@apply bg-coral -translate-y-0.5;
 	}
 
 	.btn-primary:focus-visible {
@@ -213,27 +235,27 @@
 		outline-offset: 2px;
 	}
 
-	/* Secondary button */
+	/* Secondary button - with microinteractions */
 	.btn-secondary {
 		@apply inline-flex items-center gap-2 px-6 py-3;
 		@apply border-mist text-ink border text-sm font-medium;
-		transition:
-			border-color 0.2s ease,
-			background-color 0.2s ease,
-			transform 0.1s ease;
+		@apply transition-all duration-200 ease-out;
+		@apply active:scale-95;
 	}
 
 	.btn-secondary:hover {
-		@apply border-ink bg-white;
+		@apply border-ink -translate-y-0.5 bg-white shadow-md;
 	}
 
 	.btn-secondary:focus-visible {
 		@apply outline-coral outline outline-2 outline-offset-2;
 	}
 
-	/* Destructive Button */
+	/* Destructive Button - with microinteractions */
 	.btn-destructive {
-		@apply inline-flex items-center justify-center border px-6 py-3 text-sm font-medium transition-colors duration-200;
+		@apply inline-flex items-center justify-center border px-6 py-3 text-sm font-medium;
+		@apply transition-all duration-200 ease-out;
+		@apply active:scale-95;
 		background-color: #dc5f50;
 		color: #faf9f7;
 		border-color: #dc5f50;
@@ -242,6 +264,7 @@
 	.btn-destructive:hover {
 		background-color: #c45245;
 		border-color: #c45245;
+		@apply shadow-coral/30 -translate-y-0.5 shadow-lg;
 	}
 
 	.btn-destructive:focus-visible {
@@ -304,12 +327,32 @@
 }
 
 /* Thought library density modes */
-[data-thought-library][data-density='compact'] [data-thought-item] {
-	@apply py-3;
+[data-thought-library][data-density='compact'] .data-table td,
+[data-thought-library][data-density='compact'] .data-table th {
+	@apply px-3 py-2;
 }
 
-[data-thought-library][data-density='comfortable'] [data-thought-item] {
-	@apply py-6;
+[data-thought-library][data-density='comfortable'] .data-table td,
+[data-thought-library][data-density='comfortable'] .data-table th {
+	@apply px-4 py-4;
+}
+
+[data-thought-library][data-density='compact'] ~ [data-card-grid] [data-thought-item] {
+	@apply gap-3;
+}
+
+[data-thought-library][data-density='compact']
+	~ [data-card-grid]
+	[data-thought-item]
+	> div:last-child {
+	@apply space-y-2 p-3;
+}
+
+[data-thought-library][data-density='comfortable']
+	~ [data-card-grid]
+	[data-thought-item]
+	> div:last-child {
+	@apply space-y-3 p-4 md:p-5;
 }
 
 [data-thought-item][hidden] {
@@ -329,8 +372,16 @@
 	@apply border-mist/50 border-b px-4 py-4;
 }
 
+.data-table tr {
+	@apply transition-colors duration-200;
+}
+
 .data-table tr:hover td {
 	@apply bg-white/50;
+}
+
+.data-table tr:active {
+	@apply scale-[0.99];
 }
 
 /* Quote styling */

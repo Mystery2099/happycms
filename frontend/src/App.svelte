@@ -50,34 +50,34 @@
 		</p>
 
 		<div class="space-y-6">
-			<div class="flex items-start gap-4">
+			<div class="group flex items-start gap-4">
 				<span
-					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					class="bg-coral flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium text-white transition-transform duration-200 group-hover:scale-110"
 					>1</span
 				>
-				<div>
+				<div class="transition-transform duration-200 group-hover:translate-x-1">
 					<p class="text-ink font-medium">View Modes</p>
 					<p class="text-stone text-sm">Toggle between table and grid layouts</p>
 				</div>
 			</div>
 
-			<div class="flex items-start gap-4">
+			<div class="group flex items-start gap-4">
 				<span
-					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					class="bg-coral flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium text-white transition-transform duration-200 group-hover:scale-110"
 					>2</span
 				>
-				<div>
+				<div class="transition-transform duration-200 group-hover:translate-x-1">
 					<p class="text-ink font-medium">Density Control</p>
 					<p class="text-stone text-sm">Adjust spacing for compact or comfortable viewing</p>
 				</div>
 			</div>
 
-			<div class="flex items-start gap-4">
+			<div class="group flex items-start gap-4">
 				<span
-					class="bg-ink text-canvas flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium"
+					class="bg-coral flex h-8 w-8 flex-shrink-0 items-center justify-center text-sm font-medium text-white transition-transform duration-200 group-hover:scale-110"
 					>3</span
 				>
-				<div>
+				<div class="transition-transform duration-200 group-hover:translate-x-1">
 					<p class="text-ink font-medium">AJAX Content</p>
 					<p class="text-stone text-sm">Dynamic famous quotes loaded via Fetch API</p>
 				</div>
@@ -99,10 +99,13 @@
 
 		{#if loading}
 			<div class="py-12 text-center">
-				<div
-					class="border-mist border-t-coral inline-block h-6 w-6 animate-spin rounded-full border-2"
-				></div>
-				<p class="text-stone mt-3 text-sm">Loading quotes...</p>
+				<div class="relative inline-block">
+					<div class="border-mist border-t-coral h-8 w-8 animate-spin rounded-full border-2"></div>
+					<div
+						class="border-mist/30 border-t-coral/50 absolute inset-0 h-8 w-8 animate-ping rounded-full border-2 opacity-20"
+					></div>
+				</div>
+				<p class="text-stone mt-4 animate-pulse text-sm">Loading quotes...</p>
 			</div>
 		{:else if error}
 			<div class="bg-coral/10 border-coral/20 border px-6 py-8">
@@ -110,8 +113,13 @@
 			</div>
 		{:else if currentQuote}
 			<div class="relative">
-				<span class="quote-mark absolute -top-4 -left-2">"</span>
-				<blockquote class="font-display text-ink pl-6 text-2xl leading-relaxed lg:text-3xl">
+				<span
+					class="quote-mark absolute -top-4 -left-2 transition-transform duration-500 hover:scale-110"
+					>"</span
+				>
+				<blockquote
+					class="font-display text-ink pl-6 text-2xl leading-relaxed transition-opacity duration-300 lg:text-3xl"
+				>
 					{currentQuote.quote}
 				</blockquote>
 
@@ -124,7 +132,7 @@
 					<div class="flex gap-2">
 						<button
 							type="button"
-							class="border-mist hover:border-ink flex h-10 w-10 items-center justify-center border transition-colors"
+							class="border-mist hover:border-coral dark:hover:border-coral dark:hover:text-coral flex h-10 w-10 items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 active:scale-95 dark:border-slate-600 dark:text-slate-300"
 							onclick={() => go(-1)}
 							aria-label="Previous quote"
 						>
@@ -132,7 +140,7 @@
 						</button>
 						<button
 							type="button"
-							class="bg-ink text-canvas hover:bg-coral flex h-10 w-10 items-center justify-center transition-colors"
+							class="bg-ink text-canvas hover:bg-coral dark:hover:bg-coral flex h-10 w-10 items-center justify-center transition-all duration-200 hover:translate-x-0.5 active:scale-95 dark:bg-slate-700 dark:text-slate-100"
 							onclick={() => go(1)}
 							aria-label="Next quote"
 						>
