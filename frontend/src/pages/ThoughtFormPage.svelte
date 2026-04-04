@@ -124,7 +124,7 @@
 				{#if sideImageUrl}
 					<div
 						class={[
-							'overflow-hidden bg-mist/30 flex items-center justify-center',
+							'hidden overflow-hidden bg-mist/30 lg:flex items-center justify-center',
 							mode === 'create' ? 'aspect-square' : 'aspect-[4/3]'
 						]}
 					>

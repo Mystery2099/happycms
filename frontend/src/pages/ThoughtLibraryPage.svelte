@@ -192,9 +192,9 @@
 						<span class="ml-1">shown</span>
 					</span>
 
-					<div class="border-mist flex items-center gap-1 border-l pl-3">
-						<div class="bg-mist/50 flex items-center rounded-lg p-0.5 dark:bg-slate-800/50">
-							{#if !isMobile}
+					{#if !isMobile}
+						<div class="border-mist flex items-center gap-1 border-l pl-3">
+							<div class="bg-mist/50 flex items-center rounded-lg p-0.5 dark:bg-slate-800/50">
 								<button
 									type="button"
 									class="rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
@@ -214,84 +214,84 @@
 								>
 									Table
 								</button>
-							{/if}
-							<button
-								type="button"
-								class="rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
-								class:bg-white={view === 'grid'}
-								class:dark:bg-slate-700={view === 'grid'}
-								class:shadow-sm={view === 'grid'}
-								class:ring-2={view === 'grid'}
-								class:ring-coral={view === 'grid'}
-								class:ring-offset-1={view === 'grid'}
-								class:dark:ring-offset-slate-800={view === 'grid'}
-								class:text-ink={view === 'grid'}
-								class:text-stone={view !== 'grid'}
-								class:hover:text-ink={view !== 'grid'}
-								onclick={() => (view = 'grid')}
-								aria-pressed={view === 'grid'}
-								title="Grid view"
-							>
-								Grid
-							</button>
+								<button
+									type="button"
+									class="rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
+									class:bg-white={view === 'grid'}
+									class:dark:bg-slate-700={view === 'grid'}
+									class:shadow-sm={view === 'grid'}
+									class:ring-2={view === 'grid'}
+									class:ring-coral={view === 'grid'}
+									class:ring-offset-1={view === 'grid'}
+									class:dark:ring-offset-slate-800={view === 'grid'}
+									class:text-ink={view === 'grid'}
+									class:text-stone={view !== 'grid'}
+									class:hover:text-ink={view !== 'grid'}
+									onclick={() => (view = 'grid')}
+									aria-pressed={view === 'grid'}
+									title="Grid view"
+								>
+									Grid
+								</button>
+							</div>
 						</div>
-					</div>
 
-					<div class="border-mist flex items-center gap-1 border-l pl-3">
-						<div class="bg-mist/50 flex items-center rounded-lg p-0.5 dark:bg-slate-800/50">
-							<button
-								type="button"
-								class="rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
-								class:bg-white={density === 'compact'}
-								class:dark:bg-slate-700={density === 'compact'}
-								class:shadow-sm={density === 'compact'}
-								class:ring-2={density === 'compact'}
-								class:ring-coral={density === 'compact'}
-								class:ring-offset-1={density === 'compact'}
-								class:dark:ring-offset-slate-800={density === 'compact'}
-								class:text-ink={density === 'compact'}
-								class:text-stone={density !== 'compact'}
-								class:hover:text-ink={density !== 'compact'}
-								onclick={() => (density = 'compact')}
-								aria-pressed={density === 'compact'}
-								title="Compact view"
-							>
-								Compact
-							</button>
-							<button
-								type="button"
-								class="rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
-								class:bg-white={density === 'comfortable'}
-								class:dark:bg-slate-700={density === 'comfortable'}
-								class:shadow-sm={density === 'comfortable'}
-								class:ring-2={density === 'comfortable'}
-								class:ring-coral={density === 'comfortable'}
-								class:ring-offset-1={density === 'comfortable'}
-								class:dark:ring-offset-slate-800={density === 'comfortable'}
-								class:text-ink={density === 'comfortable'}
-								class:text-stone={density !== 'comfortable'}
-								class:hover:text-ink={density !== 'comfortable'}
-								onclick={() => (density = 'comfortable')}
-								aria-pressed={density === 'comfortable'}
-								title="Comfortable view"
-							>
-								Comfortable
-							</button>
+						<div class="border-mist flex items-center gap-1 border-l pl-3">
+							<div class="bg-mist/50 flex items-center rounded-lg p-0.5 dark:bg-slate-800/50">
+								<button
+									type="button"
+									class="rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
+									class:bg-white={density === 'compact'}
+									class:dark:bg-slate-700={density === 'compact'}
+									class:shadow-sm={density === 'compact'}
+									class:ring-2={density === 'compact'}
+									class:ring-coral={density === 'compact'}
+									class:ring-offset-1={density === 'compact'}
+									class:dark:ring-offset-slate-800={density === 'compact'}
+									class:text-ink={density === 'compact'}
+									class:text-stone={density !== 'compact'}
+									class:hover:text-ink={density !== 'compact'}
+									onclick={() => (density = 'compact')}
+									aria-pressed={density === 'compact'}
+									title="Compact view"
+								>
+									Compact
+								</button>
+								<button
+									type="button"
+									class="rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
+									class:bg-white={density === 'comfortable'}
+									class:dark:bg-slate-700={density === 'comfortable'}
+									class:shadow-sm={density === 'comfortable'}
+									class:ring-2={density === 'comfortable'}
+									class:ring-coral={density === 'comfortable'}
+									class:ring-offset-1={density === 'comfortable'}
+									class:dark:ring-offset-slate-800={density === 'comfortable'}
+									class:text-ink={density === 'comfortable'}
+									class:text-stone={density !== 'comfortable'}
+									class:hover:text-ink={density !== 'comfortable'}
+									onclick={() => (density = 'comfortable')}
+									aria-pressed={density === 'comfortable'}
+									title="Comfortable view"
+								>
+									Comfortable
+								</button>
+							</div>
 						</div>
-					</div>
+					{/if}
 				</div>
 
-					<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-						<div class="min-w-[220px]">
-							<span id="client-filter-label" class="sr-only">Filter by category</span>
-							<Dropdown
-								options={categoryOptions}
-								bind:value={category}
-								ariaLabel="Filter by category"
-								ariaLabelledby="client-filter-label"
-								listAriaLabel="Category filters"
-							/>
-						</div>
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+					<div class="min-w-[220px]">
+						<span id="client-filter-label" class="sr-only">Filter by category</span>
+						<Dropdown
+							options={categoryOptions}
+							bind:value={category}
+							ariaLabel="Filter by category"
+							ariaLabelledby="client-filter-label"
+							listAriaLabel="Category filters"
+						/>
+					</div>
 					<input
 						type="search"
 						bind:value={search}

@@ -93,23 +93,23 @@
 
 <section class="border-b border-mist bg-white">
 	<div class="max-w-6xl mx-auto px-6 lg:px-8">
-		<div class="grid grid-cols-2 divide-x divide-mist md:grid-cols-4">
-			<div class="px-4 py-8 text-center">
+		<div class="grid grid-cols-2 gap-px bg-mist md:grid-cols-4 md:gap-0 md:bg-transparent md:divide-x md:divide-mist">
+			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
 				<FileText size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.total}</p>
 				<p class="text-sm text-stone mt-1">Total Records</p>
 			</div>
-			<div class="px-4 py-8 text-center">
+			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Tag size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.categories}</p>
 				<p class="text-sm text-stone mt-1">Categories</p>
 			</div>
-			<div class="px-4 py-8 text-center">
+			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Star size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.highMood}</p>
 				<p class="text-sm text-stone mt-1">High Mood (4-5★)</p>
 			</div>
-			<div class="px-4 py-8 text-center">
+			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Image size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.withImages}</p>
 				<p class="text-sm text-stone mt-1">With Images</p>
@@ -120,7 +120,7 @@
 
 <section class="section-padding">
 	<div class="max-w-6xl mx-auto px-6 lg:px-8">
-		<div class="mb-8 flex items-end justify-between gap-4">
+		<div class="mb-8 flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 			<div>
 				<h2 class="font-display text-display-md text-ink mb-2">Recent Entries</h2>
 				<p class="text-stone">The latest happy thoughts from our collection</p>
