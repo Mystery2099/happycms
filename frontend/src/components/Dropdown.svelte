@@ -2,7 +2,7 @@
 	import { ChevronDown, Check, X } from '@lucide/svelte';
 	import Hammer from 'hammerjs';
 	import type { Component } from 'svelte';
-	import { tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	interface Option {
 		value: string;
@@ -52,7 +52,10 @@
 	let SelectedIcon = $derived(selectedOption?.icon);
 	let isMobile = $derived(viewportWidth < mobileBreakpoint);
 	let sheetElement = $state<HTMLElement | null>(null);
-	let handleElement = $state<HTMLElement | null>(null);
+	let dragSurfaceElement = $state<HTMLElement | null>(null);
+	let handleElement = $state<HTMLButtonElement | null>(null);
+	let styleElement: HTMLStyleElement | null = null;
+	const sheetInstanceId = `dropdown-sheet-${Math.random().toString(36).slice(2, 10)}`;
 
 	const defaultTriggerClass =
 		'input-minimal hover:border-stone flex w-full items-center justify-between gap-2 text-left transition-all duration-300 focus:translate-y-[-1px]';
@@ -117,6 +120,49 @@
 		return Math.max(0, restingOffset + dragOffset);
 	}
 
+	function updateSheetStyles() {
+		if (!styleElement) return;
+
+		if (!isOpen || !isMobile) {
+			styleElement.textContent = '';
+			return;
+		}
+
+		const maxSheetHeight = getMaximumSheetHeight();
+		const scrollHeight = Math.max(maxSheetHeight - 92, 220);
+
+		styleElement.textContent = `
+			[data-dropdown-sheet-id="${sheetInstanceId}"] {
+				height: ${maxSheetHeight}px;
+				max-height: calc(100dvh - ${getExpandedTopOffset()}px);
+				transform: translateY(${getSheetTranslateY()}px);
+			}
+
+			[data-dropdown-sheet-id="${sheetInstanceId}"] .dropdown-sheet-scroll {
+				max-height: ${scrollHeight}px;
+			}
+		`;
+	}
+
+	onMount(() => {
+		const nonce = document
+			.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')
+			?.getAttribute('content');
+
+		styleElement = document.createElement('style');
+		if (nonce) {
+			styleElement.setAttribute('nonce', nonce);
+		}
+
+		document.head.appendChild(styleElement);
+		updateSheetStyles();
+
+		return () => {
+			styleElement?.remove();
+			styleElement = null;
+		};
+	});
+
 	$effect(() => {
 		if (!isMobile || !isOpen) return;
 
@@ -129,16 +175,14 @@
 	});
 
 	$effect(() => {
-		if (!isMobile || !isOpen || !handleElement || !sheetElement) return;
+		if (!isMobile || !isOpen || !dragSurfaceElement || !sheetElement) return;
 
 		let startOffset = getSheetTranslateY();
 		const snapThreshold = 80;
 		const closeThreshold = Math.max(getCollapsedOffset() + 140, viewportHeight * 0.72);
-		const hammer = new Hammer(handleElement);
-
-		hammer.get('pan').set({
-			direction: Hammer.DIRECTION_VERTICAL,
-			threshold: 0
+		const hammer = new Hammer.Manager(dragSurfaceElement, {
+			touchAction: 'none',
+			recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_VERTICAL, threshold: 0 }]]
 		});
 
 		const onPanStart = () => {
@@ -199,6 +243,10 @@
 		tick().then(() => {
 			handleElement?.focus();
 		});
+	});
+
+	$effect(() => {
+		updateSheetStyles();
 	});
 </script>
 
@@ -271,47 +319,47 @@
 
 	<div
 		bind:this={sheetElement}
+		data-dropdown-sheet-id={sheetInstanceId}
 		class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
 		role="dialog"
 		aria-modal="true"
 		aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-		style:height={`${getMaximumSheetHeight()}px`}
-		style:max-height={`calc(100dvh - ${getExpandedTopOffset()}px)`}
-		style:transform={`translateY(${getSheetTranslateY()}px)`}
 	>
-		<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
+		<div
+			bind:this={dragSurfaceElement}
+			class="dropdown-drag-surface sticky top-0 z-10 touch-none select-none bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95"
+		>
 			<button
 				bind:this={handleElement}
 				type="button"
-				class="mx-auto mt-3 flex h-8 w-full items-center justify-center"
+				class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center active:cursor-grabbing"
 				onclick={() => (isExpanded = !isExpanded)}
 				aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
 			>
 				<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
 			</button>
-		</div>
-		<div class="sticky top-8 z-10 flex items-center justify-between border-b border-stone-200/70 bg-[#faf9f7]/95 px-5 pb-3 pt-2 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95">
-			<div>
-				<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
-					Choose
-				</p>
-				<h2 class="text-base font-medium text-ink dark:text-slate-50">
-					{listAriaLabel ?? ariaLabel ?? selectedLabel}
-				</h2>
+			<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
+						Choose
+					</p>
+					<h2 class="text-base font-medium text-ink dark:text-slate-50">
+						{listAriaLabel ?? ariaLabel ?? selectedLabel}
+					</h2>
+				</div>
+				<button
+					type="button"
+					class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+					onclick={close}
+					aria-label="Close options"
+				>
+					<X size={18} />
+				</button>
 			</div>
-			<button
-				type="button"
-				class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
-				onclick={close}
-				aria-label="Close options"
-			>
-				<X size={18} />
-			</button>
 		</div>
 
 		<div
-			class="overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-			style:max-height={`${Math.max(getMaximumSheetHeight() - 92, 220)}px`}
+			class="dropdown-sheet-scroll overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
 		>
 			<div class="space-y-2 pb-4">
 				{#each options as option}
