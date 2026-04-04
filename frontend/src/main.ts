@@ -1,38 +1,6 @@
 import './styles.css';
 import { mount } from 'svelte';
-
-function parseJsonScript<T>(scriptId: string): T | null {
-	const element = document.getElementById(scriptId);
-
-	if (!(element instanceof HTMLScriptElement)) {
-		return null;
-	}
-
-	try {
-		return JSON.parse(element.textContent ?? '') as T;
-	} catch {
-		return null;
-	}
-}
-
-function mountPage<T>(selector: string, scriptId: string, loader: () => Promise<{ default: T }>) {
-	const target = document.querySelector<HTMLElement>(selector);
-	if (!target) {
-		return;
-	}
-
-	const props = parseJsonScript<Record<string, unknown>>(scriptId);
-	if (!props) {
-		return;
-	}
-
-	loader().then(({ default: Component }) => {
-		mount(Component, {
-			target,
-			props
-		});
-	});
-}
+import { mountPage } from './lib/mount';
 
 if (document.querySelector('[data-lucide]')) {
 	import('lucide').then(
