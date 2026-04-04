@@ -13,6 +13,14 @@
 		@apply bg-canvas text-ink antialiased;
 	}
 
+	a:focus-visible,
+	button:focus-visible,
+	select:focus-visible,
+	textarea:focus-visible {
+		outline: 2px solid var(--coral, #dc5f50);
+		outline-offset: 2px;
+	}
+
 	h1,
 	h2,
 	h3,
@@ -285,6 +293,29 @@
 	/* Utility Classes */
 	.text-balance {
 		text-wrap: balance;
+	}
+
+	.skip-link {
+		position: absolute;
+		top: 0.75rem;
+		left: 1rem;
+		z-index: 200;
+		padding: 0.75rem 1rem;
+		background: #faf9f7;
+		color: #0f172a;
+		border: 1px solid #dc5f50;
+		transform: translateY(-140%);
+		transition: transform 160ms ease-out;
+	}
+
+	.skip-link:focus {
+		transform: translateY(0);
+	}
+
+	html.dark .skip-link {
+		background: #1e293b;
+		color: #f8fafc;
+		border-color: #fb7185;
 	}
 
 	.aspect-card {

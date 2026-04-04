@@ -2,19 +2,25 @@
 	import Dropdown from './Dropdown.svelte';
 
 	interface Props {
+		id?: string;
 		name: string;
 		options: string[];
 		selected?: string;
 		class?: string;
 		ariaLabel?: string;
+		ariaLabelledby?: string;
+		ariaDescribedby?: string;
 	}
 
 	let {
+		id,
 		name,
 		options,
 		selected = '',
 		class: className = '',
-		ariaLabel = 'Select an option'
+		ariaLabel = 'Select an option',
+		ariaLabelledby,
+		ariaDescribedby
 	}: Props = $props();
 
 	let initialValue = $derived(selected || options[0] || '');
@@ -30,5 +36,12 @@
 
 <div class={className}>
 	<input type="hidden" {name} value={value} />
-	<Dropdown options={dropdownOptions} bind:value ariaLabel={ariaLabel} listAriaLabel={ariaLabel} />
+	<Dropdown
+		options={dropdownOptions}
+		bind:value
+		ariaLabel={ariaLabel}
+		ariaLabelledby={ariaLabelledby}
+		ariaDescribedby={ariaDescribedby}
+		listAriaLabel={ariaLabel}
+	/>
 </div>

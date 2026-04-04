@@ -144,7 +144,11 @@
 
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 				<div>
-					<h2 class="font-display text-display-md text-ink mb-1 md:mb-2">{heading}</h2>
+					{#if pageMode === 'search'}
+						<h2 class="font-display text-display-md text-ink mb-1 md:mb-2">{heading}</h2>
+					{:else}
+						<h1 class="font-display text-display-md text-ink mb-1 md:mb-2">{heading}</h1>
+					{/if}
 					<p class="text-stone text-sm md:text-base hidden sm:block">{description}</p>
 				</div>
 
@@ -160,7 +164,12 @@
 				class="border-mist flex flex-col gap-4 border-y py-4 sm:flex-row sm:items-center sm:justify-between"
 			>
 				<div class="flex flex-wrap items-center gap-3">
-					<span class="text-stone text-sm tabular-nums transition-all duration-300">
+					<span
+						class="text-stone text-sm tabular-nums transition-all duration-300"
+						role="status"
+						aria-live="polite"
+						aria-atomic="true"
+					>
 						<span class:opacity-50={visibleCount === 0} class="inline-block transition-all duration-300"
 							>{visibleCount}</span
 						>
@@ -186,6 +195,7 @@
 									class:text-stone={view !== 'table'}
 									class:hover:text-ink={view !== 'table'}
 									onclick={() => (view = 'table')}
+									aria-pressed={view === 'table'}
 									title="Table view"
 								>
 									Table
@@ -205,6 +215,7 @@
 								class:text-stone={view !== 'grid'}
 								class:hover:text-ink={view !== 'grid'}
 								onclick={() => (view = 'grid')}
+								aria-pressed={view === 'grid'}
 								title="Grid view"
 							>
 								Grid
@@ -228,6 +239,7 @@
 								class:text-stone={density !== 'compact'}
 								class:hover:text-ink={density !== 'compact'}
 								onclick={() => (density = 'compact')}
+								aria-pressed={density === 'compact'}
 								title="Compact view"
 							>
 								Compact
@@ -246,6 +258,7 @@
 								class:text-stone={density !== 'comfortable'}
 								class:hover:text-ink={density !== 'comfortable'}
 								onclick={() => (density = 'comfortable')}
+								aria-pressed={density === 'comfortable'}
 								title="Comfortable view"
 							>
 								Comfortable
@@ -327,20 +340,20 @@
 										<td class="text-wheat {tableCellClass}">{renderMood(thought.moodScore)}</td>
 										<td class="text-right {tableCellClass}">
 											<div class="flex items-center justify-end gap-2">
-												<a
-													href={thought.editUrl}
-													class="text-sm text-stone inline-flex items-center gap-1.5 transition-colors hover:text-ink"
-												>
-													<Pencil size={14} />
-													Edit
+													<a
+														href={thought.editUrl}
+														class="text-sm text-stone inline-flex min-h-11 items-center gap-1.5 px-2 py-2 transition-colors hover:text-ink"
+													>
+														<Pencil size={14} />
+														Edit
 												</a>
 												<span class="text-mist">|</span>
-												<a
-													href={thought.deleteUrl}
-													class="text-coral text-sm inline-flex items-center gap-1.5 transition-colors hover:text-ink"
-												>
-													<Trash2 size={14} />
-													Delete
+													<a
+														href={thought.deleteUrl}
+														class="text-coral text-sm inline-flex min-h-11 items-center gap-1.5 px-2 py-2 transition-colors hover:text-ink"
+													>
+														<Trash2 size={14} />
+														Delete
 												</a>
 											</div>
 										</td>
@@ -380,20 +393,20 @@
 										<span class="text-sm font-medium text-ink">{thought.author}</span>
 										<span class="text-wheat text-sm">{renderMood(thought.moodScore)}</span>
 									</div>
-									<div class="flex items-center gap-4 pt-2">
-										<a
-											href={thought.editUrl}
-											class="text-stone flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-ink"
-										>
-											<Pencil size={14} />
-											Edit
-										</a>
-										<a
-											href={thought.deleteUrl}
-											class="text-coral flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-ink"
-										>
-											<Trash2 size={14} />
-											Delete
+										<div class="flex items-center gap-4 pt-2">
+											<a
+												href={thought.editUrl}
+												class="text-stone flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
+											>
+												<Pencil size={14} />
+												Edit
+											</a>
+											<a
+												href={thought.deleteUrl}
+												class="text-coral flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
+											>
+												<Trash2 size={14} />
+												Delete
 										</a>
 									</div>
 								</div>

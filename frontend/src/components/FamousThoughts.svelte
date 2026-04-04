@@ -99,8 +99,8 @@
 			{/if}
 		</div>
 
-		{#if loading}
-			<div class="py-12 text-center" aria-live="polite">
+			{#if loading}
+				<div class="py-12 text-center" aria-live="polite">
 				<div class="relative inline-block">
 					<div class="border-mist border-t-coral h-8 w-8 animate-spin rounded-full border-2"></div>
 					<div
@@ -109,14 +109,15 @@
 				</div>
 				<p class="text-stone mt-4 animate-pulse text-sm">Loading quotes...</p>
 			</div>
-		{:else if error}
-			<div class="bg-coral/10 border-coral/20 border px-6 py-8" role="status" aria-live="polite">
-				<p class="text-coral text-sm">{error}</p>
-			</div>
-		{:else if currentQuote}
-			<div class="relative">
-				<span
-					class="quote-mark absolute -top-4 -left-2 transition-transform duration-500 hover:scale-110"
+			{:else if error}
+				<div class="bg-coral/10 border-coral/20 border px-6 py-8" role="alert">
+					<p class="text-coral text-sm">{error}</p>
+				</div>
+			{:else if currentQuote}
+				<div class="relative" aria-live="polite" aria-atomic="true">
+					<p class="sr-only">Showing quote {index + 1} of {quotes.length}</p>
+					<span
+						class="quote-mark absolute -top-4 -left-2 transition-transform duration-500 hover:scale-110"
 					aria-hidden="true"
 					>"</span
 				>

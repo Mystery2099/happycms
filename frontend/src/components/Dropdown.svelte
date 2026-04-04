@@ -20,6 +20,8 @@
 		menuClass?: string;
 		optionClass?: string;
 		ariaLabel?: string;
+		ariaLabelledby?: string;
+		ariaDescribedby?: string;
 		listAriaLabel?: string;
 		showIconInTrigger?: boolean;
 		showLabelInTrigger?: boolean;
@@ -36,6 +38,8 @@
 		menuClass = '',
 		optionClass = '',
 		ariaLabel,
+		ariaLabelledby,
+		ariaDescribedby,
 		listAriaLabel,
 		showIconInTrigger = false,
 		showLabelInTrigger = true,
@@ -48,18 +52,23 @@
 	let viewportHeight = $state(900);
 	let isExpanded = $state(false);
 	let isDragging = $state(false);
+	let highlightedIndex = $state(-1);
 	let selectedOption = $derived(options.find((opt) => opt.value === value));
 	let selectedLabel = $derived(selectedOption?.label ?? placeholder);
 	let SelectedIcon = $derived(selectedOption?.icon);
 	let isMobile = $derived(viewportWidth < mobileBreakpoint);
 	let triggerElement = $state<HTMLButtonElement | null>(null);
+	let listboxElement = $state<HTMLDivElement | null>(null);
 	let sheetElement = $state<HTMLElement | null>(null);
 	let dragSurfaceElement = $state<HTMLElement | null>(null);
 	let handleElement = $state<HTMLButtonElement | null>(null);
+	let optionElements = $state<HTMLButtonElement[]>([]);
 	let styleElement: HTMLStyleElement | null = null;
 	let sheetRule: CSSStyleRule | null = null;
 	let scrollRule: CSSStyleRule | null = null;
 	const sheetInstanceId = `dropdown-sheet-${Math.random().toString(36).slice(2, 10)}`;
+	const listboxId = `dropdown-listbox-${Math.random().toString(36).slice(2, 10)}`;
+	const triggerId = `dropdown-trigger-${Math.random().toString(36).slice(2, 10)}`;
 	let currentTranslateY = 0;
 	let shouldHintMoreContent = $derived(!isExpanded && options.length > 6);
 	let hammerModulePromise: Promise<typeof import('hammerjs')> | null = null;
@@ -71,12 +80,35 @@
 	const defaultOptionClass =
 		'hover:bg-mist/30 flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm capitalize transition-colors duration-150 dark:hover:bg-slate-700/50';
 
-	function toggle() {
-		isOpen = !isOpen;
-		if (isOpen) {
-			isExpanded = false;
-			currentTranslateY = getCollapsedOffset();
+	function getSelectedIndex() {
+		const selectedIndex = options.findIndex((option) => option.value === value);
+		return selectedIndex >= 0 ? selectedIndex : 0;
+	}
+
+	function focusDesktopOption(index: number) {
+		tick().then(() => {
+			optionElements[index]?.focus();
+		});
+	}
+
+	function openDropdown({ focusSelectedOption = false }: { focusSelectedOption?: boolean } = {}) {
+		isOpen = true;
+		isExpanded = false;
+		currentTranslateY = getCollapsedOffset();
+		highlightedIndex = getSelectedIndex();
+
+		if (!isMobile && focusSelectedOption) {
+			focusDesktopOption(highlightedIndex);
 		}
+	}
+
+	function toggle() {
+		if (isOpen) {
+			close({ restoreFocus: false });
+			return;
+		}
+
+		openDropdown();
 	}
 
 	function focusTrigger() {
@@ -146,6 +178,7 @@
 		isOpen = false;
 		isExpanded = false;
 		isDragging = false;
+		highlightedIndex = -1;
 		currentTranslateY = 0;
 		if (restoreFocus) {
 			focusTrigger();
@@ -154,8 +187,85 @@
 
 	function selectOption(optionValue: string) {
 		value = optionValue;
+		highlightedIndex = options.findIndex((option) => option.value === optionValue);
 		close();
 		onChange?.(optionValue);
+	}
+
+	function moveHighlight(step: number) {
+		if (options.length === 0) return;
+
+		const startIndex = highlightedIndex >= 0 ? highlightedIndex : getSelectedIndex();
+		const nextIndex = (startIndex + step + options.length) % options.length;
+		highlightedIndex = nextIndex;
+		focusDesktopOption(nextIndex);
+	}
+
+	function jumpHighlight(index: number) {
+		if (options.length === 0) return;
+
+		const boundedIndex = Math.max(0, Math.min(index, options.length - 1));
+		highlightedIndex = boundedIndex;
+		focusDesktopOption(boundedIndex);
+	}
+
+	function handleTriggerKeydown(event: KeyboardEvent) {
+		const opensDropdown = event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ';
+		if (!opensDropdown) return;
+
+		event.preventDefault();
+
+		if (!isOpen) {
+			openDropdown({ focusSelectedOption: !isMobile });
+		}
+
+		if (isMobile) return;
+
+		if (event.key === 'ArrowUp') {
+			jumpHighlight(options.length - 1);
+			return;
+		}
+
+		if (event.key === 'ArrowDown') {
+			jumpHighlight(getSelectedIndex());
+		}
+	}
+
+	function handleDesktopOptionKeydown(event: KeyboardEvent, index: number) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			moveHighlight(1);
+			return;
+		}
+
+		if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			moveHighlight(-1);
+			return;
+		}
+
+		if (event.key === 'Home') {
+			event.preventDefault();
+			jumpHighlight(0);
+			return;
+		}
+
+		if (event.key === 'End') {
+			event.preventDefault();
+			jumpHighlight(options.length - 1);
+			return;
+		}
+
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			selectOption(options[index]?.value ?? value);
+			return;
+		}
+
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			close();
+		}
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -355,6 +465,12 @@
 	$effect(() => {
 		updateSheetStyles();
 	});
+
+	$effect(() => {
+		if (!isOpen || isMobile) return;
+
+		highlightedIndex = getSelectedIndex();
+	});
 </script>
 
 <svelte:window
@@ -365,15 +481,20 @@
 />
 
 <div class="relative {className}" data-dropdown-root>
-		<button
-			bind:this={triggerElement}
-			type="button"
-			class={triggerClass || defaultTriggerClass}
-			onclick={toggle}
-		aria-expanded={isOpen}
-		aria-haspopup={isMobile ? 'dialog' : 'listbox'}
-		aria-label={ariaLabel}
-	>
+			<button
+				bind:this={triggerElement}
+				type="button"
+				class={triggerClass || defaultTriggerClass}
+				onclick={toggle}
+				onkeydown={handleTriggerKeydown}
+				id={triggerId}
+				aria-controls={isOpen ? listboxId : undefined}
+				aria-describedby={ariaDescribedby}
+				aria-expanded={isOpen}
+				aria-haspopup={isMobile ? 'dialog' : 'listbox'}
+				aria-label={ariaLabel}
+				aria-labelledby={ariaLabelledby}
+			>
 		<span class="flex min-w-0 items-center gap-2">
 			{#if showIconInTrigger && SelectedIcon}
 				<SelectedIcon size={16} />
@@ -386,23 +507,30 @@
 	</button>
 
 	{#if isOpen && !isMobile}
-		<div
-			class={menuClass || defaultMenuClass}
-			role="listbox"
-			aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-		>
-			<div class="max-h-60 overflow-y-auto py-1">
-				{#each options as option}
-					{@const Icon = option.icon}
-					<button
-						type="button"
-						class="{optionClass || defaultOptionClass} {value === option.value
-							? 'text-ink bg-mist/20 dark:bg-slate-700/30'
-							: 'text-stone'}"
-						onclick={() => selectOption(option.value)}
-						role="option"
-						aria-selected={value === option.value}
-					>
+			<div
+				bind:this={listboxElement}
+				class={menuClass || defaultMenuClass}
+				id={listboxId}
+				role="listbox"
+				aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
+				aria-labelledby={ariaLabelledby}
+				aria-describedby={ariaDescribedby}
+			>
+				<div class="max-h-60 overflow-y-auto py-1">
+					{#each options as option, index}
+						{@const Icon = option.icon}
+						<button
+							bind:this={optionElements[index]}
+							type="button"
+							class="{optionClass || defaultOptionClass} {value === option.value
+								? 'text-ink bg-mist/20 dark:bg-slate-700/30'
+								: 'text-stone'}"
+							onclick={() => selectOption(option.value)}
+							onkeydown={(event) => handleDesktopOptionKeydown(event, index)}
+							role="option"
+							tabindex={highlightedIndex === index ? 0 : -1}
+							aria-selected={value === option.value}
+						>
 						{#if Icon}
 							<Icon size={16} />
 						{/if}
@@ -425,14 +553,17 @@
 		></button>
 	</div>
 
-		<div
-			bind:this={sheetElement}
-			data-dropdown-sheet-id={sheetInstanceId}
-		class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
-		class:dropdown-sheet--dragging={isDragging}
+			<div
+				bind:this={sheetElement}
+				data-dropdown-sheet-id={sheetInstanceId}
+				id={listboxId}
+			class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
+			class:dropdown-sheet--dragging={isDragging}
 		role="dialog"
 		aria-modal="true"
 		aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
+		aria-labelledby={ariaLabelledby}
+		aria-describedby={ariaDescribedby}
 	>
 		<div
 			bind:this={dragSurfaceElement}

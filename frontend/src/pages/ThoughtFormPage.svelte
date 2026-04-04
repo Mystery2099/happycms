@@ -61,6 +61,16 @@
 		sideImageAlt,
 		metadata
 	}: Props = $props();
+
+	const titleErrorId = 'thought-title-error';
+	const authorErrorId = 'thought-author-error';
+	const categoryLabelId = 'thought-category-label';
+	const categoryErrorId = 'thought-category-error';
+	const moodErrorId = 'thought-mood-error';
+	const thoughtHintId = 'thought-content-hint';
+	const thoughtErrorId = 'thought-content-error';
+	const imageHintId = 'thought-image-hint';
+	const imageErrorId = 'thought-image-error';
 </script>
 
 <section class="section-padding">
@@ -161,9 +171,10 @@
 									minlength="3"
 									maxlength="80"
 									aria-invalid={errors.title ? 'true' : undefined}
+									aria-describedby={errors.title ? titleErrorId : undefined}
 								/>
 								{#if errors.title}
-									<p class="mt-2 text-sm text-coral">{errors.title}</p>
+									<p id={titleErrorId} class="mt-2 text-sm text-coral">{errors.title}</p>
 								{/if}
 							</div>
 
@@ -186,16 +197,20 @@
 									minlength="2"
 									maxlength="60"
 									aria-invalid={errors.author ? 'true' : undefined}
+									aria-describedby={errors.author ? authorErrorId : undefined}
 								/>
 								{#if errors.author}
-									<p class="mt-2 text-sm text-coral">{errors.author}</p>
+									<p id={authorErrorId} class="mt-2 text-sm text-coral">{errors.author}</p>
 								{/if}
 							</div>
 						</div>
 
 						<div class="grid gap-8 md:grid-cols-2">
 							<div>
-								<label class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2">
+								<label
+									id={categoryLabelId}
+									class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
+								>
 									<Tag size={16} />
 									Category
 								</label>
@@ -204,9 +219,11 @@
 									options={categories}
 									selected={thoughtData.category}
 									ariaLabel="Category"
+									ariaLabelledby={categoryLabelId}
+									ariaDescribedby={errors.category ? categoryErrorId : undefined}
 								/>
 								{#if errors.category}
-									<p class="mt-2 text-sm text-coral">{errors.category}</p>
+									<p id={categoryErrorId} class="mt-2 text-sm text-coral">{errors.category}</p>
 								{/if}
 							</div>
 
@@ -227,9 +244,10 @@
 									max="5"
 									class="input-minimal"
 									aria-invalid={errors.mood_score ? 'true' : undefined}
+									aria-describedby={errors.mood_score ? moodErrorId : undefined}
 								/>
 								{#if errors.mood_score}
-									<p class="mt-2 text-sm text-coral">{errors.mood_score}</p>
+									<p id={moodErrorId} class="mt-2 text-sm text-coral">{errors.mood_score}</p>
 								{/if}
 							</div>
 						</div>
@@ -242,20 +260,21 @@
 								<MessageSquareText size={16} />
 								Your Happy Thought
 							</label>
-							<textarea
-								id="thought-content"
+								<textarea
+									id="thought-content"
 								name="thought"
 								rows="5"
 								class="input-minimal resize-none"
 								placeholder="Share what made you happy..."
-								required
-								minlength="12"
-								maxlength="400"
-								aria-invalid={errors.thought ? 'true' : undefined}
-							>{thoughtData.thought}</textarea>
-							<p class="mt-2 text-xs text-stone">Minimum 12 characters, maximum 400</p>
+									required
+									minlength="12"
+									maxlength="400"
+									aria-invalid={errors.thought ? 'true' : undefined}
+									aria-describedby={errors.thought ? `${thoughtHintId} ${thoughtErrorId}` : thoughtHintId}
+								>{thoughtData.thought}</textarea>
+							<p id={thoughtHintId} class="mt-2 text-xs text-stone">Minimum 12 characters, maximum 400</p>
 							{#if errors.thought}
-								<p class="mt-2 text-sm text-coral">{errors.thought}</p>
+								<p id={thoughtErrorId} class="mt-2 text-sm text-coral">{errors.thought}</p>
 							{/if}
 						</div>
 
@@ -267,18 +286,19 @@
 								<Image size={16} />
 								Image Path (Optional)
 							</label>
-							<input
-								id="thought-image"
+								<input
+									id="thought-image"
 								type="text"
 								name="image_path"
 								value={thoughtData.image_path}
-								class="input-minimal"
-								placeholder="public/images/spring-hero.jpg"
-								aria-invalid={errors.image_path ? 'true' : undefined}
-							/>
-							<p class="mt-2 text-xs text-stone">Optional. Use a local image path from this project.</p>
+									class="input-minimal"
+									placeholder="public/images/spring-hero.jpg"
+									aria-invalid={errors.image_path ? 'true' : undefined}
+									aria-describedby={errors.image_path ? `${imageHintId} ${imageErrorId}` : imageHintId}
+								/>
+							<p id={imageHintId} class="mt-2 text-xs text-stone">Optional. Use a local image path from this project.</p>
 							{#if errors.image_path}
-								<p class="mt-2 text-sm text-coral">{errors.image_path}</p>
+								<p id={imageErrorId} class="mt-2 text-sm text-coral">{errors.image_path}</p>
 							{/if}
 						</div>
 

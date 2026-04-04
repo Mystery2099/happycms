@@ -26,7 +26,12 @@
 
 <section class="section-padding">
 	<div class="max-w-2xl mx-auto px-6 lg:px-8">
-		<div class="bg-coral/10 border-coral mb-8 border-l-4 p-4">
+		<div
+			class="bg-coral/10 border-coral mb-8 border-l-4 p-4"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
 			<div class="flex items-start gap-3">
 				<AlertTriangle size={20} class="text-coral mt-0.5 shrink-0" />
 				<div>

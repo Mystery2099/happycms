@@ -42,6 +42,7 @@ $footerProps = shell_component_props($currentPage);
     <link rel="stylesheet" href="<?= h(asset_url('public/assets/app.css')) ?>">
 </head>
 <body class="min-h-screen flex flex-col">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <div data-site-header></div>
     <script id="site-header-props" type="application/json"><?= page_props_json($headerProps) ?></script>
@@ -51,7 +52,7 @@ $footerProps = shell_component_props($currentPage);
         <script id="flash-banner-props" type="application/json"><?= page_props_json(flash_component_props($flash)) ?></script>
     <?php endif; ?>
 
-    <main class="flex-1 pb-20 md:pb-0">
+    <main id="main-content" class="flex-1 pb-20 md:pb-0" tabindex="-1">
 
     <script nonce="<?= h($cspNonce) ?>">
         // Seamless scroll detection - only adds visual class, no layout changes

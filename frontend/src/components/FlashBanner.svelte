@@ -14,8 +14,9 @@
 				'flex items-center gap-3 text-sm',
 				type === 'success' ? 'text-moss' : 'text-coral'
 			]}
-			role="status"
-			aria-live="polite"
+			role={type === 'error' ? 'alert' : 'status'}
+			aria-live={type === 'error' ? 'assertive' : 'polite'}
+			aria-atomic="true"
 		>
 			<span>{type === 'success' ? '✓' : '!'}</span>
 			{message}
