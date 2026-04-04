@@ -3,3 +3,4 @@ public/assets/
 .idea/
 .DS_Store
 skills-lock.json
+.agents/skills/svelte-code-writer/SKILL.md
