@@ -4,3 +4,14 @@ public/assets/
 .DS_Store
 skills-lock.json
 .agents/skills/svelte-code-writer/SKILL.md
+.agents/skills/svelte/SKILL.md
+.agents/skills/svelte-core-bestpractices/SKILL.md
+.agents/skills/svelte-core-bestpractices/references/@render.md
+.agents/skills/svelte-core-bestpractices/references/$inspect.md
+.agents/skills/svelte-core-bestpractices/references/@attach.md
+.agents/skills/svelte-core-bestpractices/references/await-expressions.md
+.agents/skills/svelte-core-bestpractices/references/bind.md
+.agents/skills/svelte-core-bestpractices/references/each.md
+.agents/skills/svelte-core-bestpractices/references/hydratable.md
+.agents/skills/svelte-core-bestpractices/references/snippet.md
+.agents/skills/svelte-core-bestpractices/references/svelte-reactivity.md
