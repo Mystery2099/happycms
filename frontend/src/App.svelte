@@ -78,8 +78,8 @@
 					>3</span
 				>
 				<div class="transition-transform duration-200 group-hover:translate-x-1">
-					<p class="text-ink font-medium">AJAX Content</p>
-					<p class="text-stone text-sm">Dynamic famous quotes loaded via Fetch API</p>
+					<p class="text-ink font-medium">Theme Switching</p>
+					<p class="text-stone text-sm">Toggle light, dark, or system-based visual styling</p>
 				</div>
 			</div>
 		</div>

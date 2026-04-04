@@ -3,19 +3,19 @@
     <!-- Bottom Navigation - Mobile Only -->
     <nav class="bottom-nav md:hidden" aria-label="Mobile navigation">
         <div class="bottom-nav-items">
-            <a href="<?= h(route_url('home')) ?>" class="bottom-nav-item <?= $currentPage === 'home' ? 'is-active' : '' ?>">
+            <a href="<?= h(route_url('home')) ?>" class="bottom-nav-item <?= $currentPage === 'home' ? 'is-active' : '' ?>" <?= $currentPage === 'home' ? 'aria-current="page"' : '' ?>>
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="bottom-nav-label">Home</span>
             </a>
-            <a href="<?= h(route_url('thoughts')) ?>" class="bottom-nav-item <?= $currentPage === 'thoughts' ? 'is-active' : '' ?>">
+            <a href="<?= h(route_url('thoughts')) ?>" class="bottom-nav-item <?= $currentPage === 'thoughts' ? 'is-active' : '' ?>" <?= $currentPage === 'thoughts' ? 'aria-current="page"' : '' ?>>
                 <i data-lucide="file-text" class="w-5 h-5"></i>
                 <span class="bottom-nav-label">Thoughts</span>
             </a>
-            <a href="<?= h(route_url('create')) ?>" class="bottom-nav-item <?= $currentPage === 'create' ? 'is-active' : '' ?>">
+            <a href="<?= h(route_url('create')) ?>" class="bottom-nav-item <?= $currentPage === 'create' ? 'is-active' : '' ?>" <?= $currentPage === 'create' ? 'aria-current="page"' : '' ?>>
                 <i data-lucide="plus-circle" class="w-5 h-5"></i>
                 <span class="bottom-nav-label">Add</span>
             </a>
-            <a href="<?= h(route_url('search')) ?>" class="bottom-nav-item <?= $currentPage === 'search' ? 'is-active' : '' ?>">
+            <a href="<?= h(route_url('search')) ?>" class="bottom-nav-item <?= $currentPage === 'search' ? 'is-active' : '' ?>" <?= $currentPage === 'search' ? 'aria-current="page"' : '' ?>>
                 <i data-lucide="search" class="w-5 h-5"></i>
                 <span class="bottom-nav-label">Search</span>
             </a>

@@ -29,6 +29,9 @@ $navIcons = [
     <meta name="csp-nonce" content="<?= h($cspNonce) ?>">
     <title><?= h($pageTitle) ?></title>
     <meta name="description" content="<?= h($pageDescription) ?>">
+    <link rel="icon" href="<?= h(asset_url('public/icons/favicon.svg')) ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= h(asset_url('favicon.ico')) ?>" sizes="any">
+    <link rel="apple-touch-icon" href="<?= h(asset_url('public/icons/apple-touch-icon.png')) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -362,6 +365,7 @@ $navIcons = [
                         <a
                             href="<?= h(route_url($route)) ?>"
                             class="relative inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200 <?= $currentPage === $route ? 'text-ink' : 'text-stone hover:text-ink' ?>"
+                            <?= $currentPage === $route ? 'aria-current="page"' : '' ?>
                         >
                             <i data-lucide="<?= h($navIcons[$route] ?? 'circle') ?>" class="w-4 h-4"></i>
                             <?= h($label) ?>

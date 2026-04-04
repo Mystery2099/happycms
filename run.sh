@@ -29,4 +29,4 @@ bun run build
 echo "Starting HappyCMS at http://${HOST}:${PORT}"
 echo "Press Ctrl+C to stop."
 
-exec php -S "${HOST}:${PORT}" -t "${PROJECT_ROOT}"
+exec php -S "${HOST}:${PORT}" -t "${PROJECT_ROOT}" "${PROJECT_ROOT}/router.php"

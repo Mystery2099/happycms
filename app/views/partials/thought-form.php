@@ -139,7 +139,7 @@ $formAction = $formAction ?? '';
                 name="image_path"
                 value="<?= h((string) $thoughtData['image_path']) ?>"
                 class="input-minimal"
-                placeholder="images/spring-hero.jpg"
+                placeholder="public/images/spring-hero.jpg"
             >
             <p class="mt-2 text-xs text-stone">Optional. Use a local image path from this project.</p>
             <?php if (isset($errors['image_path'])): ?>

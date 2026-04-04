@@ -295,6 +295,15 @@ function normalized_text_input(mixed $value, int $maxLength): string
     return $text;
 }
 
+function text_length(string $value): int
+{
+    if (function_exists('mb_strlen')) {
+        return mb_strlen($value);
+    }
+
+    return strlen($value);
+}
+
 function normalized_search_query(mixed $value): string
 {
     return normalized_text_input($value, 100);
@@ -302,14 +311,23 @@ function normalized_search_query(mixed $value): string
 
 function current_origin(): ?string
 {
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    if (!is_string($host) || $host === '') {
+    $hostHeader = $_SERVER['HTTP_HOST'] ?? '';
+    if (!is_string($hostHeader) || trim($hostHeader) === '') {
         return null;
     }
 
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $parsedHost = parse_url('http://' . trim($hostHeader));
+    if (!is_array($parsedHost) || !isset($parsedHost['host'])) {
+        return null;
+    }
 
-    return $scheme . '://' . $host;
+    $origin = $scheme . '://' . $parsedHost['host'];
+    if (isset($parsedHost['port'])) {
+        $origin .= ':' . $parsedHost['port'];
+    }
+
+    return $origin;
 }
 
 function is_same_origin_request(): bool
@@ -441,19 +459,19 @@ function validate_thought_input(array $input): array
 
     $errors = [];
 
-    if ($data['title'] === '' || mb_strlen($data['title']) < 3) {
+    if ($data['title'] === '' || text_length($data['title']) < 3) {
         $errors['title'] = 'Use a title with at least 3 characters.';
     }
 
-    if (mb_strlen($data['title']) > 80) {
+    if (text_length($data['title']) > 80) {
         $errors['title'] = 'Title must stay under 80 characters.';
     }
 
-    if ($data['author'] === '' || mb_strlen($data['author']) < 2) {
+    if ($data['author'] === '' || text_length($data['author']) < 2) {
         $errors['author'] = 'Author is required.';
     }
 
-    if (mb_strlen($data['author']) > 60) {
+    if (text_length($data['author']) > 60) {
         $errors['author'] = 'Author must stay under 60 characters.';
     }
 
@@ -465,11 +483,11 @@ function validate_thought_input(array $input): array
         $errors['mood_score'] = 'Mood score must be between 1 and 5.';
     }
 
-    if ($data['thought'] === '' || mb_strlen($data['thought']) < 12) {
+    if ($data['thought'] === '' || text_length($data['thought']) < 12) {
         $errors['thought'] = 'Thought text must be at least 12 characters.';
     }
 
-    if (mb_strlen($data['thought']) > 400) {
+    if (text_length($data['thought']) > 400) {
         $errors['thought'] = 'Thought text must stay under 400 characters.';
     }
 
@@ -571,13 +589,25 @@ function dashboard_stats(): array
 
 function famous_thoughts_file_path(): string
 {
-    return project_root_path() . '/storage/database/famous-thoughts.txt';
+    return app_data_root_path() . '/database/famous-thoughts.txt';
 }
 
 function load_famous_thoughts(): array
 {
-    $file = famous_thoughts_file_path();
-    if (!is_file($file)) {
+    $candidateFiles = [
+        famous_thoughts_file_path(),
+        project_root_path() . '/storage/database/famous-thoughts.txt',
+    ];
+
+    $file = null;
+    foreach ($candidateFiles as $candidateFile) {
+        if (is_file($candidateFile)) {
+            $file = $candidateFile;
+            break;
+        }
+    }
+
+    if ($file === null) {
         return [];
     }
 

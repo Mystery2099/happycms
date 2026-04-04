@@ -2,7 +2,20 @@
 
 declare(strict_types=1);
 
-const DATABASE_PATH = __DIR__ . '/../../storage/database/happy.sqlite';
+function app_data_root_path(): string
+{
+    $configuredPath = getenv('HAPPYCMS_DATA_DIR');
+    if (is_string($configuredPath) && trim($configuredPath) !== '') {
+        return rtrim($configuredPath, DIRECTORY_SEPARATOR);
+    }
+
+    return dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'happycms-data';
+}
+
+function database_path(): string
+{
+    return app_data_root_path() . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'happy.sqlite';
+}
 
 function get_pdo(): PDO
 {
@@ -12,12 +25,13 @@ function get_pdo(): PDO
         return $pdo;
     }
 
-    $directory = dirname(DATABASE_PATH);
+    $databasePath = database_path();
+    $directory = dirname($databasePath);
     if (!is_dir($directory)) {
         mkdir($directory, 0775, true);
     }
 
-    $pdo = new PDO('sqlite:' . DATABASE_PATH);
+    $pdo = new PDO('sqlite:' . $databasePath);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
@@ -54,7 +68,7 @@ function initialize_database(PDO $pdo): void
             'category' => 'Nature',
             'mood_score' => 5,
             'thought' => 'The tulips outside the library looked impossible this morning, like the campus decided to start over in color.',
-            'image_path' => 'images/spring-hero.jpg',
+            'image_path' => 'public/images/spring-hero.jpg',
         ],
         [
             'title' => 'Coffee with Friends',
@@ -70,7 +84,7 @@ function initialize_database(PDO $pdo): void
             'category' => 'Weather',
             'mood_score' => 5,
             'thought' => 'When the clouds finally moved, the sunlight hit every puddle on campus like a spotlight.',
-            'image_path' => 'images/happy-sun.png',
+            'image_path' => 'public/images/happy-sun.png',
         ],
         [
             'title' => 'Fresh Start',

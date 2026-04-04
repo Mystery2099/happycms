@@ -66,7 +66,7 @@ $serverSearch = $serverSearch ?? '';
                         >
                             <td class="max-w-md">
                                 <p class="font-medium text-ink"><?= h($thought['title']) ?></p>
-                                <p class="text-sm text-stone line-clamp-2 mt-1"><?= h($thought['thought']) ?></p>
+                                <p class="mt-1 text-sm text-stone whitespace-normal break-words"><?= h($thought['thought']) ?></p>
                                 <?php if (!empty($thought['image_path'])): ?>
                                     <span class="inline-flex items-center gap-1 mt-2 text-xs text-stone">
                                         <i data-lucide="image" class="w-3 h-3"></i>
@@ -124,7 +124,7 @@ $serverSearch = $serverSearch ?? '';
                                 <?= h($thought['category']) ?>
                             </span>
                         </div>
-                        <p class="text-sm text-stone leading-relaxed line-clamp-3"><?= h($thought['thought']) ?></p>
+                        <p class="text-sm text-stone leading-relaxed whitespace-normal break-words"><?= h($thought['thought']) ?></p>
                         <div class="flex items-center justify-between pt-3 border-t border-mist/60">
                             <span class="text-sm font-medium text-ink"><?= h($thought['author']) ?></span>
                             <span class="text-wheat text-sm"><?= str_repeat('★', (int) $thought['mood_score']) ?></span>

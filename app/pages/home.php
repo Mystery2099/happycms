@@ -38,7 +38,7 @@ require project_root_path() . '/app/views/layout/header.php';
                 </div>
             </div>
             <div class="relative">
-                <img src="<?= h(asset_url('images/spring-hero.jpg')) ?>" alt="Spring flowers in warm light" class="w-full aspect-[4/3] object-cover">
+                <img src="<?= h(asset_url('public/images/spring-hero.jpg')) ?>" alt="Spring flowers in warm light" class="w-full aspect-[4/3] object-cover">
                 <div class="absolute -bottom-4 -left-4 bg-white p-4 shadow-lg hidden lg:block">
                     <i data-lucide="smile-plus" class="w-5 h-5 text-coral mb-2"></i>
                     <p class="font-display text-2xl text-ink"><?= $stats['total'] ?></p>

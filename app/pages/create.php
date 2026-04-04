@@ -53,7 +53,7 @@ require project_root_path() . '/app/views/layout/header.php';
                 <p class="text-stone leading-relaxed mb-8">Share a moment of joy, gratitude, or positivity. Your thought will be stored in our database.</p>
                 
                 <div class="aspect-square overflow-hidden bg-mist/30 flex items-center justify-center">
-                    <img src="<?= h(asset_url('images/happy-sun.png')) ?>" alt="Smiling sun illustration" class="w-3/4 h-3/4 object-contain">
+                    <img src="<?= h(asset_url('public/images/happy-sun.png')) ?>" alt="Smiling sun illustration" class="w-3/4 h-3/4 object-contain">
                 </div>
             </aside>
 

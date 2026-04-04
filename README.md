@@ -21,9 +21,9 @@ This is the main recommended way to run the project.
 ## Requirements
 
 - PHP
-- Node.js + npm
+- Bun
 
-The project stores data in SQLite under `storage/database/`, so no separate database server is required.
+Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory, so no separate database server is required.
 
 ## Project URLs
 
@@ -46,7 +46,7 @@ From the project root:
 
 This script:
 
-1. builds the Svelte frontend with `npm run build`
+1. builds the Svelte frontend with `bun run build`
 2. starts PHP's built-in server
 
 By default, it runs at:
@@ -82,8 +82,8 @@ C:\wamp64\www\happycms
 2. Open a terminal in the project folder and build the frontend:
 
 ```bash
-npm install
-npm run build
+bun install
+bun run build
 ```
 
 3. Start WAMP.
@@ -100,8 +100,8 @@ If your instructor or environment uses WAMP virtual hosts, point the host to thi
 
 Important notes for WAMP:
 
-- The built frontend files must exist in `public/assets/`, so run `npm run build` before opening the site.
-- The `storage/database/` folder must be writable by the PHP process so SQLite can read and update the database.
+- The built frontend files must exist in `public/assets/`, so run `bun run build` before opening the site.
+- Runtime SQLite data is written outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
 - This project does not require MySQL.
 
 ## Run It With Docker
@@ -113,8 +113,8 @@ This project does not include a `Dockerfile`, but it can still be run with the o
 From the project root:
 
 ```bash
-docker run --rm -v "${PWD}:/app" -w /app node:20 npm install
-docker run --rm -v "${PWD}:/app" -w /app node:20 npm run build
+docker run --rm -v "${PWD}:/app" -w /app oven/bun:1 bun install
+docker run --rm -v "${PWD}:/app" -w /app oven/bun:1 bun run build
 ```
 
 ### Step 2: Run PHP's built-in server in a container
@@ -134,12 +134,14 @@ http://127.0.0.1:8000
 If `${PWD}` does not behave correctly in PowerShell, use the full project path instead. Example:
 
 ```powershell
-docker run --rm -v "C:\path\to\happycms:/app" -w /app node:20 npm run build
+docker run --rm -v "C:\path\to\happycms:/app" -w /app oven/bun:1 bun run build
 docker run --rm -it -p 8000:8000 -v "C:\path\to\happycms:/app" -w /app php:8.2-cli php -S 0.0.0.0:8000 -t /app
 ```
 
 ## Notes
 
-- The SQLite database file is stored at `storage/database/happy.sqlite`.
-- Seed quote data for the API is stored at `storage/database/famous-thoughts.txt`.
-- If the page loads without styling, the frontend probably has not been built yet. Run `npm run build`.
+- Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
+- Seed quote data for the API is read from `storage/database/famous-thoughts.txt` unless an override file exists in the external data directory.
+- Static site assets live under `public/`, with icons in `public/icons/` and demo images in `public/images/`.
+- If the page loads without styling, the frontend probably has not been built yet. Run `bun run build`.
+- Unknown routes are redirected back to `/`.
