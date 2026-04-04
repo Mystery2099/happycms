@@ -131,42 +131,76 @@
 			</a>
 		</div>
 
-		<div class="overflow-hidden border border-mist">
-			<table class="data-table">
-				<caption class="sr-only">Recent happy thoughts from the database</caption>
-				<thead>
-					<tr>
-						<th>Title</th>
-						<th>Author</th>
-						<th>Category</th>
-						<th class="text-right">Mood</th>
-					</tr>
-				</thead>
-				<tbody>
+		<div class="border border-mist">
+			<div class="md:hidden">
+				<div class="divide-y divide-mist">
 					{#each recentThoughts as thought (thought.id)}
-						<tr>
-							<td>
-								<a
-									href={thought.editUrl}
-									class="font-medium text-ink transition-colors hover:text-coral"
-								>
-									{thought.title}
-								</a>
-								<p class="text-sm text-stone line-clamp-1 mt-1">{thought.thought}</p>
-							</td>
-							<td class="text-stone">{thought.author}</td>
-							<td>
+						<article class="space-y-4 p-5">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0">
+									<a
+										href={thought.editUrl}
+										class="font-display text-xl leading-tight text-ink transition-colors hover:text-coral"
+									>
+										{thought.title}
+									</a>
+									<p class="mt-2 text-sm leading-relaxed text-stone line-clamp-2">
+										{thought.thought}
+									</p>
+								</div>
 								<span
-									class="bg-mist/50 text-stone inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
+									class="bg-mist/50 text-stone inline-flex shrink-0 items-center px-2.5 py-0.5 text-xs font-medium"
 								>
 									{thought.category}
 								</span>
-							</td>
-							<td class="text-right text-wheat">{renderMood(thought.moodScore)}</td>
-						</tr>
+							</div>
+
+							<div class="flex items-center justify-between gap-3 border-t border-mist pt-3">
+								<p class="text-sm font-medium text-stone">{thought.author}</p>
+								<p class="text-sm text-wheat">{renderMood(thought.moodScore)}</p>
+							</div>
+						</article>
 					{/each}
-				</tbody>
-			</table>
+				</div>
+			</div>
+
+			<div class="hidden overflow-hidden md:block">
+				<table class="data-table">
+					<caption class="sr-only">Recent happy thoughts from the database</caption>
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Author</th>
+							<th>Category</th>
+							<th class="text-right">Mood</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each recentThoughts as thought (thought.id)}
+							<tr>
+								<td>
+									<a
+										href={thought.editUrl}
+										class="font-medium text-ink transition-colors hover:text-coral"
+									>
+										{thought.title}
+									</a>
+									<p class="text-sm text-stone line-clamp-1 mt-1">{thought.thought}</p>
+								</td>
+								<td class="text-stone">{thought.author}</td>
+								<td>
+									<span
+										class="bg-mist/50 text-stone inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
+									>
+										{thought.category}
+									</span>
+								</td>
+								<td class="text-right text-wheat">{renderMood(thought.moodScore)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </section>

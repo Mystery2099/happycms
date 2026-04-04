@@ -6,6 +6,7 @@
 		Search,
 		Trash2
 	} from '@lucide/svelte';
+	import Dropdown from '../components/Dropdown.svelte';
 
 	type Thought = {
 		id: number;
@@ -78,6 +79,10 @@
 	});
 	let visibleCount = $derived(visibleThoughts.length);
 	let totalCount = $derived(thoughts.length);
+	let categoryOptions = $derived([
+		{ value: 'all', label: 'All categories' },
+		...categories.map((item) => ({ value: item.toLowerCase(), label: item }))
+	]);
 	let cardGridClass = $derived(
 		density === 'compact'
 			? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
@@ -276,16 +281,17 @@
 					</div>
 				</div>
 
-				<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-					<div class="min-w-[220px]">
-						<label class="sr-only" for="client-filter">Filter by category</label>
-						<select id="client-filter" bind:value={category} class="input-minimal">
-							<option value="all">All categories</option>
-							{#each categories as item (item)}
-								<option value={item.toLowerCase()}>{item}</option>
-							{/each}
-						</select>
-					</div>
+					<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+						<div class="min-w-[220px]">
+							<span id="client-filter-label" class="sr-only">Filter by category</span>
+							<Dropdown
+								options={categoryOptions}
+								bind:value={category}
+								ariaLabel="Filter by category"
+								ariaLabelledby="client-filter-label"
+								listAriaLabel="Category filters"
+							/>
+						</div>
 					<input
 						type="search"
 						bind:value={search}
