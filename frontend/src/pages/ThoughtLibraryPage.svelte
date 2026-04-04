@@ -130,14 +130,19 @@
 	<div class="max-w-6xl mx-auto px-6 lg:px-8">
 		<div class="space-y-6 md:space-y-8">
 			{#if pageMode === 'search'}
-				<div class="max-w-2xl mb-12">
+				<div class="max-w-xl mb-12">
 					<p class="text-sm font-medium text-stone uppercase tracking-widest mb-4">Search</p>
 					<h1 class="font-display text-display-md text-ink mb-6 inline-flex items-center gap-3">
 						<Search size={24} class="text-coral" />
 						Find happy thoughts
 					</h1>
 
-					<form action={searchAction} method="get" class="flex gap-3" role="search">
+					<form
+						action={searchAction}
+						method="get"
+						class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+						role="search"
+					>
 						<label for="search-query" class="sr-only">Search thoughts</label>
 						<input
 							id="search-query"
@@ -145,10 +150,10 @@
 							name="q"
 							bind:value={search}
 							placeholder="Search by title, author, category, or content..."
-							class="input-minimal flex-1"
+							class="input-minimal min-w-0"
 							aria-label="Search thoughts"
 						/>
-						<button type="submit" class="btn-primary">
+						<button type="submit" class="btn-primary justify-center whitespace-nowrap">
 							<Search size={16} />
 							Search
 						</button>
@@ -156,23 +161,19 @@
 				</div>
 			{/if}
 
-			<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-				<div>
-					{#if pageMode === 'search'}
-						<h2 class="font-display text-display-md text-ink mb-1 md:mb-2">{heading}</h2>
-					{:else}
+			{#if pageMode !== 'search'}
+				<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+					<div>
 						<h1 class="font-display text-display-md text-ink mb-1 md:mb-2">{heading}</h1>
-					{/if}
-					<p class="text-stone text-sm md:text-base hidden sm:block">{description}</p>
-				</div>
+						<p class="text-stone text-sm md:text-base hidden sm:block">{description}</p>
+					</div>
 
-				{#if pageMode !== 'search'}
 					<a href={routes.search} class="btn-secondary text-sm py-2 md:py-3 md:text-base">
 						<Search size={16} />
 						Search thoughts
 					</a>
-				{/if}
-			</div>
+				</div>
+			{/if}
 
 			<div
 				class="border-mist flex flex-col gap-4 border-y py-4 sm:flex-row sm:items-center sm:justify-between"
