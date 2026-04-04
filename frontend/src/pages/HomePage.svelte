@@ -3,7 +3,6 @@
 		ArrowRight,
 		FileText,
 		Image,
-		MapPin,
 		PlusCircle,
 		Save,
 		Search,
@@ -186,7 +185,7 @@
 						<div>
 							<p class="font-medium text-ink">Template System</p>
 							<p class="text-sm text-stone">
-								Shared header and footer includes for consistent layout
+								PHP layout includes with a Svelte-rendered shell for consistent pages
 							</p>
 						</div>
 					</div>
@@ -198,7 +197,7 @@
 						<div>
 							<p class="font-medium text-ink">HTML Structure</p>
 							<p class="text-sm text-stone">
-								Tables, headings, lists, images, and semantic elements
+								Tables, headings, images, navigation, and semantic page structure
 							</p>
 						</div>
 					</div>
@@ -269,18 +268,6 @@
 						<ArrowRight size={16} class="text-stone" />
 					</a>
 				</nav>
-
-				<div class="border-mist mt-8 border-t pt-8">
-					<h3 class="font-display text-lg text-ink mb-3 inline-flex items-center gap-2">
-						<MapPin size={16} class="text-coral" />
-						Contact
-					</h3>
-					<address class="text-stone not-italic text-sm leading-relaxed">
-						Happy Thoughts Studio<br />
-						123 Campus Garden Walk<br />
-						Boston, MA 02115
-					</address>
-				</div>
 			</div>
 		</div>
 	</div>
