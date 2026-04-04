@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { ChevronDown, Check, X } from '@lucide/svelte';
-	import Hammer from 'hammerjs';
+	import type HammerType from 'hammerjs';
 	import type { Component } from 'svelte';
 	import { onMount, tick } from 'svelte';
+	import type { HammerInput } from 'hammerjs';
 
 	interface Option {
 		value: string;
@@ -51,6 +52,7 @@
 	let selectedLabel = $derived(selectedOption?.label ?? placeholder);
 	let SelectedIcon = $derived(selectedOption?.icon);
 	let isMobile = $derived(viewportWidth < mobileBreakpoint);
+	let triggerElement = $state<HTMLButtonElement | null>(null);
 	let sheetElement = $state<HTMLElement | null>(null);
 	let dragSurfaceElement = $state<HTMLElement | null>(null);
 	let handleElement = $state<HTMLButtonElement | null>(null);
@@ -59,6 +61,8 @@
 	let scrollRule: CSSStyleRule | null = null;
 	const sheetInstanceId = `dropdown-sheet-${Math.random().toString(36).slice(2, 10)}`;
 	let currentTranslateY = 0;
+	let shouldHintMoreContent = $derived(!isExpanded && options.length > 6);
+	let hammerModulePromise: Promise<typeof import('hammerjs')> | null = null;
 
 	const defaultTriggerClass =
 		'input-minimal hover:border-stone flex w-full items-center justify-between gap-2 text-left transition-all duration-300 focus:translate-y-[-1px]';
@@ -75,11 +79,77 @@
 		}
 	}
 
-	function close() {
+	function focusTrigger() {
+		tick().then(() => {
+			requestAnimationFrame(() => {
+				triggerElement?.focus();
+				setTimeout(() => {
+					triggerElement?.focus();
+				}, 60);
+			});
+		});
+	}
+
+	function getSheetFocusableElements() {
+		if (!sheetElement) return [] as HTMLElement[];
+
+		return Array.from(
+			sheetElement.querySelectorAll<HTMLElement>(
+				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+			)
+		).filter((element) => !element.hasAttribute('hidden'));
+	}
+
+	function trapSheetFocus(event: KeyboardEvent) {
+		if (event.key !== 'Tab') return;
+
+		const focusableElements = getSheetFocusableElements();
+		if (focusableElements.length === 0) {
+			event.preventDefault();
+			return;
+		}
+
+		const firstElement = focusableElements[0];
+		const lastElement = focusableElements[focusableElements.length - 1];
+		const activeElement = document.activeElement as HTMLElement | null;
+		const focusIsInsideSheet = !!(activeElement && sheetElement?.contains(activeElement));
+
+		if (!focusIsInsideSheet) {
+			event.preventDefault();
+			(event.shiftKey ? lastElement : firstElement).focus();
+			return;
+		}
+
+		if (event.shiftKey && activeElement === firstElement) {
+			event.preventDefault();
+			lastElement.focus();
+			return;
+		}
+
+		if (!event.shiftKey && activeElement === lastElement) {
+			event.preventDefault();
+			firstElement.focus();
+		}
+	}
+
+	function keepFocusInsideSheet(event: FocusEvent) {
+		if (!isMobile || !isOpen || !sheetElement) return;
+
+		const nextTarget = event.target as HTMLElement | null;
+		if (!nextTarget || sheetElement.contains(nextTarget)) return;
+
+		const [firstElement] = getSheetFocusableElements();
+		(firstElement ?? handleElement)?.focus();
+	}
+
+	function close({ restoreFocus = isMobile } = {}) {
 		isOpen = false;
 		isExpanded = false;
 		isDragging = false;
 		currentTranslateY = 0;
+		if (restoreFocus) {
+			focusTrigger();
+		}
 	}
 
 	function selectOption(optionValue: string) {
@@ -89,6 +159,12 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		if (!isOpen) return;
+
+		if (isMobile && isOpen) {
+			trapSheetFocus(event);
+		}
+
 		if (event.key === 'Escape') {
 			close();
 		}
@@ -149,6 +225,11 @@
 		scrollRule.style.maxHeight = `${scrollHeight}px`;
 	}
 
+	function loadHammerModule() {
+		hammerModulePromise ??= import('hammerjs');
+		return hammerModulePromise;
+	}
+
 	onMount(() => {
 		const nonce = document
 			.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')
@@ -184,23 +265,22 @@
 
 		const previousOverflow = document.body.style.overflow;
 		document.body.style.overflow = 'hidden';
+		document.addEventListener('focusin', keepFocusInsideSheet);
 
 		return () => {
 			document.body.style.overflow = previousOverflow;
+			document.removeEventListener('focusin', keepFocusInsideSheet);
 		};
 	});
 
 	$effect(() => {
 		if (!isMobile || !isOpen || !dragSurfaceElement || !sheetElement) return;
 
+		let cancelled = false;
+		let hammer: HammerType.Manager | null = null;
 		let startOffset = getRestingTranslateY();
 		const snapThreshold = 80;
 		const closeThreshold = Math.max(getCollapsedOffset() + 140, viewportHeight * 0.72);
-		const hammer = new Hammer.Manager(dragSurfaceElement, {
-			touchAction: 'none',
-			recognizers: [[Hammer.Pan, { direction: Hammer.DIRECTION_VERTICAL, threshold: 0 }]]
-		});
-
 		const onPanStart = () => {
 			startOffset = currentTranslateY;
 			isDragging = true;
@@ -238,11 +318,25 @@
 			applySheetTranslateY(getRestingTranslateY());
 		};
 
-		hammer.on('panstart', onPanStart);
-		hammer.on('panmove', onPanMove);
-		hammer.on('panend pancancel', onPanEnd);
+		loadHammerModule().then((Hammer) => {
+			if (cancelled) return;
+
+			hammer = new Hammer.default.Manager(dragSurfaceElement, {
+				touchAction: 'none',
+				recognizers: [
+					[Hammer.default.Pan, { direction: Hammer.default.DIRECTION_VERTICAL, threshold: 0 }]
+				]
+			});
+
+			hammer.on('panstart', onPanStart);
+			hammer.on('panmove', onPanMove);
+			hammer.on('panend pancancel', onPanEnd);
+		});
 
 		return () => {
+			cancelled = true;
+			if (!hammer) return;
+
 			hammer.off('panstart', onPanStart);
 			hammer.off('panmove', onPanMove);
 			hammer.off('panend pancancel', onPanEnd);
@@ -271,10 +365,11 @@
 />
 
 <div class="relative {className}" data-dropdown-root>
-	<button
-		type="button"
-		class={triggerClass || defaultTriggerClass}
-		onclick={toggle}
+		<button
+			bind:this={triggerElement}
+			type="button"
+			class={triggerClass || defaultTriggerClass}
+			onclick={toggle}
 		aria-expanded={isOpen}
 		aria-haspopup={isMobile ? 'dialog' : 'listbox'}
 		aria-label={ariaLabel}
@@ -330,9 +425,9 @@
 		></button>
 	</div>
 
-	<div
-		bind:this={sheetElement}
-		data-dropdown-sheet-id={sheetInstanceId}
+		<div
+			bind:this={sheetElement}
+			data-dropdown-sheet-id={sheetInstanceId}
 		class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
 		class:dropdown-sheet--dragging={isDragging}
 		role="dialog"
@@ -360,6 +455,14 @@
 					<h2 class="text-base font-medium text-ink dark:text-slate-50">
 						{listAriaLabel ?? ariaLabel ?? selectedLabel}
 					</h2>
+					{#if shouldHintMoreContent}
+						<p class="mt-1 flex items-center gap-1.5 text-xs font-medium text-coral dark:text-rose-300">
+							<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 dark:bg-rose-300/10">
+								<ChevronDown size={12} class="-rotate-90" />
+							</span>
+							Pull up to reveal more options
+						</p>
+					{/if}
 				</div>
 				<button
 					type="button"
@@ -373,7 +476,7 @@
 		</div>
 
 		<div
-			class="dropdown-sheet-scroll overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+			class="dropdown-sheet-scroll relative overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
 		>
 			<div class="space-y-2 pb-4">
 				{#each options as option}
@@ -403,6 +506,24 @@
 					</button>
 				{/each}
 			</div>
+
+			{#if shouldHintMoreContent}
+				<div
+					class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-[24px] bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
+					aria-hidden="true"
+				></div>
+				<div
+					class="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
+					aria-hidden="true"
+				>
+					<div class="flex items-center gap-2 rounded-full border border-stone-200/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-stone shadow-sm dark:border-slate-700 dark:bg-slate-800/92 dark:text-slate-300">
+						<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 text-coral dark:bg-rose-300/10 dark:text-rose-300">
+							<ChevronDown size={12} class="animate-bounce [animation-duration:1.4s]" />
+						</span>
+						More below
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}

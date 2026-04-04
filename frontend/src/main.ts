@@ -1,81 +1,84 @@
 import './styles.css';
 import { mount } from 'svelte';
-import App from './App.svelte';
-import ThoughtControls from './components/ThoughtControls.svelte';
-import ThemeDropdown from './components/ThemeDropdown.svelte';
-import {
-	createIcons,
-	Monitor,
-	Sun,
-	Moon,
-	ChevronDown,
-	Menu,
-	X,
-	Home,
-	FileText,
-	PlusCircle,
-	Search,
-	Image,
-	Pencil,
-	Trash2,
-	ChevronLeft,
-	AlertTriangle,
-	ArrowRight,
-	MapPin,
-	Save,
-	BadgeX,
-	Type,
-	User,
-	Tag,
-	SmilePlus,
-	MessageSquareText,
-	CalendarDays,
-	Hash,
-	Star,
-	Check
-} from 'lucide';
 
-// Initialize Lucide icons
-createIcons({
-	icons: {
-		Monitor,
-		Sun,
-		Moon,
-		ChevronDown,
-		Menu,
-		X,
-		Home,
-		FileText,
-		PlusCircle,
-		Search,
-		Image,
-		Pencil,
-		Trash2,
-		ChevronLeft,
-		AlertTriangle,
-		ArrowRight,
-		MapPin,
-		Save,
-		BadgeX,
-		Type,
-		User,
-		Tag,
-		SmilePlus,
-		MessageSquareText,
-		CalendarDays,
-		Hash,
-		Star,
-		Check
-	}
-});
+if (document.querySelector('[data-lucide]')) {
+	import('lucide').then(
+		({
+			createIcons,
+			Monitor,
+			Sun,
+			Moon,
+			ChevronDown,
+			Menu,
+			X,
+			Home,
+			FileText,
+			PlusCircle,
+			Search,
+			Image,
+			Pencil,
+			Trash2,
+			ChevronLeft,
+			AlertTriangle,
+			ArrowRight,
+			MapPin,
+			Save,
+			BadgeX,
+			Type,
+			User,
+			Tag,
+			SmilePlus,
+			MessageSquareText,
+			CalendarDays,
+			Hash,
+			Star,
+			Check
+		}) => {
+			createIcons({
+				icons: {
+					Monitor,
+					Sun,
+					Moon,
+					ChevronDown,
+					Menu,
+					X,
+					Home,
+					FileText,
+					PlusCircle,
+					Search,
+					Image,
+					Pencil,
+					Trash2,
+					ChevronLeft,
+					AlertTriangle,
+					ArrowRight,
+					MapPin,
+					Save,
+					BadgeX,
+					Type,
+					User,
+					Tag,
+					SmilePlus,
+					MessageSquareText,
+					CalendarDays,
+					Hash,
+					Star,
+					Check
+				}
+			});
+		}
+	);
+}
 
 const dashboardTarget = document.querySelector<HTMLElement>('[data-happy-dashboard]');
 if (dashboardTarget) {
-	mount(App, {
-		target: dashboardTarget,
-		props: {
-			apiUrl: dashboardTarget.dataset.apiUrl ?? 'api/famous-thoughts.php'
-		}
+	import('./App.svelte').then(({ default: App }) => {
+		mount(App, {
+			target: dashboardTarget,
+			props: {
+				apiUrl: dashboardTarget.dataset.apiUrl ?? 'api/famous-thoughts.php'
+			}
+		});
 	});
 }
 
@@ -90,11 +93,13 @@ if (thoughtControlsTarget) {
 		categories = [];
 	}
 
-	mount(ThoughtControls, {
-		target: thoughtControlsTarget,
-		props: {
-			categories
-		}
+	import('./components/ThoughtControls.svelte').then(({ default: ThoughtControls }) => {
+		mount(ThoughtControls, {
+			target: thoughtControlsTarget,
+			props: {
+				categories
+			}
+		});
 	});
 }
 
@@ -117,21 +122,26 @@ if (categoryDropdownTarget) {
 }
 
 const themeDropdownTarget = document.querySelector<HTMLElement>('[data-theme-dropdown]');
-if (themeDropdownTarget) {
-	mount(ThemeDropdown, {
-		target: themeDropdownTarget,
-		props: {
-			variant: 'desktop'
-		}
-	});
-}
-
 const mobileThemeDropdownTarget = document.querySelector<HTMLElement>('[data-mobile-theme-dropdown]');
-if (mobileThemeDropdownTarget) {
-	mount(ThemeDropdown, {
-		target: mobileThemeDropdownTarget,
-		props: {
-			variant: 'mobile'
+
+if (themeDropdownTarget || mobileThemeDropdownTarget) {
+	import('./components/ThemeDropdown.svelte').then(({ default: ThemeDropdown }) => {
+		if (themeDropdownTarget) {
+			mount(ThemeDropdown, {
+				target: themeDropdownTarget,
+				props: {
+					variant: 'desktop'
+				}
+			});
+		}
+
+		if (mobileThemeDropdownTarget) {
+			mount(ThemeDropdown, {
+				target: mobileThemeDropdownTarget,
+				props: {
+					variant: 'mobile'
+				}
+			});
 		}
 	});
 }
