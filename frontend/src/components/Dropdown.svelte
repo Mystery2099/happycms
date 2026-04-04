@@ -46,7 +46,7 @@
 	let viewportWidth = $state(1024);
 	let viewportHeight = $state(900);
 	let isExpanded = $state(false);
-	let dragOffset = $state(0);
+	let isDragging = $state(false);
 	let selectedOption = $derived(options.find((opt) => opt.value === value));
 	let selectedLabel = $derived(selectedOption?.label ?? placeholder);
 	let SelectedIcon = $derived(selectedOption?.icon);
@@ -55,7 +55,10 @@
 	let dragSurfaceElement = $state<HTMLElement | null>(null);
 	let handleElement = $state<HTMLButtonElement | null>(null);
 	let styleElement: HTMLStyleElement | null = null;
+	let sheetRule: CSSStyleRule | null = null;
+	let scrollRule: CSSStyleRule | null = null;
 	const sheetInstanceId = `dropdown-sheet-${Math.random().toString(36).slice(2, 10)}`;
+	let currentTranslateY = 0;
 
 	const defaultTriggerClass =
 		'input-minimal hover:border-stone flex w-full items-center justify-between gap-2 text-left transition-all duration-300 focus:translate-y-[-1px]';
@@ -68,14 +71,15 @@
 		isOpen = !isOpen;
 		if (isOpen) {
 			isExpanded = false;
-			dragOffset = 0;
+			currentTranslateY = getCollapsedOffset();
 		}
 	}
 
 	function close() {
 		isOpen = false;
 		isExpanded = false;
-		dragOffset = 0;
+		isDragging = false;
+		currentTranslateY = 0;
 	}
 
 	function selectOption(optionValue: string) {
@@ -115,33 +119,34 @@
 		return Math.max(getMaximumSheetHeight() - getMinimumVisibleHeight(), 0);
 	}
 
-	function getSheetTranslateY() {
-		const restingOffset = isExpanded ? 0 : getCollapsedOffset();
-		return Math.max(0, restingOffset + dragOffset);
+	function getRestingTranslateY() {
+		return isExpanded ? 0 : getCollapsedOffset();
+	}
+
+	function applySheetTranslateY(nextTranslateY: number) {
+		currentTranslateY = Math.max(0, nextTranslateY);
+		if (sheetRule) {
+			sheetRule.style.transform = `translateY(${currentTranslateY}px)`;
+		}
 	}
 
 	function updateSheetStyles() {
-		if (!styleElement) return;
+		if (!sheetRule || !scrollRule) return;
 
 		if (!isOpen || !isMobile) {
-			styleElement.textContent = '';
+			sheetRule.style.cssText = '';
+			scrollRule.style.cssText = '';
 			return;
 		}
 
 		const maxSheetHeight = getMaximumSheetHeight();
 		const scrollHeight = Math.max(maxSheetHeight - 92, 220);
 
-		styleElement.textContent = `
-			[data-dropdown-sheet-id="${sheetInstanceId}"] {
-				height: ${maxSheetHeight}px;
-				max-height: calc(100dvh - ${getExpandedTopOffset()}px);
-				transform: translateY(${getSheetTranslateY()}px);
-			}
+		sheetRule.style.height = `${maxSheetHeight}px`;
+		sheetRule.style.maxHeight = `calc(100dvh - ${getExpandedTopOffset()}px)`;
+		applySheetTranslateY(isDragging ? currentTranslateY : getRestingTranslateY());
 
-			[data-dropdown-sheet-id="${sheetInstanceId}"] .dropdown-sheet-scroll {
-				max-height: ${scrollHeight}px;
-			}
-		`;
+		scrollRule.style.maxHeight = `${scrollHeight}px`;
 	}
 
 	onMount(() => {
@@ -155,11 +160,22 @@
 		}
 
 		document.head.appendChild(styleElement);
+		const stylesheet = styleElement.sheet as CSSStyleSheet | null;
+		if (stylesheet) {
+			const sheetSelector = `[data-dropdown-sheet-id="${sheetInstanceId}"]`;
+			const scrollSelector = `${sheetSelector} .dropdown-sheet-scroll`;
+			stylesheet.insertRule(`${sheetSelector} {}`, 0);
+			stylesheet.insertRule(`${scrollSelector} {}`, 1);
+			sheetRule = stylesheet.cssRules[0] as CSSStyleRule;
+			scrollRule = stylesheet.cssRules[1] as CSSStyleRule;
+		}
 		updateSheetStyles();
 
 		return () => {
 			styleElement?.remove();
 			styleElement = null;
+			sheetRule = null;
+			scrollRule = null;
 		};
 	});
 
@@ -177,7 +193,7 @@
 	$effect(() => {
 		if (!isMobile || !isOpen || !dragSurfaceElement || !sheetElement) return;
 
-		let startOffset = getSheetTranslateY();
+		let startOffset = getRestingTranslateY();
 		const snapThreshold = 80;
 		const closeThreshold = Math.max(getCollapsedOffset() + 140, viewportHeight * 0.72);
 		const hammer = new Hammer.Manager(dragSurfaceElement, {
@@ -186,29 +202,26 @@
 		});
 
 		const onPanStart = () => {
-			startOffset = getSheetTranslateY();
-			sheetElement?.classList.add('transition-none');
+			startOffset = currentTranslateY;
+			isDragging = true;
+			applySheetTranslateY(startOffset);
 		};
 
 		const onPanMove = (event: HammerInput) => {
 			const nextOffset = Math.max(0, startOffset + event.deltaY);
 			const collapsedOffset = getCollapsedOffset();
 			const resistance = nextOffset > collapsedOffset ? (nextOffset - collapsedOffset) * 0.35 : 0;
-			dragOffset = nextOffset - (isExpanded ? 0 : collapsedOffset) - resistance;
+			applySheetTranslateY(nextOffset - resistance);
 		};
 
 		const onPanEnd = (event: HammerInput) => {
-			sheetElement?.classList.remove('transition-none');
-
-			const finalOffset = Math.max(0, startOffset + event.deltaY);
+			const finalOffset = currentTranslateY;
 			const collapsedOffset = getCollapsedOffset();
 			const wantsClose = finalOffset > closeThreshold && event.deltaY > 0;
 			const wantsExpand =
 				event.deltaY < -snapThreshold || finalOffset < collapsedOffset * 0.5;
 			const wantsCollapse =
 				event.deltaY > snapThreshold || finalOffset >= collapsedOffset * 0.5;
-
-			dragOffset = 0;
 
 			if (wantsClose) {
 				close();
@@ -217,12 +230,12 @@
 
 			if (wantsExpand) {
 				isExpanded = true;
-				return;
-			}
-
-			if (wantsCollapse) {
+			} else if (wantsCollapse) {
 				isExpanded = false;
 			}
+
+			isDragging = false;
+			applySheetTranslateY(getRestingTranslateY());
 		};
 
 		hammer.on('panstart', onPanStart);
@@ -321,6 +334,7 @@
 		bind:this={sheetElement}
 		data-dropdown-sheet-id={sheetInstanceId}
 		class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
+		class:dropdown-sheet--dragging={isDragging}
 		role="dialog"
 		aria-modal="true"
 		aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
@@ -392,3 +406,9 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.dropdown-sheet--dragging {
+		transition: none;
+	}
+</style>
