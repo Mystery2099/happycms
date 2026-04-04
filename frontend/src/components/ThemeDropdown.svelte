@@ -38,10 +38,12 @@
 		if (nextTheme === 'system') {
 			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 			html.classList.toggle('dark', prefersDark);
+			html.style.colorScheme = prefersDark ? 'dark' : 'light';
 			return;
 		}
 
 		html.classList.toggle('dark', nextTheme === 'dark');
+		html.style.colorScheme = nextTheme;
 	}
 
 	function syncTheme(nextTheme: Theme) {

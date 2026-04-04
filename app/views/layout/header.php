@@ -32,6 +32,20 @@ $footerProps = $headerProps;
     <link rel="icon" href="<?= h(asset_url('public/icons/favicon.svg')) ?>" type="image/svg+xml">
     <link rel="icon" href="<?= h(asset_url('favicon.ico')) ?>" sizes="any">
     <link rel="apple-touch-icon" href="<?= h(asset_url('public/icons/apple-touch-icon.png')) ?>">
+    <script nonce="<?= h($cspNonce) ?>">
+        (function() {
+            const THEME_STORAGE_KEY = 'happy-thoughts-theme';
+            const html = document.documentElement;
+            const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const resolvedTheme = storedTheme === 'system'
+                ? (prefersDark ? 'dark' : 'light')
+                : storedTheme;
+
+            html.classList.toggle('dark', resolvedTheme === 'dark');
+            html.style.colorScheme = resolvedTheme;
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -408,10 +422,13 @@ $footerProps = $headerProps;
                 if (theme === 'system') {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                     html.classList.toggle('dark', prefersDark);
+                    html.style.colorScheme = prefersDark ? 'dark' : 'light';
                 } else if (theme === 'dark') {
                     html.classList.add('dark');
+                    html.style.colorScheme = 'dark';
                 } else {
                     html.classList.remove('dark');
+                    html.style.colorScheme = 'light';
                 }
             }
 
