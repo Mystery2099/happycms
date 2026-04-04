@@ -38,30 +38,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Add Happy Thought';
 $pageDescription = 'Create a new happy thought with server-side validation.';
 $currentPage = 'create';
-$formAction = route_url('create');
-$submitLabel = 'Create Thought';
+$pageProps = [
+    'mode' => 'create',
+    'pageLabel' => 'Create',
+    'title' => 'Add a new happy thought.',
+    'description' => 'Share a moment of joy, gratitude, or positivity. Your thought will be stored in our database.',
+    'formAction' => route_url('create'),
+    'submitLabel' => 'Create Thought',
+    'cancelUrl' => route_url('thoughts'),
+    'thoughtData' => $thoughtData,
+    'errors' => $errors,
+    'categories' => THOUGHT_CATEGORIES,
+    'csrfToken' => csrf_token(),
+    'sideImageUrl' => asset_url('public/images/happy-sun.png'),
+    'sideImageAlt' => 'Smiling sun illustration',
+    'metadata' => null,
+];
 
 require project_root_path() . '/app/views/layout/header.php';
 ?>
 
-<section class="section-padding">
-    <div class="max-w-6xl mx-auto px-6 lg:px-8">
-        <div class="grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-16">
-            <aside>
-                <p class="text-sm font-medium text-stone uppercase tracking-widest mb-4">Create</p>
-                <h1 class="font-display text-display-md text-ink mb-6">Add a new happy thought.</h1>
-                <p class="text-stone leading-relaxed mb-8">Share a moment of joy, gratitude, or positivity. Your thought will be stored in our database.</p>
-                
-                <div class="aspect-square overflow-hidden bg-mist/30 flex items-center justify-center">
-                    <img src="<?= h(asset_url('public/images/happy-sun.png')) ?>" alt="Smiling sun illustration" class="w-3/4 h-3/4 object-contain">
-                </div>
-            </aside>
-
-            <div class="lg:pl-12 lg:border-l border-mist">
-                <?php require project_root_path() . '/app/views/partials/thought-form.php'; ?>
-            </div>
-        </div>
-    </div>
-</section>
+<div data-thought-form-page></div>
+<script id="thought-form-page-props" type="application/json"><?= page_props_json($pageProps) ?></script>
 
 <?php require project_root_path() . '/app/views/layout/footer.php'; ?>

@@ -8,18 +8,18 @@ $currentPage = $currentPage ?? '';
 $flash = get_flash();
 $cspNonce = csp_nonce();
 send_page_security_headers();
-$navItems = [
-    'home' => 'Home',
-    'thoughts' => 'Thoughts',
-    'create' => 'Add Thought',
-    'search' => 'Search',
-];
-$navIcons = [
+$routes = [
     'home' => 'home',
-    'thoughts' => 'file-text',
-    'create' => 'plus-circle',
+    'thoughts' => 'thoughts',
+    'create' => 'create',
     'search' => 'search',
 ];
+$shellRoutes = array_map(static fn (string $route): string => route_url($route), $routes);
+$headerProps = [
+    'currentPage' => $currentPage,
+    'routes' => $shellRoutes,
+];
+$footerProps = $headerProps;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -351,50 +351,15 @@ $navIcons = [
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="site-header" data-header>
-        <div class="max-w-6xl mx-auto px-6 lg:px-8">
-            <div class="header-inner flex items-center justify-between">
-                <!-- Logo -->
-                <a href="<?= h(route_url('home')) ?>" class="group">
-                    <span class="font-display text-xl text-ink tracking-tight">Happy Thoughts</span>
-                </a>
-
-                <!-- Desktop Navigation -->
-                <nav aria-label="Primary" class="hidden md:flex items-center gap-8">
-                    <?php foreach ($navItems as $route => $label): ?>
-                        <a
-                            href="<?= h(route_url($route)) ?>"
-                            class="relative inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200 <?= $currentPage === $route ? 'text-ink' : 'text-stone hover:text-ink' ?>"
-                            <?= $currentPage === $route ? 'aria-current="page"' : '' ?>
-                        >
-                            <i data-lucide="<?= h($navIcons[$route] ?? 'circle') ?>" class="w-4 h-4"></i>
-                            <?= h($label) ?>
-                            <?php if ($currentPage === $route): ?>
-                                <span class="absolute -bottom-1 left-0 right-0 h-0.5 bg-coral" aria-hidden="true"></span>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-
-                    <!-- Theme Selector -->
-                    <div class="theme-selector" data-theme-dropdown></div>
-                </nav>
-
-                <!-- Mobile theme toggle button -->
-                <div class="md:hidden" data-mobile-theme-dropdown></div>
-            </div>
-
-        </div>
-    </header>
+    <div data-site-header></div>
+    <script id="site-header-props" type="application/json"><?= page_props_json($headerProps) ?></script>
 
     <?php if ($flash): ?>
-        <div class="border-b border-mist bg-white">
-            <div class="max-w-6xl mx-auto px-6 lg:px-8 py-4">
-                <div class="flex items-center gap-3 text-sm <?= $flash['type'] === 'success' ? 'text-moss' : 'text-coral' ?>" role="status" aria-live="polite">
-                    <span><?= $flash['type'] === 'success' ? '✓' : '!' ?></span>
-                    <?= h($flash['message']) ?>
-                </div>
-            </div>
-        </div>
+        <div data-flash-banner></div>
+        <script id="flash-banner-props" type="application/json"><?= page_props_json([
+            'type' => $flash['type'] === 'success' ? 'success' : 'error',
+            'message' => (string) $flash['message'],
+        ]) ?></script>
     <?php endif; ?>
 
     <main class="flex-1 pb-20 md:pb-0">

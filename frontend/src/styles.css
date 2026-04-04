@@ -326,39 +326,6 @@
 	}
 }
 
-/* Thought library density modes */
-[data-thought-library][data-density='compact'] .data-table td,
-[data-thought-library][data-density='compact'] .data-table th {
-	@apply px-3 py-2;
-}
-
-[data-thought-library][data-density='comfortable'] .data-table td,
-[data-thought-library][data-density='comfortable'] .data-table th {
-	@apply px-4 py-4;
-}
-
-[data-thought-library][data-density='compact'] ~ [data-card-grid] [data-thought-item] {
-	@apply gap-3;
-}
-
-[data-thought-library][data-density='compact']
-	~ [data-card-grid]
-	[data-thought-item]
-	> div:last-child {
-	@apply space-y-2 p-3;
-}
-
-[data-thought-library][data-density='comfortable']
-	~ [data-card-grid]
-	[data-thought-item]
-	> div:last-child {
-	@apply space-y-3 p-4 md:p-5;
-}
-
-[data-thought-item][hidden] {
-	display: none !important;
-}
-
 /* Table refinements */
 .data-table {
 	@apply w-full border-collapse text-left;

@@ -15,6 +15,25 @@ function parseJsonScript<T>(scriptId: string): T | null {
 	}
 }
 
+function mountPage<T>(selector: string, scriptId: string, loader: () => Promise<{ default: T }>) {
+	const target = document.querySelector<HTMLElement>(selector);
+	if (!target) {
+		return;
+	}
+
+	const props = parseJsonScript<Record<string, unknown>>(scriptId);
+	if (!props) {
+		return;
+	}
+
+	loader().then(({ default: Component }) => {
+		mount(Component, {
+			target,
+			props
+		});
+	});
+}
+
 if (document.querySelector('[data-lucide]')) {
 	import('lucide').then(
 		({
@@ -84,19 +103,13 @@ if (document.querySelector('[data-lucide]')) {
 	);
 }
 
-const homePageTarget = document.querySelector<HTMLElement>('[data-home-page]');
-if (homePageTarget) {
-	const props = parseJsonScript<Record<string, unknown>>('home-page-props');
-
-	if (props) {
-		import('./pages/HomePage.svelte').then(({ default: HomePage }) => {
-			mount(HomePage, {
-				target: homePageTarget,
-				props
-			});
-		});
-	}
-}
+mountPage('[data-home-page]', 'home-page-props', () => import('./pages/HomePage.svelte'));
+mountPage('[data-thought-library-page]', 'thought-library-page-props', () => import('./pages/ThoughtLibraryPage.svelte'));
+mountPage('[data-thought-form-page]', 'thought-form-page-props', () => import('./pages/ThoughtFormPage.svelte'));
+mountPage('[data-delete-thought-page]', 'delete-thought-page-props', () => import('./pages/DeleteThoughtPage.svelte'));
+mountPage('[data-site-header]', 'site-header-props', () => import('./components/SiteHeader.svelte'));
+mountPage('[data-site-footer]', 'site-footer-props', () => import('./components/SiteFooter.svelte'));
+mountPage('[data-flash-banner]', 'flash-banner-props', () => import('./components/FlashBanner.svelte'));
 
 const dashboardTarget = document.querySelector<HTMLElement>('[data-happy-dashboard]');
 if (dashboardTarget) {
@@ -107,69 +120,5 @@ if (dashboardTarget) {
 				apiUrl: dashboardTarget.dataset.apiUrl ?? 'api/famous-thoughts.php'
 			}
 		});
-	});
-}
-
-const thoughtControlsTarget = document.querySelector<HTMLElement>('[data-thought-controls]');
-if (thoughtControlsTarget) {
-	const rawCategories = thoughtControlsTarget.dataset.categories ?? '[]';
-	let categories: string[] = [];
-
-	try {
-		categories = JSON.parse(rawCategories) as string[];
-	} catch {
-		categories = [];
-	}
-
-	import('./components/ThoughtControls.svelte').then(({ default: ThoughtControls }) => {
-		mount(ThoughtControls, {
-			target: thoughtControlsTarget,
-			props: {
-				categories
-			}
-		});
-	});
-}
-
-// Mount FormDropdown for category selector
-const categoryDropdownTarget = document.querySelector<HTMLElement>('[data-category-dropdown]');
-if (categoryDropdownTarget) {
-	import('./components/FormDropdown.svelte').then(({ default: FormDropdown }) => {
-		const categories = JSON.parse(categoryDropdownTarget.dataset.categories ?? '[]');
-		const selected = categoryDropdownTarget.dataset.selected ?? '';
-		mount(FormDropdown, {
-			target: categoryDropdownTarget,
-			props: {
-				name: 'category',
-				options: categories,
-				selected,
-				ariaLabel: 'Category'
-			}
-		});
-	});
-}
-
-const themeDropdownTarget = document.querySelector<HTMLElement>('[data-theme-dropdown]');
-const mobileThemeDropdownTarget = document.querySelector<HTMLElement>('[data-mobile-theme-dropdown]');
-
-if (themeDropdownTarget || mobileThemeDropdownTarget) {
-	import('./components/ThemeDropdown.svelte').then(({ default: ThemeDropdown }) => {
-		if (themeDropdownTarget) {
-			mount(ThemeDropdown, {
-				target: themeDropdownTarget,
-				props: {
-					variant: 'desktop'
-				}
-			});
-		}
-
-		if (mobileThemeDropdownTarget) {
-			mount(ThemeDropdown, {
-				target: mobileThemeDropdownTarget,
-				props: {
-					variant: 'mobile'
-				}
-			});
-		}
 	});
 }
