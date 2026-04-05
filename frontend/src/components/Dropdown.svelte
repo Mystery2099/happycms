@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { ChevronDown, Check, X } from '@lucide/svelte';
-	import type HammerType from 'hammerjs';
 	import type { Component } from 'svelte';
 	import { onMount, tick } from 'svelte';
-	import type { HammerInput } from 'hammerjs';
 
 	interface Option {
 		value: string;
@@ -60,7 +58,6 @@
 	let triggerElement = $state<HTMLButtonElement | null>(null);
 	let listboxElement = $state<HTMLDivElement | null>(null);
 	let sheetElement = $state<HTMLElement | null>(null);
-	let dragSurfaceElement = $state<HTMLElement | null>(null);
 	let handleElement = $state<HTMLButtonElement | null>(null);
 	let optionElements = $state<HTMLButtonElement[]>([]);
 	let styleElement: HTMLStyleElement | null = null;
@@ -71,7 +68,16 @@
 	const triggerId = `dropdown-trigger-${Math.random().toString(36).slice(2, 10)}`;
 	let currentTranslateY = 0;
 	let shouldHintMoreContent = $derived(!isExpanded && options.length > 6);
-	let hammerModulePromise: Promise<typeof import('hammerjs')> | null = null;
+	let activePointerId: number | null = null;
+	let dragStartY = 0;
+	let dragStartOffset = 0;
+	let dragDeltaY = 0;
+	let suppressHandleClick = false;
+	let isMobileSheetVisible = $state(false);
+	let isOverlayVisible = $state(false);
+	let isAnimatingIntro = $state(false);
+	let isClosingSheet = $state(false);
+	let sheetAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	const defaultTriggerClass =
 		'input-minimal hover:border-stone flex w-full items-center justify-between gap-2 text-left transition-all duration-300 focus:translate-y-[-1px]';
@@ -91,11 +97,41 @@
 		});
 	}
 
+	function clearSheetAnimationTimeout() {
+		if (sheetAnimationTimeout) {
+			clearTimeout(sheetAnimationTimeout);
+			sheetAnimationTimeout = null;
+		}
+	}
+
 	function openDropdown({ focusSelectedOption = false }: { focusSelectedOption?: boolean } = {}) {
 		isOpen = true;
 		isExpanded = false;
-		currentTranslateY = getCollapsedOffset();
 		highlightedIndex = getSelectedIndex();
+
+		if (isMobile) {
+			currentTranslateY = getMaximumSheetHeight() + 32;
+			isMobileSheetVisible = true;
+			isOverlayVisible = false;
+			isAnimatingIntro = true;
+			isClosingSheet = false;
+			updateSheetStyles();
+
+			tick().then(() => {
+				requestAnimationFrame(() => {
+					isOverlayVisible = true;
+					currentTranslateY = getCollapsedOffset();
+					updateSheetStyles();
+					clearSheetAnimationTimeout();
+					sheetAnimationTimeout = setTimeout(() => {
+						isAnimatingIntro = false;
+						sheetAnimationTimeout = null;
+					}, 280);
+				});
+			});
+		} else {
+			currentTranslateY = getCollapsedOffset();
+		}
 
 		if (!isMobile && focusSelectedOption) {
 			focusDesktopOption(highlightedIndex);
@@ -174,15 +210,61 @@
 		(firstElement ?? handleElement)?.focus();
 	}
 
-	function close({ restoreFocus = isMobile } = {}) {
+	function resetDragState() {
+		const pointerId = activePointerId;
+		dragDeltaY = 0;
+		if (pointerId !== null && handleElement?.hasPointerCapture(pointerId)) {
+			handleElement.releasePointerCapture(pointerId);
+		}
+		activePointerId = null;
+	}
+
+	function finalizeClose({ restoreFocus = isMobile } = {}) {
 		isOpen = false;
+		isMobileSheetVisible = false;
+		isOverlayVisible = false;
 		isExpanded = false;
 		isDragging = false;
+		isAnimatingIntro = false;
+		isClosingSheet = false;
 		highlightedIndex = -1;
 		currentTranslateY = 0;
+		clearSheetAnimationTimeout();
+		resetDragState();
 		if (restoreFocus) {
 			focusTrigger();
 		}
+	}
+
+	function startCloseAnimation({
+		restoreFocus = isMobile
+	}: {
+		restoreFocus?: boolean;
+	} = {}) {
+		if (!isMobile || !isMobileSheetVisible) {
+			finalizeClose({ restoreFocus });
+			return;
+		}
+
+		isDragging = false;
+		isAnimatingIntro = false;
+		isClosingSheet = true;
+		isOverlayVisible = false;
+		clearSheetAnimationTimeout();
+
+		requestAnimationFrame(() => {
+			currentTranslateY = getMaximumSheetHeight() + 32;
+			updateSheetStyles();
+			sheetAnimationTimeout = setTimeout(() => {
+				finalizeClose({ restoreFocus });
+			}, 220);
+		});
+	}
+
+	function close({ restoreFocus = isMobile } = {}) {
+		if (isClosingSheet) return;
+
+		startCloseAnimation({ restoreFocus });
 	}
 
 	function selectOption(optionValue: string) {
@@ -210,7 +292,8 @@
 	}
 
 	function handleTriggerKeydown(event: KeyboardEvent) {
-		const opensDropdown = event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ';
+		const opensDropdown =
+			event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ';
 		if (!opensDropdown) return;
 
 		event.preventDefault();
@@ -271,7 +354,7 @@
 	function handleKeydown(event: KeyboardEvent) {
 		if (!isOpen) return;
 
-		if (isMobile && isOpen) {
+		if (isMobile) {
 			trapSheetFocus(event);
 		}
 
@@ -319,7 +402,7 @@
 	function updateSheetStyles() {
 		if (!sheetRule || !scrollRule) return;
 
-		if (!isOpen || !isMobile) {
+		if ((!isOpen && !isMobileSheetVisible) || !isMobile) {
 			sheetRule.style.cssText = '';
 			scrollRule.style.cssText = '';
 			return;
@@ -330,14 +413,112 @@
 
 		sheetRule.style.height = `${maxSheetHeight}px`;
 		sheetRule.style.maxHeight = `calc(100dvh - ${getExpandedTopOffset()}px)`;
-		applySheetTranslateY(isDragging ? currentTranslateY : getRestingTranslateY());
+		applySheetTranslateY(
+			isDragging || isAnimatingIntro || isClosingSheet ? currentTranslateY : getRestingTranslateY()
+		);
 
 		scrollRule.style.maxHeight = `${scrollHeight}px`;
+		scrollRule.style.overflowY = isExpanded ? 'auto' : 'hidden';
 	}
 
-	function loadHammerModule() {
-		hammerModulePromise ??= import('hammerjs');
-		return hammerModulePromise;
+	function finishDrag() {
+		const finalOffset = currentTranslateY;
+		const collapsedOffset = getCollapsedOffset();
+		const snapThreshold = 80;
+		const closeThreshold = Math.max(collapsedOffset + 140, viewportHeight * 0.72);
+		const wantsClose = finalOffset > closeThreshold && dragDeltaY > 0;
+		const wantsExpand = dragDeltaY < -snapThreshold || finalOffset < collapsedOffset * 0.5;
+		const wantsCollapse = dragDeltaY > snapThreshold || finalOffset >= collapsedOffset * 0.5;
+
+		if (wantsClose) {
+			startCloseAnimation();
+			return;
+		}
+
+		if (wantsExpand) {
+			isExpanded = true;
+		} else if (wantsCollapse) {
+			isExpanded = false;
+		}
+
+		isDragging = false;
+		applySheetTranslateY(getRestingTranslateY());
+	}
+
+	function handleHandlePointerMove(event: PointerEvent) {
+		if (event.pointerId !== activePointerId) return;
+
+		dragDeltaY = event.clientY - dragStartY;
+		if (!isDragging && Math.abs(dragDeltaY) < 6) return;
+
+		if (!isDragging) {
+			isDragging = true;
+			suppressHandleClick = true;
+		}
+
+		const collapsedOffset = getCollapsedOffset();
+		const nextOffset = Math.max(0, dragStartOffset + dragDeltaY);
+		const resistance =
+			nextOffset > collapsedOffset ? (nextOffset - collapsedOffset) * 0.35 : 0;
+
+		event.preventDefault();
+		applySheetTranslateY(nextOffset - resistance);
+	}
+
+	function handleHandlePointerEnd(event: PointerEvent) {
+		if (event.pointerId !== activePointerId) return;
+
+		if (handleElement?.hasPointerCapture(event.pointerId)) {
+			handleElement.releasePointerCapture(event.pointerId);
+		}
+
+		if (!isDragging) {
+			resetDragState();
+			return;
+		}
+
+		finishDrag();
+		resetDragState();
+	}
+
+	function handleHandlePointerDown(event: PointerEvent) {
+		if (!isOpen || !isMobile) return;
+		if (!event.isPrimary) return;
+		if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+		activePointerId = event.pointerId;
+		dragStartY = event.clientY;
+		dragStartOffset = currentTranslateY || getRestingTranslateY();
+		dragDeltaY = 0;
+		suppressHandleClick = false;
+		handleElement?.setPointerCapture(event.pointerId);
+	}
+
+	function toggleSheetExpansion() {
+		isExpanded = !isExpanded;
+		isDragging = false;
+		applySheetTranslateY(getRestingTranslateY());
+	}
+
+	function portal(node: HTMLElement) {
+		const target = document.body;
+		target.appendChild(node);
+
+		return {
+			destroy() {
+				node.remove();
+			}
+		};
+	}
+
+	function handleHandleClick(event: MouseEvent) {
+		if (suppressHandleClick) {
+			suppressHandleClick = false;
+			event.preventDefault();
+			return;
+		}
+
+		toggleSheetExpansion();
 	}
 
 	onMount(() => {
@@ -363,6 +544,7 @@
 		updateSheetStyles();
 
 		return () => {
+			clearSheetAnimationTimeout();
 			styleElement?.remove();
 			styleElement = null;
 			sheetRule = null;
@@ -380,77 +562,6 @@
 		return () => {
 			document.body.style.overflow = previousOverflow;
 			document.removeEventListener('focusin', keepFocusInsideSheet);
-		};
-	});
-
-	$effect(() => {
-		if (!isMobile || !isOpen || !dragSurfaceElement || !sheetElement) return;
-
-		let cancelled = false;
-		let hammer: HammerType.Manager | null = null;
-		let startOffset = getRestingTranslateY();
-		const snapThreshold = 80;
-		const closeThreshold = Math.max(getCollapsedOffset() + 140, viewportHeight * 0.72);
-		const onPanStart = () => {
-			startOffset = currentTranslateY;
-			isDragging = true;
-			applySheetTranslateY(startOffset);
-		};
-
-		const onPanMove = (event: HammerInput) => {
-			const nextOffset = Math.max(0, startOffset + event.deltaY);
-			const collapsedOffset = getCollapsedOffset();
-			const resistance = nextOffset > collapsedOffset ? (nextOffset - collapsedOffset) * 0.35 : 0;
-			applySheetTranslateY(nextOffset - resistance);
-		};
-
-		const onPanEnd = (event: HammerInput) => {
-			const finalOffset = currentTranslateY;
-			const collapsedOffset = getCollapsedOffset();
-			const wantsClose = finalOffset > closeThreshold && event.deltaY > 0;
-			const wantsExpand =
-				event.deltaY < -snapThreshold || finalOffset < collapsedOffset * 0.5;
-			const wantsCollapse =
-				event.deltaY > snapThreshold || finalOffset >= collapsedOffset * 0.5;
-
-			if (wantsClose) {
-				close();
-				return;
-			}
-
-			if (wantsExpand) {
-				isExpanded = true;
-			} else if (wantsCollapse) {
-				isExpanded = false;
-			}
-
-			isDragging = false;
-			applySheetTranslateY(getRestingTranslateY());
-		};
-
-		loadHammerModule().then((Hammer) => {
-			if (cancelled) return;
-
-			hammer = new Hammer.default.Manager(dragSurfaceElement, {
-				touchAction: 'none',
-				recognizers: [
-					[Hammer.default.Pan, { direction: Hammer.default.DIRECTION_VERTICAL, threshold: 0 }]
-				]
-			});
-
-			hammer.on('panstart', onPanStart);
-			hammer.on('panmove', onPanMove);
-			hammer.on('panend pancancel', onPanEnd);
-		});
-
-		return () => {
-			cancelled = true;
-			if (!hammer) return;
-
-			hammer.off('panstart', onPanStart);
-			hammer.off('panmove', onPanMove);
-			hammer.off('panend pancancel', onPanEnd);
-			hammer.destroy();
 		};
 	});
 
@@ -481,20 +592,20 @@
 />
 
 <div class="relative {className}" data-dropdown-root>
-			<button
-				bind:this={triggerElement}
-				type="button"
-				class={triggerClass || defaultTriggerClass}
-				onclick={toggle}
-				onkeydown={handleTriggerKeydown}
-				id={triggerId}
-				aria-controls={isOpen ? listboxId : undefined}
-				aria-describedby={ariaDescribedby}
-				aria-expanded={isOpen}
-				aria-haspopup={isMobile ? 'dialog' : 'listbox'}
-				aria-label={ariaLabel}
-				aria-labelledby={ariaLabelledby}
-			>
+	<button
+		bind:this={triggerElement}
+		type="button"
+		class={triggerClass || defaultTriggerClass}
+		onclick={toggle}
+		onkeydown={handleTriggerKeydown}
+		id={triggerId}
+		aria-controls={isOpen ? listboxId : undefined}
+		aria-describedby={ariaDescribedby}
+		aria-expanded={isOpen}
+		aria-haspopup={isMobile ? 'dialog' : 'listbox'}
+		aria-label={ariaLabel}
+		aria-labelledby={ariaLabelledby}
+	>
 		<span class="flex min-w-0 items-center gap-2">
 			{#if showIconInTrigger && SelectedIcon}
 				<SelectedIcon size={16} />
@@ -503,34 +614,37 @@
 				<span class="truncate capitalize">{selectedLabel}</span>
 			{/if}
 		</span>
-		<ChevronDown size={16} class="shrink-0 transition-transform duration-200 {isOpen ? 'rotate-180' : ''}" />
+		<ChevronDown
+			size={16}
+			class="shrink-0 transition-transform duration-200 {isOpen ? 'rotate-180' : ''}"
+		/>
 	</button>
 
 	{#if isOpen && !isMobile}
-			<div
-				bind:this={listboxElement}
-				class={menuClass || defaultMenuClass}
-				id={listboxId}
-				role="listbox"
-				aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-				aria-labelledby={ariaLabelledby}
-				aria-describedby={ariaDescribedby}
-			>
-				<div class="max-h-60 overflow-y-auto py-1">
-					{#each options as option, index}
-						{@const Icon = option.icon}
-						<button
-							bind:this={optionElements[index]}
-							type="button"
-							class="{optionClass || defaultOptionClass} {value === option.value
-								? 'text-ink bg-mist/20 dark:bg-slate-700/30'
-								: 'text-stone'}"
-							onclick={() => selectOption(option.value)}
-							onkeydown={(event) => handleDesktopOptionKeydown(event, index)}
-							role="option"
-							tabindex={highlightedIndex === index ? 0 : -1}
-							aria-selected={value === option.value}
-						>
+		<div
+			bind:this={listboxElement}
+			class={menuClass || defaultMenuClass}
+			id={listboxId}
+			role="listbox"
+			aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
+			aria-labelledby={ariaLabelledby}
+			aria-describedby={ariaDescribedby}
+		>
+			<div class="max-h-60 overflow-y-auto py-1">
+				{#each options as option, index (option.value)}
+					{@const Icon = option.icon}
+					<button
+						bind:this={optionElements[index]}
+						type="button"
+						class="{optionClass || defaultOptionClass} {value === option.value
+							? 'text-ink bg-mist/20 dark:bg-slate-700/30'
+							: 'text-stone'}"
+						onclick={() => selectOption(option.value)}
+						onkeydown={(event) => handleDesktopOptionKeydown(event, index)}
+						role="option"
+						tabindex={highlightedIndex === index ? 0 : -1}
+						aria-selected={value === option.value}
+					>
 						{#if Icon}
 							<Icon size={16} />
 						{/if}
@@ -542,119 +656,121 @@
 	{/if}
 </div>
 
-{#if isOpen && isMobile}
-	<div class="fixed inset-0 z-[140]" aria-hidden="true">
-		<button
-			type="button"
-			class="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
-			onclick={close}
-			tabindex="-1"
-			aria-label="Close options"
-		></button>
-	</div>
+{#if isMobile && isMobileSheetVisible}
+	<div use:portal>
+		<div class="fixed inset-0 z-[140]" aria-hidden="true">
+			<button
+				type="button"
+				class="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity duration-180 ease-out {isOverlayVisible ? 'opacity-100' : 'opacity-0'}"
+				onclick={close}
+				tabindex="-1"
+				aria-label="Close options"
+			></button>
+		</div>
 
+		<div class="fixed inset-x-0 bottom-0 z-[150] pointer-events-none">
 			<div
 				bind:this={sheetElement}
 				data-dropdown-sheet-id={sheetInstanceId}
 				id={listboxId}
-			class="fixed inset-x-0 bottom-0 z-[150] overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900"
-			class:dropdown-sheet--dragging={isDragging}
-		role="dialog"
-		aria-modal="true"
-		aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-		aria-labelledby={ariaLabelledby}
-		aria-describedby={ariaDescribedby}
-	>
-		<div
-			bind:this={dragSurfaceElement}
-			class="dropdown-drag-surface sticky top-0 z-10 touch-none select-none bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95"
-		>
-			<button
-				bind:this={handleElement}
-				type="button"
-				class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center active:cursor-grabbing"
-				onclick={() => (isExpanded = !isExpanded)}
-				aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
+				class="pointer-events-auto overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-220 ease-out dark:border-slate-700 dark:bg-slate-900"
+				class:dropdown-sheet--dragging={isDragging}
+				role="dialog"
+				aria-modal="true"
+				aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
+				aria-labelledby={ariaLabelledby}
+				aria-describedby={ariaDescribedby}
 			>
-				<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
-			</button>
-			<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
-				<div>
-					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
-						Choose
-					</p>
-					<h2 class="text-base font-medium text-ink dark:text-slate-50">
-						{listAriaLabel ?? ariaLabel ?? selectedLabel}
-					</h2>
-					{#if shouldHintMoreContent}
-						<p class="mt-1 flex items-center gap-1.5 text-xs font-medium text-coral dark:text-rose-300">
-							<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 dark:bg-rose-300/10">
-								<ChevronDown size={12} class="-rotate-90" />
-							</span>
-							Pull up to reveal more options
-						</p>
-					{/if}
-				</div>
+				<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
 				<button
+					bind:this={handleElement}
 					type="button"
-					class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
-					onclick={close}
-					aria-label="Close options"
+					class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing"
+					onpointerdown={handleHandlePointerDown}
+					onpointermove={handleHandlePointerMove}
+					onpointerup={handleHandlePointerEnd}
+					onpointercancel={handleHandlePointerEnd}
+					onclick={handleHandleClick}
+					aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
 				>
-					<X size={18} />
+					<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
 				</button>
-			</div>
-		</div>
-
-		<div
-			class="dropdown-sheet-scroll relative overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-		>
-			<div class="space-y-2 pb-4">
-				{#each options as option}
-					{@const Icon = option.icon}
-					<button
-						type="button"
-						class="flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors {value === option.value
-							? 'border-coral bg-coral/10 text-ink dark:border-rose-400 dark:bg-rose-400/15 dark:text-slate-50'
-							: 'border-stone-200/80 bg-white/80 text-stone hover:border-stone-300 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50'}"
-						onclick={() => selectOption(option.value)}
-						role="option"
-						aria-selected={value === option.value}
-					>
-						<span class="flex min-w-0 items-center gap-3">
-							{#if Icon}
-								<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone dark:bg-slate-700 dark:text-slate-200">
-									<Icon size={18} />
+				<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
+					<div>
+						<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
+							Choose
+						</p>
+						<h2 class="text-base font-medium text-ink dark:text-slate-50">
+							{listAriaLabel ?? ariaLabel ?? selectedLabel}
+						</h2>
+						{#if shouldHintMoreContent}
+							<p class="mt-1 flex items-center gap-1.5 text-xs font-medium text-coral dark:text-rose-300">
+								<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 dark:bg-rose-300/10">
+									<ChevronDown size={12} class="-rotate-90" />
 								</span>
-							{/if}
-							<span class="truncate text-sm font-medium capitalize">{option.label}</span>
-						</span>
-						{#if value === option.value}
-							<span class="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-white dark:bg-rose-400 dark:text-slate-950">
-								<Check size={16} />
-							</span>
+								Pull up to reveal more options
+							</p>
 						{/if}
-					</button>
-				{/each}
-			</div>
-
-			{#if shouldHintMoreContent}
-				<div
-					class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-[24px] bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
-					aria-hidden="true"
-				></div>
-				<div
-					class="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
-					aria-hidden="true"
-				>
-					<div class="flex items-center gap-2 rounded-full border border-stone-200/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-stone shadow-sm dark:border-slate-700 dark:bg-slate-800/92 dark:text-slate-300">
-						<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 text-coral dark:bg-rose-300/10 dark:text-rose-300">
-							<ChevronDown size={12} class="animate-bounce [animation-duration:1.4s]" />
-						</span>
-						More below
+					</div>
+					<div class="flex items-center gap-2">
+						<button
+							type="button"
+							class="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone transition-colors hover:text-ink dark:text-slate-300 dark:hover:text-slate-50"
+							onclick={toggleSheetExpansion}
+							aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
+						>
+							{isExpanded ? 'Peek' : 'Expand'}
+						</button>
+						<button
+							type="button"
+							class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+							onclick={close}
+							aria-label="Close options"
+						>
+							<X size={18} />
+						</button>
 					</div>
 				</div>
-			{/if}
+			</div>
+
+				<div class="dropdown-sheet-scroll relative px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+					<div class="space-y-2 pb-4">
+						{#each options as option (option.value)}
+							{@const Icon = option.icon}
+							<button
+								type="button"
+								class="flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors {value === option.value
+									? 'border-coral bg-coral/10 text-ink dark:border-rose-400 dark:bg-rose-400/15 dark:text-slate-50'
+									: 'border-stone-200/80 bg-white/80 text-stone hover:border-stone-300 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50'}"
+								onclick={() => selectOption(option.value)}
+								role="option"
+								aria-selected={value === option.value}
+							>
+								<span class="flex min-w-0 items-center gap-3">
+									{#if Icon}
+										<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone dark:bg-slate-700 dark:text-slate-200">
+											<Icon size={18} />
+										</span>
+									{/if}
+									<span class="truncate text-sm font-medium capitalize">{option.label}</span>
+								</span>
+								{#if value === option.value}
+									<span class="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-white dark:bg-rose-400 dark:text-slate-950">
+										<Check size={16} />
+									</span>
+								{/if}
+							</button>
+						{/each}
+					</div>
+
+					{#if shouldHintMoreContent}
+						<div
+							class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-[24px] bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
+							aria-hidden="true"
+						></div>
+					{/if}
+				</div>
+			</div>
 		</div>
 	</div>
 {/if}
