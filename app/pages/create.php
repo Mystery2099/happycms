@@ -19,9 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formErrors = [];
     if (!is_same_origin_request()) {
         $formErrors['form'] = 'Invalid request origin. Refresh the page and try again.';
-    }
-
-    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    } elseif (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $formErrors['form'] = 'Your session expired. Refresh the page and try again.';
     }
 

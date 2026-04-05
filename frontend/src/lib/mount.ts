@@ -1,7 +1,10 @@
 import { mount } from 'svelte';
+import type { Component, ComponentProps } from 'svelte';
 
 export type JsonProps = Record<string, unknown>;
-export type ComponentLoader<TComponent> = () => Promise<{ default: TComponent }>;
+export type ComponentLoader<TComponent extends Component<any>> = () => Promise<{
+	default: TComponent;
+}>;
 
 export function parseJsonScript<T>(scriptId: string): T | null {
 	const element = document.getElementById(scriptId);
@@ -17,7 +20,7 @@ export function parseJsonScript<T>(scriptId: string): T | null {
 	}
 }
 
-export function mountPage<TComponent>(
+export function mountPage<TComponent extends Component<any>>(
 	selector: string,
 	scriptId: string,
 	loader: ComponentLoader<TComponent>
@@ -27,7 +30,7 @@ export function mountPage<TComponent>(
 		return;
 	}
 
-	const props = parseJsonScript<JsonProps>(scriptId);
+	const props = parseJsonScript<ComponentProps<TComponent>>(scriptId);
 	if (!props) {
 		return;
 	}

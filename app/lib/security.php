@@ -23,10 +23,15 @@ function send_common_security_headers(): void
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
+    header('X-Permitted-Cross-Domain-Policies: none');
     header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
     header('Cross-Origin-Opener-Policy: same-origin');
     header('Cross-Origin-Resource-Policy: same-origin');
     header('Origin-Agent-Cluster: ?1');
+
+    if (request_uses_https()) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
 }
 
 function send_page_security_headers(): void
@@ -90,6 +95,11 @@ function current_origin(): ?string
     }
 
     return $origin;
+}
+
+function request_uses_https(): bool
+{
+    return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 }
 
 function is_same_origin_request(): bool

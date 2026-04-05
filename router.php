@@ -10,14 +10,38 @@ if ($documentRoot === false) {
     exit('Server misconfiguration');
 }
 
-if (preg_match('#^/storage(?:/|$)#', $requestPath) === 1) {
+if (preg_match('#^/(?:storage|\.|node_modules)(?:/|$)#', $requestPath) === 1) {
     http_response_code(404);
     exit('Not Found');
 }
 
+function is_allowed_static_path(string $path): bool
+{
+    if ($path === '/favicon.ico') {
+        return true;
+    }
+
+    return preg_match('#^/(?:public/(?:assets|icons|images)|images)/[A-Za-z0-9._/-]+$#', $path) === 1;
+}
+
+function is_allowed_php_entrypoint(string $path): bool
+{
+    static $allowedEntrypoints = [
+        '/index.php',
+        '/api/famous-thoughts.php',
+    ];
+
+    return in_array($path, $allowedEntrypoints, true);
+}
+
 $requestedFile = realpath($documentRoot . $requestPath);
 if ($requestedFile !== false && str_starts_with($requestedFile, $documentRoot . DIRECTORY_SEPARATOR) && is_file($requestedFile)) {
-    return false;
+    if (is_allowed_static_path($requestPath) || is_allowed_php_entrypoint($requestPath)) {
+        return false;
+    }
+
+    http_response_code(404);
+    exit('Not Found');
 }
 
 $candidateIndex = realpath($documentRoot . rtrim($requestPath, '/') . '/index.php');

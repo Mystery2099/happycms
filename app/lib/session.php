@@ -8,15 +8,19 @@ function boot_session(): void
         return;
     }
 
+    $usesHttps = request_uses_https();
+
+    ini_set('session.use_cookies', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.use_strict_mode', '1');
     ini_set('session.cookie_httponly', '1');
 
     if (!headers_sent()) {
         session_set_cookie_params([
+            'path' => '/',
             'httponly' => true,
-            'samesite' => 'Lax',
-            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'samesite' => 'Strict',
+            'secure' => $usesHttps,
         ]);
     }
 
@@ -31,6 +35,11 @@ function boot_session(): void
     }
 
     session_start();
+
+    if (!isset($_SESSION['session_initialized']) || $_SESSION['session_initialized'] !== true) {
+        session_regenerate_id(true);
+        $_SESSION['session_initialized'] = true;
+    }
 }
 
 function set_flash(string $type, string $message): void
