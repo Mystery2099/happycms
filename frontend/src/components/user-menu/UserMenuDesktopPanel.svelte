@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Palette } from '@lucide/svelte';
-	import ThemeDropdown from '../ThemeDropdown.svelte';
+	import ThemeSelector from '../ThemeSelector.svelte';
 	import UserMenuAccountCard from './UserMenuAccountCard.svelte';
 	import UserMenuAuthAction from './UserMenuAuthAction.svelte';
 
@@ -42,7 +42,7 @@
 				<Palette size={14} />
 				Theme
 			</div>
-			<ThemeDropdown variant="desktop" />
+			<ThemeSelector variant="desktop" />
 		</div>
 
 		<UserMenuAuthAction

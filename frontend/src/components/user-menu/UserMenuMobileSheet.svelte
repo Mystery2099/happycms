@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Palette } from '@lucide/svelte';
 	import MobileSheet from '../MobileSheet.svelte';
-	import ThemeDropdown from '../ThemeDropdown.svelte';
+	import ThemeSelector from '../ThemeSelector.svelte';
 	import UserMenuAccountCard from './UserMenuAccountCard.svelte';
 	import UserMenuAuthAction from './UserMenuAuthAction.svelte';
 
@@ -115,7 +115,7 @@
 							<Palette size={14} />
 							Theme
 						</div>
-						<ThemeDropdown variant="desktop" />
+						<ThemeSelector variant="mobile" />
 					</div>
 
 					<UserMenuAccountCard {isLoggedIn} {userName} {userEmail} variant="mobile" />

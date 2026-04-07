@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { on } from 'svelte/events';
-	import Dropdown from './Dropdown.svelte';
+	import SegmentedControl from './site/SegmentedControl.svelte';
 	import {
 		getStoredTheme,
 		isTheme,
@@ -20,11 +20,16 @@
 	let { variant = 'desktop' }: Props = $props();
 	let theme = $state<Theme>('system');
 
-	const isMobileTrigger = $derived(variant === 'mobile');
-	const triggerClass = $derived(
-		isMobileTrigger
-			? 'mobile-theme-btn flex'
-			: 'theme-selector-btn dropdown-trigger-inline'
+	const isMobileVariant = $derived(variant === 'mobile');
+	const groupClass = $derived(
+		isMobileVariant
+			? 'w-full'
+			: 'w-full'
+	);
+	const buttonClass = $derived(
+		isMobileVariant
+			? 'min-h-11 px-2 py-2 text-xs'
+			: 'px-2 py-2 text-xs'
 	);
 
 	function handleThemeChange(nextTheme: string) {
@@ -52,13 +57,11 @@
 	});
 </script>
 
-<Dropdown
+<SegmentedControl
 	options={[...themeOptions]}
 	bind:value={theme}
-	showIconInTrigger={true}
-	showLabelInTrigger={!isMobileTrigger}
 	ariaLabel="Select theme"
-	listAriaLabel="Theme options"
-	triggerClass={triggerClass}
+	{groupClass}
+	{buttonClass}
 	onChange={handleThemeChange}
 />
