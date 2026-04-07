@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 require_request_method(['GET', 'POST']);
+require_role(AUTH_ROLE_ADMIN);
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $existingThought = find_thought($id);

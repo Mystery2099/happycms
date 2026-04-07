@@ -56,6 +56,21 @@ function initialize_database(PDO $pdo): void
         )'
     );
 
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            name TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT \'admin\',
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )'
+    );
+
+    seed_default_admin_user($pdo);
+
     $count = (int) $pdo->query('SELECT COUNT(*) FROM happy_thoughts')->fetchColumn();
     if ($count > 0) {
         return;
@@ -112,4 +127,80 @@ function initialize_database(PDO $pdo): void
     foreach ($seedThoughts as $thought) {
         $statement->execute($thought);
     }
+}
+
+function seed_default_admin_user(PDO $pdo): void
+{
+    $email = auth_default_admin_email();
+    $statement = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
+    $statement->execute(['email' => $email]);
+
+    if ($statement->fetchColumn() !== false) {
+        return;
+    }
+
+    $insertStatement = $pdo->prepare(
+        'INSERT INTO users (email, password_hash, name, role, is_active)
+         VALUES (:email, :password_hash, :name, :role, :is_active)'
+    );
+
+    $insertStatement->execute([
+        'email' => $email,
+        'password_hash' => password_hash(auth_default_admin_password(), PASSWORD_DEFAULT, auth_password_options()),
+        'name' => auth_default_admin_name(),
+        'role' => AUTH_ROLE_ADMIN,
+        'is_active' => 1,
+    ]);
+}
+
+function normalize_database_user(array $user): array
+{
+    return [
+        'id' => (int) $user['id'],
+        'email' => (string) $user['email'],
+        'password_hash' => (string) $user['password_hash'],
+        'name' => (string) $user['name'],
+        'role' => (string) $user['role'],
+        'is_active' => ((int) ($user['is_active'] ?? 0)) === 1,
+        'created_at' => (string) $user['created_at'],
+        'updated_at' => (string) $user['updated_at'],
+    ];
+}
+
+function find_user_by_id(int $id): ?array
+{
+    $statement = get_pdo()->prepare('SELECT * FROM users WHERE id = :id LIMIT 1');
+    $statement->execute(['id' => $id]);
+    $user = $statement->fetch();
+
+    return is_array($user) ? normalize_database_user($user) : null;
+}
+
+function find_user_by_email(string $email): ?array
+{
+    $normalizedEmail = strtolower(trim($email));
+    if ($normalizedEmail === '') {
+        return null;
+    }
+
+    $statement = get_pdo()->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
+    $statement->execute(['email' => $normalizedEmail]);
+    $user = $statement->fetch();
+
+    return is_array($user) ? normalize_database_user($user) : null;
+}
+
+function rehash_user_password(int $id, string $password): void
+{
+    $statement = get_pdo()->prepare(
+        'UPDATE users
+         SET password_hash = :password_hash,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = :id'
+    );
+
+    $statement->execute([
+        'id' => $id,
+        'password_hash' => password_hash($password, PASSWORD_DEFAULT, auth_password_options()),
+    ]);
 }

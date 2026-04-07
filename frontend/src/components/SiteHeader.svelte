@@ -8,40 +8,33 @@
 	interface Props {
 		currentPage: string;
 		routes: Record<NavRoute, string>;
-		// Backend: Add auth props when ready
-		// isLoggedIn?: boolean;
-		// userName?: string;
-		// userEmail?: string;
-		// loginUrl?: string;
-		// logoutUrl?: string;
+		isLoggedIn?: boolean;
+		isAdmin?: boolean;
+		userName?: string;
+		userEmail?: string;
+		loginUrl?: string;
+		logoutUrl?: string;
+		logoutCsrfToken?: string;
 	}
 
-	let { 
-		currentPage, 
+	let {
+		currentPage,
 		routes,
-		// Backend: Destructure auth props when ready
-		// isLoggedIn = false,
-		// userName = '',
-		// userEmail = '',
-		// loginUrl = '/login',
-		// logoutUrl = '/logout'
+		isLoggedIn = false,
+		isAdmin = false,
+		userName = '',
+		userEmail = '',
+		loginUrl = '/login',
+		logoutUrl = '/logout',
+		logoutCsrfToken = ''
 	}: Props = $props();
 
-	const navItems = [
+	const navItems = $derived([
 		{ key: 'home', label: 'Home', icon: Home },
 		{ key: 'thoughts', label: 'Thoughts', icon: FileText },
-		{ key: 'create', label: 'Add Thought', icon: PlusCircle },
+		...(isAdmin ? [{ key: 'create', label: 'Add Thought', icon: PlusCircle }] : []),
 		{ key: 'search', label: 'Search', icon: Search }
-	] as const;
-
-	// Backend: Remove this placeholder when auth is implemented
-	const authProps = {
-		isLoggedIn: false,
-		userName: '',
-		userEmail: '',
-		loginUrl: '/login',
-		logoutUrl: '/logout'
-	};
+	] as const);
 </script>
 
 <header class="site-header" data-header>
@@ -75,7 +68,14 @@
 
 				<!-- User Auth Menu -->
 				<div class="pl-4 border-l border-mist">
-					<UserMenu {...authProps} />
+					<UserMenu
+						{isLoggedIn}
+						{userName}
+						{userEmail}
+						{loginUrl}
+						{logoutUrl}
+						{logoutCsrfToken}
+					/>
 				</div>
 			</nav>
 

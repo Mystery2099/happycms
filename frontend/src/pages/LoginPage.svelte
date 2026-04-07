@@ -6,15 +6,24 @@
 		homeUrl: string;
 		csrfToken?: string;
 		error?: string;
+		redirectTo?: string;
+		initialEmail?: string;
+		rememberMe?: boolean;
 	}
 
-	let { loginUrl, homeUrl, csrfToken = '', error = '' }: Props = $props();
+	let {
+		loginUrl,
+		homeUrl,
+		csrfToken = '',
+		error = '',
+		redirectTo = '',
+		initialEmail = '',
+		rememberMe = false
+	}: Props = $props();
 
-	let email = $state('');
 	let password = $state('');
 	let showPassword = $state(false);
 	let isLoading = $state(false);
-	let rememberMe = $state(false);
 
 	function handleSubmit() {
 		isLoading = true;
@@ -51,6 +60,7 @@
 			<!-- Login Form -->
 			<form method="POST" action={loginUrl} class="space-y-6" onsubmit={handleSubmit}>
 				<input type="hidden" name="csrf_token" value={csrfToken} />
+				<input type="hidden" name="redirect" value={redirectTo} />
 
 				<!-- Email Field -->
 				<div class="space-y-2">
@@ -63,7 +73,7 @@
 							type="email"
 							id="email"
 							name="email"
-							bind:value={email}
+							value={initialEmail}
 							placeholder="you@example.com"
 							required
 							autocomplete="email"
@@ -114,7 +124,7 @@
 						type="checkbox"
 						id="remember"
 						name="remember"
-						bind:checked={rememberMe}
+						checked={rememberMe}
 						class="w-4 h-4 border-mist rounded text-coral focus:ring-coral focus:ring-offset-0 cursor-pointer"
 					/>
 					<label for="remember" class="ml-2 text-sm text-stone cursor-pointer select-none">

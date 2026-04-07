@@ -8,6 +8,7 @@ require_once __DIR__ . '/lib/paths.php';
 require_once __DIR__ . '/lib/session.php';
 require_once __DIR__ . '/lib/http.php';
 require_once __DIR__ . '/lib/security.php';
+require_once __DIR__ . '/lib/auth.php';
 require_once __DIR__ . '/lib/errors.php';
 require_once __DIR__ . '/lib/validation.php';
 require_once __DIR__ . '/lib/thoughts.php';

@@ -62,6 +62,8 @@ function route_url(string $route, array $params = []): string
         'thoughts' => '/thoughts/',
         'edit' => '/thoughts/edit/',
         'delete' => '/thoughts/delete/',
+        'login' => '/login/',
+        'logout' => '/logout/',
     ];
 
     $url = base_url_path() . ($routePaths[$route] ?? '/');

@@ -17,7 +17,7 @@ function boot_session(): void
 
     if (!headers_sent()) {
         session_set_cookie_params([
-            'path' => '/',
+            'path' => base_url_path() === '' ? '/' : base_url_path() . '/',
             'httponly' => true,
             'samesite' => 'Strict',
             'secure' => $usesHttps,

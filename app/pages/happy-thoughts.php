@@ -6,6 +6,7 @@ require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 require_request_method(['GET']);
 
 $thoughts = all_thoughts();
+$canManageThoughts = user_has_role(AUTH_ROLE_ADMIN);
 $pageTitle = 'All Thoughts';
 $pageDescription = 'Browse and manage your collection of happy moments.';
 $currentPage = 'thoughts';
@@ -28,8 +29,8 @@ $pageProps = [
         'moodScore' => (int) $thought['mood_score'],
         'thought' => (string) $thought['thought'],
         'imageUrl' => !empty($thought['image_path']) ? asset_url((string) $thought['image_path']) : null,
-        'editUrl' => route_url('edit', ['id' => (int) $thought['id']]),
-        'deleteUrl' => route_url('delete', ['id' => (int) $thought['id']]),
+        'editUrl' => $canManageThoughts ? route_url('edit', ['id' => (int) $thought['id']]) : null,
+        'deleteUrl' => $canManageThoughts ? route_url('delete', ['id' => (int) $thought['id']]) : null,
     ], $thoughts),
     'categories' => THOUGHT_CATEGORIES,
     'routes' => [

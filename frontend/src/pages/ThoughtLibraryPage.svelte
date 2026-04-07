@@ -16,8 +16,8 @@
 		moodScore: number;
 		thought: string;
 		imageUrl: string | null;
-		editUrl: string;
-		deleteUrl: string;
+		editUrl: string | null;
+		deleteUrl: string | null;
 	};
 
 	type Routes = {
@@ -359,7 +359,8 @@
 											{renderMood(thought.moodScore)}
 										</td>
 										<td class="text-right {tableCellClass}" style:padding-block={tableCellPadding}>
-											<div class="flex items-center justify-end gap-2">
+											{#if thought.editUrl && thought.deleteUrl}
+												<div class="flex items-center justify-end gap-2">
 													<a
 														href={thought.editUrl}
 														class="text-sm text-stone inline-flex min-h-11 items-center gap-1.5 px-2 py-2 transition-colors hover:text-ink"
@@ -374,8 +375,9 @@
 													>
 														<Trash2 size={14} />
 														Delete
-												</a>
-											</div>
+													</a>
+												</div>
+											{/if}
 										</td>
 									</tr>
 								{/each}
@@ -415,7 +417,8 @@
 											<span class="text-sm font-medium text-ink">{thought.author}</span>
 											<span class="text-wheat text-sm">{renderMood(thought.moodScore)}</span>
 										</div>
-										<div class={['flex items-center', cardActionRowClass]}>
+										{#if thought.editUrl && thought.deleteUrl}
+											<div class={['flex items-center', cardActionRowClass]}>
 												<a
 													href={thought.editUrl}
 													class="text-stone flex min-h-11 items-center gap-1.5 px-2 py-2 text-sm font-medium transition-colors hover:text-ink"
@@ -429,8 +432,9 @@
 											>
 													<Trash2 size={14} />
 													Delete
-											</a>
-										</div>
+												</a>
+											</div>
+										{/if}
 								</div>
 							</article>
 						{/each}

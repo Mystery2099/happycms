@@ -6,6 +6,7 @@ require_request_method(['GET']);
 
 $stats = dashboard_stats();
 $recentThoughts = recent_thoughts(4);
+$canManageThoughts = user_has_role(AUTH_ROLE_ADMIN);
 $homePageProps = [
     'stats' => [
         'total' => (int) $stats['total'],
@@ -21,7 +22,7 @@ $homePageProps = [
             'category' => (string) $thought['category'],
             'moodScore' => (int) $thought['mood_score'],
             'thought' => (string) $thought['thought'],
-            'editUrl' => route_url('edit', ['id' => (int) $thought['id']]),
+            'editUrl' => $canManageThoughts ? route_url('edit', ['id' => (int) $thought['id']]) : null,
         ],
         $recentThoughts
     ),

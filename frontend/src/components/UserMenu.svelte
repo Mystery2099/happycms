@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { User, LogOut, Settings, ChevronDown } from '@lucide/svelte';
+	import { User, LogOut, ChevronDown } from '@lucide/svelte';
 
 	interface Props {
 		isLoggedIn: boolean;
@@ -7,17 +7,16 @@
 		userEmail?: string;
 		loginUrl: string;
 		logoutUrl: string;
-		// Backend: Add profileUrl, settingsUrl when ready
-		// profileUrl?: string;
-		// settingsUrl?: string;
+		logoutCsrfToken?: string;
 	}
 
-	let { 
-		isLoggedIn, 
-		userName = '', 
+	let {
+		isLoggedIn,
+		userName = '',
 		userEmail = '',
 		loginUrl,
-		logoutUrl
+		logoutUrl,
+		logoutCsrfToken = ''
 	}: Props = $props();
 
 	let isOpen = $state(false);
@@ -27,18 +26,10 @@
 		isOpen = !isOpen;
 	}
 
-	function closeMenu() {
-		isOpen = false;
-	}
-
-	function handleLogout() {
-		// Form submission to backend logout endpoint
-		const form = document.createElement('form');
-		form.method = 'POST';
-		form.action = logoutUrl;
-		document.body.appendChild(form);
-		form.submit();
-		document.body.removeChild(form);
+	function handleDocumentKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			isOpen = false;
+		}
 	}
 
 	// Close dropdown when clicking outside
@@ -56,6 +47,8 @@
 	});
 </script>
 
+<svelte:document onkeydown={handleDocumentKeydown} />
+
 {#if isLoggedIn}
 	<!-- User Menu (Logged In) -->
 	<div class="relative" bind:this={dropdownRef}>
@@ -64,7 +57,8 @@
 			onclick={toggleMenu}
 			class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-ink hover:text-coral transition-colors"
 			aria-expanded={isOpen}
-			aria-haspopup="true"
+			aria-haspopup="menu"
+			aria-label="Open user menu"
 		>
 			<div class="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
 				<User size={16} class="text-coral" />
@@ -77,9 +71,10 @@
 		</button>
 
 		{#if isOpen}
-			<div 
+			<div
 				class="absolute right-0 mt-2 w-56 bg-white border border-mist shadow-lg z-50 animate-in fade-in slide-in-from-top-1 duration-150"
 				role="menu"
+				aria-label="User menu"
 			>
 				<!-- User Info -->
 				<div class="px-4 py-3 border-b border-mist/50">
@@ -117,15 +112,17 @@
 
 					<div class="border-t border-mist/50 my-1"></div>
 
-					<button
-						type="button"
-						onclick={handleLogout}
-						class="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone hover:text-red-600 hover:bg-red-50 transition-colors text-left"
-						role="menuitem"
-					>
-						<LogOut size={16} />
-						Sign out
-					</button>
+					<form method="POST" action={logoutUrl}>
+						<input type="hidden" name="csrf_token" value={logoutCsrfToken} />
+						<button
+							type="submit"
+							class="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone hover:text-red-600 hover:bg-red-50 transition-colors text-left"
+							role="menuitem"
+						>
+							<LogOut size={16} />
+							Sign out
+						</button>
+					</form>
 				</div>
 			</div>
 		{/if}

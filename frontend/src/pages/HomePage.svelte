@@ -27,7 +27,7 @@
 		category: string;
 		moodScore: number;
 		thought: string;
-		editUrl: string;
+		editUrl: string | null;
 	};
 
 	type Routes = {
@@ -138,12 +138,16 @@
 						<article class="space-y-4 p-5">
 							<div class="flex items-start justify-between gap-3">
 								<div class="min-w-0">
-									<a
-										href={thought.editUrl}
-										class="font-display text-xl leading-tight text-ink transition-colors hover:text-coral"
-									>
-										{thought.title}
-									</a>
+									{#if thought.editUrl}
+										<a
+											href={thought.editUrl}
+											class="font-display text-xl leading-tight text-ink transition-colors hover:text-coral"
+										>
+											{thought.title}
+										</a>
+									{:else}
+										<p class="font-display text-xl leading-tight text-ink">{thought.title}</p>
+									{/if}
 									<p class="mt-2 text-sm leading-relaxed text-stone line-clamp-2">
 										{thought.thought}
 									</p>
@@ -179,12 +183,16 @@
 						{#each recentThoughts as thought (thought.id)}
 							<tr>
 								<td>
-									<a
-										href={thought.editUrl}
-										class="font-medium text-ink transition-colors hover:text-coral"
-									>
-										{thought.title}
-									</a>
+									{#if thought.editUrl}
+										<a
+											href={thought.editUrl}
+											class="font-medium text-ink transition-colors hover:text-coral"
+										>
+											{thought.title}
+										</a>
+									{:else}
+										<p class="font-medium text-ink">{thought.title}</p>
+									{/if}
 									<p class="text-sm text-stone line-clamp-1 mt-1">{thought.thought}</p>
 								</td>
 								<td class="text-stone">{thought.author}</td>

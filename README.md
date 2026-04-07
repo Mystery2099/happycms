@@ -36,6 +36,7 @@ Runtime SQLite data is stored outside the web root by default in a sibling `happ
 When the app is running, the main pages are:
 
 - `/`
+- `/login/`
 - `/create/`
 - `/search/`
 - `/thoughts/`
@@ -147,6 +148,8 @@ docker run --rm -it -p 8000:8000 -v "C:\path\to\happycms:/app" -w /app php:8.2-c
 ## Notes
 
 - Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
+- Authentication uses a seeded local admin account by default: `admin@happycms.local` / `ChangeMe123!`
+- You can override the seeded admin with `HAPPYCMS_ADMIN_NAME`, `HAPPYCMS_ADMIN_EMAIL`, and `HAPPYCMS_ADMIN_PASSWORD`.
 - Seed quote data for the API is read from `storage/database/famous-thoughts.txt` unless an override file exists in the external data directory.
 - Static site assets live under `public/`, with icons in `public/icons/` and demo images in `public/images/`.
 - If the page loads without styling, the frontend probably has not been built yet. Run `bun run build`.

@@ -118,3 +118,26 @@ function validate_thought_input(array $input): array
 
     return [$data, $errors];
 }
+
+function validate_login_input(array $input): array
+{
+    $email = strtolower(normalized_text_input($input['email'] ?? '', 255));
+    $password = (string) ($input['password'] ?? '');
+    $remember = isset($input['remember']) && (string) $input['remember'] !== '0';
+
+    $errors = [];
+
+    if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        $errors['email'] = 'Enter a valid email address.';
+    }
+
+    if ($password === '') {
+        $errors['password'] = 'Enter your password.';
+    }
+
+    return [[
+        'email' => $email,
+        'password' => $password,
+        'remember' => $remember,
+    ], $errors];
+}
