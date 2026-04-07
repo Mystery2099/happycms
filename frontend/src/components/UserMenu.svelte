@@ -47,7 +47,7 @@
 	const sheetTitleId = `user-menu-sheet-title-${Math.random().toString(36).slice(2, 10)}`;
 	const isMobileVariant = $derived(variant === 'mobile');
 	const panelClass = $derived(
-		'border-mist absolute right-0 z-50 mt-2 w-72 transform overflow-hidden rounded-2xl border bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95'
+		'border-mist absolute right-0 z-50 mt-2 w-[22rem] max-w-[calc(100vw-1.5rem)] transform overflow-hidden rounded-2xl border bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95'
 	);
 	let sheetAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 	let currentTranslateY = $state(0);

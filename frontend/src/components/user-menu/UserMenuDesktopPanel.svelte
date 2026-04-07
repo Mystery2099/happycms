@@ -34,16 +34,16 @@
 </script>
 
 <div id={menuId} class={panelClass} aria-labelledby={triggerId}>
-	<UserMenuAccountCard {isLoggedIn} {userName} {userEmail} variant="desktop" />
-
-	<div class="space-y-4 p-3">
-		<div class="rounded-xl bg-mist/35 px-3 py-3 dark:bg-slate-800/60">
-			<div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone dark:text-slate-400">
+	<div class="space-y-4 p-4">
+		<div class="rounded-2xl bg-mist/35 px-4 py-4 dark:bg-slate-800/60">
+			<div class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone dark:text-slate-400">
 				<Palette size={14} />
 				Theme
 			</div>
 			<ThemeSelector variant="desktop" />
 		</div>
+
+		<UserMenuAccountCard {isLoggedIn} {userName} {userEmail} variant="desktop" />
 
 		<UserMenuAuthAction
 			{isLoggedIn}
