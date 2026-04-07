@@ -1,15 +1,31 @@
 <script lang="ts">
 	import { FileText, Home, PlusCircle, Search } from '@lucide/svelte';
 	import ThemeDropdown from './ThemeDropdown.svelte';
+	import UserMenu from './UserMenu.svelte';
 
 	type NavRoute = 'home' | 'thoughts' | 'create' | 'search';
 
 	interface Props {
 		currentPage: string;
 		routes: Record<NavRoute, string>;
+		// Backend: Add auth props when ready
+		// isLoggedIn?: boolean;
+		// userName?: string;
+		// userEmail?: string;
+		// loginUrl?: string;
+		// logoutUrl?: string;
 	}
 
-	let { currentPage, routes }: Props = $props();
+	let { 
+		currentPage, 
+		routes,
+		// Backend: Destructure auth props when ready
+		// isLoggedIn = false,
+		// userName = '',
+		// userEmail = '',
+		// loginUrl = '/login',
+		// logoutUrl = '/logout'
+	}: Props = $props();
 
 	const navItems = [
 		{ key: 'home', label: 'Home', icon: Home },
@@ -17,6 +33,15 @@
 		{ key: 'create', label: 'Add Thought', icon: PlusCircle },
 		{ key: 'search', label: 'Search', icon: Search }
 	] as const;
+
+	// Backend: Remove this placeholder when auth is implemented
+	const authProps = {
+		isLoggedIn: false,
+		userName: '',
+		userEmail: '',
+		loginUrl: '/login',
+		logoutUrl: '/logout'
+	};
 </script>
 
 <header class="site-header" data-header>
@@ -46,6 +71,11 @@
 
 				<div class="theme-selector">
 					<ThemeDropdown variant="desktop" />
+				</div>
+
+				<!-- User Auth Menu -->
+				<div class="pl-4 border-l border-mist">
+					<UserMenu {...authProps} />
 				</div>
 			</nav>
 

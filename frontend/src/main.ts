@@ -33,7 +33,14 @@ if (document.querySelector('[data-lucide]')) {
 			CalendarDays,
 			Hash,
 			Star,
-			Check
+			Check,
+			LogIn,
+			Lock,
+			Eye,
+			EyeOff,
+			AlertCircle,
+			LogOut,
+			Settings
 		}) => {
 			createIcons({
 				icons: {
@@ -64,7 +71,14 @@ if (document.querySelector('[data-lucide]')) {
 					CalendarDays,
 					Hash,
 					Star,
-					Check
+					Check,
+					LogIn,
+					Lock,
+					Eye,
+					EyeOff,
+					AlertCircle,
+					LogOut,
+					Settings
 				}
 			});
 		}
@@ -75,6 +89,7 @@ mountPage('[data-home-page]', 'home-page-props', () => import('./pages/HomePage.
 mountPage('[data-thought-library-page]', 'thought-library-page-props', () => import('./pages/ThoughtLibraryPage.svelte'));
 mountPage('[data-thought-form-page]', 'thought-form-page-props', () => import('./pages/ThoughtFormPage.svelte'));
 mountPage('[data-delete-thought-page]', 'delete-thought-page-props', () => import('./pages/DeleteThoughtPage.svelte'));
+mountPage('[data-login-page]', 'login-page-props', () => import('./pages/LoginPage.svelte'));
 mountPage('[data-site-header]', 'site-header-props', () => import('./components/SiteHeader.svelte'));
 mountPage('[data-site-footer]', 'site-footer-props', () => import('./components/SiteFooter.svelte'));
 mountPage('[data-flash-banner]', 'flash-banner-props', () => import('./components/FlashBanner.svelte'));

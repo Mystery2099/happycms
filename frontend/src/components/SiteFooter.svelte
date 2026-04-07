@@ -1,14 +1,32 @@
 <script lang="ts">
-	import { FileText, Home, PlusCircle, Search } from '@lucide/svelte';
+	import { FileText, Home, PlusCircle, Search, User, LogOut } from '@lucide/svelte';
 
-	type NavRoute = 'home' | 'thoughts' | 'create' | 'search';
+	type NavRoute = 'home' | 'thoughts' | 'create' | 'search' | 'login';
 
 	interface Props {
 		currentPage: string;
 		routes: Record<NavRoute, string>;
+		// Backend: Add auth props when ready
+		// isLoggedIn?: boolean;
+		// userName?: string;
+		// loginUrl?: string;
+		// logoutUrl?: string;
 	}
 
-	let { currentPage, routes }: Props = $props();
+	let { 
+		currentPage, 
+		routes,
+		// Backend: Destructure auth props when ready
+		// isLoggedIn = false,
+		// userName = '',
+		// loginUrl = '/login',
+		// logoutUrl = '/logout'
+	}: Props = $props();
+
+	// Backend: Remove this placeholder when auth is implemented
+	const isLoggedIn = false;
+	const loginUrl = '/login';
+	const logoutUrl = '/logout';
 
 	const mobileItems = [
 		{ key: 'home', label: 'Home', icon: Home },
@@ -16,6 +34,16 @@
 		{ key: 'create', label: 'Add', icon: PlusCircle },
 		{ key: 'search', label: 'Search', icon: Search }
 	] as const;
+
+	function handleMobileLogout() {
+		// Form submission to backend logout endpoint
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = logoutUrl;
+		document.body.appendChild(form);
+		form.submit();
+		document.body.removeChild(form);
+	}
 </script>
 
 <nav class="bottom-nav md:hidden" aria-label="Mobile navigation">
@@ -30,6 +58,28 @@
 				<span class="bottom-nav-label">{item.label}</span>
 			</a>
 		{/each}
+		
+		<!-- Account/Auth Mobile Item -->
+		{#if isLoggedIn}
+			<button
+				type="button"
+				onclick={handleMobileLogout}
+				class="bottom-nav-item"
+				aria-label="Sign out"
+			>
+				<LogOut size={20} />
+				<span class="bottom-nav-label">Sign out</span>
+			</button>
+		{:else}
+			<a
+				href={loginUrl}
+				class={['bottom-nav-item', currentPage === 'login' ? 'is-active' : '']}
+				aria-current={currentPage === 'login' ? 'page' : undefined}
+			>
+				<User size={20} />
+				<span class="bottom-nav-label">Sign in</span>
+			</a>
+		{/if}
 	</div>
 </nav>
 

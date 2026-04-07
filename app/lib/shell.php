@@ -9,6 +9,8 @@ function shell_routes(): array
         'thoughts' => route_url('thoughts'),
         'create' => route_url('create'),
         'search' => route_url('search'),
+        // Backend: Uncomment when login page is ready
+        // 'login' => route_url('login'),
     ];
 }
 
