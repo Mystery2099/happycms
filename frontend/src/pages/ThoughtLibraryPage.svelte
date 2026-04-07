@@ -147,10 +147,18 @@
 						/>
 					</div>
 
-					<a href={routes.search} class="btn-secondary text-sm py-2 md:py-3 md:text-base">
-						<Search size={16} />
-						Search thoughts
-					</a>
+					<div class="flex flex-wrap gap-3">
+						{#if routes.create}
+							<a href={routes.create} class="btn-primary text-sm py-2 md:py-3 md:text-base">
+								<PlusCircle size={16} />
+								Add thought
+							</a>
+						{/if}
+						<a href={routes.search} class="btn-secondary text-sm py-2 md:py-3 md:text-base">
+							<Search size={16} />
+							Search thoughts
+						</a>
+					</div>
 				</div>
 			{/if}
 
