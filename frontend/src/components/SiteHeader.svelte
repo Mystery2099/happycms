@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { FileText, Home, PlusCircle, Search } from '@lucide/svelte';
 	import MobileNav from './MobileNav.svelte';
-	import ThemeDropdown from './ThemeDropdown.svelte';
+	import PrimaryNavLinks from './navigation/PrimaryNavLinks.svelte';
 	import UserMenu from './UserMenu.svelte';
-
-	type NavRoute = 'home' | 'thoughts' | 'create' | 'search';
+	import { buildPrimaryNavItems, type PrimaryNavRoute } from '../lib/navigation';
 
 	interface Props {
 		currentPage: string;
-		routes: Record<NavRoute, string>;
+		routes: Record<PrimaryNavRoute, string>;
 		isLoggedIn?: boolean;
 		isAdmin?: boolean;
 		userName?: string;
@@ -30,12 +28,7 @@
 		logoutCsrfToken = ''
 	}: Props = $props();
 
-	const navItems = $derived([
-		{ key: 'home', label: 'Home', icon: Home },
-		{ key: 'thoughts', label: 'Thoughts', icon: FileText },
-		...(isAdmin ? [{ key: 'create', label: 'Add Thought', icon: PlusCircle }] : []),
-		{ key: 'search', label: 'Search', icon: Search }
-	] as const);
+	const navItems = $derived(buildPrimaryNavItems(isAdmin));
 </script>
 
 <header class="site-header" data-header>
@@ -46,26 +39,7 @@
 			</a>
 
 			<nav aria-label="Primary" class="hidden md:flex items-center gap-8">
-				{#each navItems as item (item.key)}
-					<a
-						href={routes[item.key]}
-						class={[
-							'relative inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200',
-							currentPage === item.key ? 'text-ink' : 'text-stone hover:text-ink'
-						]}
-						aria-current={currentPage === item.key ? 'page' : undefined}
-					>
-						<item.icon size={16} />
-						{item.label}
-						{#if currentPage === item.key}
-							<span class="absolute -bottom-1 left-0 right-0 h-0.5 bg-coral" aria-hidden="true"></span>
-						{/if}
-					</a>
-				{/each}
-
-				<div class="theme-selector">
-					<ThemeDropdown variant="desktop" />
-				</div>
+				<PrimaryNavLinks items={navItems} {currentPage} {routes} />
 
 				<div class="pl-4 border-l border-mist">
 					<UserMenu
@@ -79,11 +53,18 @@
 				</div>
 			</nav>
 
-			<div class="md:hidden">
-				<ThemeDropdown variant="mobile" />
-			</div>
 		</div>
 	</div>
 </header>
 
-<MobileNav {currentPage} {routes} {isLoggedIn} {isAdmin} {loginUrl} {logoutUrl} {logoutCsrfToken} />
+<MobileNav
+	{currentPage}
+	{routes}
+	{isLoggedIn}
+	{isAdmin}
+	{userName}
+	{userEmail}
+	{loginUrl}
+	{logoutUrl}
+	{logoutCsrfToken}
+/>

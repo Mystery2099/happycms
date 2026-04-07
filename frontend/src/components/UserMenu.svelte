@@ -1,10 +1,21 @@
 <script lang="ts">
-	import { User, LogOut, ChevronDown } from '@lucide/svelte';
+	import { tick } from 'svelte';
+	import UserMenuDesktopPanel from './user-menu/UserMenuDesktopPanel.svelte';
+	import UserMenuMobileSheet from './user-menu/UserMenuMobileSheet.svelte';
+	import UserMenuTrigger from './user-menu/UserMenuTrigger.svelte';
+	import {
+		beginSheetDrag,
+		createSheetDragState,
+		endSheetDrag,
+		resetSheetDrag,
+		updateSheetDrag
+	} from '../lib/sheet-drag';
 
 	interface Props {
 		isLoggedIn: boolean;
 		userName?: string;
 		userEmail?: string;
+		variant?: 'desktop' | 'mobile';
 		loginUrl: string;
 		logoutUrl: string;
 		logoutCsrfToken?: string;
@@ -14,147 +25,277 @@
 		isLoggedIn,
 		userName = '',
 		userEmail = '',
+		variant = 'desktop',
 		loginUrl,
 		logoutUrl,
 		logoutCsrfToken = ''
 	}: Props = $props();
 
 	let isOpen = $state(false);
+	let isMobileSheetVisible = $state(false);
+	let isOverlayVisible = $state(false);
+	let isClosingSheet = $state(false);
+	let isDragging = $state(false);
 	let dropdownRef = $state<HTMLDivElement | null>(null);
+	let triggerRef = $state<HTMLButtonElement | null>(null);
+	let firstActionRef = $state<HTMLButtonElement | null>(null);
+	let sheetElement = $state<HTMLElement | null>(null);
+	let sheetCloseRef = $state<HTMLButtonElement | null>(null);
+	let sheetHandleRef = $state<HTMLButtonElement | null>(null);
+	const menuId = `user-menu-${Math.random().toString(36).slice(2, 10)}`;
+	const triggerId = `user-menu-trigger-${Math.random().toString(36).slice(2, 10)}`;
+	const sheetTitleId = `user-menu-sheet-title-${Math.random().toString(36).slice(2, 10)}`;
+	const isMobileVariant = $derived(variant === 'mobile');
+	const panelClass = $derived(
+		'border-mist absolute right-0 z-50 mt-2 w-72 transform overflow-hidden rounded-2xl border bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95'
+	);
+	let sheetAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
+	let currentTranslateY = $state(0);
+	const dragState = createSheetDragState();
+
+	function focusTrigger() {
+		tick().then(() => {
+			triggerRef?.focus();
+		});
+	}
+
+	function focusFirstAction() {
+		tick().then(() => {
+			firstActionRef?.focus();
+		});
+	}
+
+	function openMenu({ focusFirstItem = false } = {}) {
+		isOpen = true;
+
+		if (isMobileVariant) {
+			currentTranslateY = 0;
+			isDragging = false;
+			isMobileSheetVisible = true;
+			isOverlayVisible = false;
+			isClosingSheet = false;
+			clearSheetAnimationTimeout();
+
+			tick().then(() => {
+				requestAnimationFrame(() => {
+					isOverlayVisible = true;
+				});
+			});
+		}
+
+		if (focusFirstItem) {
+			focusFirstAction();
+		}
+	}
+
+	function closeMenu({ restoreFocus = false } = {}) {
+		if (isMobileVariant && isMobileSheetVisible) {
+			startMobileClose({ restoreFocus });
+			return;
+		}
+
+		finalizeClose({ restoreFocus });
+	}
+
+	function clearSheetAnimationTimeout() {
+		if (sheetAnimationTimeout) {
+			clearTimeout(sheetAnimationTimeout);
+			sheetAnimationTimeout = null;
+		}
+	}
+
+	function finalizeClose({ restoreFocus = false } = {}) {
+		isOpen = false;
+		isMobileSheetVisible = false;
+		isOverlayVisible = false;
+		isClosingSheet = false;
+		isDragging = false;
+		currentTranslateY = 0;
+		resetDragState();
+		clearSheetAnimationTimeout();
+		if (restoreFocus) {
+			focusTrigger();
+		}
+	}
+
+	function startMobileClose({ restoreFocus = false } = {}) {
+		if (isClosingSheet) return;
+
+		isClosingSheet = true;
+		isDragging = false;
+		isOverlayVisible = false;
+		currentTranslateY = window.innerHeight;
+		resetDragState();
+		clearSheetAnimationTimeout();
+		sheetAnimationTimeout = setTimeout(() => {
+			finalizeClose({ restoreFocus });
+		}, 220);
+	}
+
+	function resetDragState() {
+		resetSheetDrag(dragState, {
+			releasePointerCaptureIfNeeded(pointerId) {
+				if (sheetHandleRef?.hasPointerCapture(pointerId)) {
+					sheetHandleRef.releasePointerCapture(pointerId);
+				}
+			}
+		});
+	}
+
+	function handleSheetHandlePointerDown(event: PointerEvent) {
+		if (!isMobileVariant || !isOpen) return;
+
+		beginSheetDrag(event, dragState, {
+			currentOffset: currentTranslateY,
+			setPointerCapture(pointerId) {
+				sheetHandleRef?.setPointerCapture(pointerId);
+			}
+		});
+	}
+
+	function handleSheetHandlePointerMove(event: PointerEvent) {
+		const result = updateSheetDrag(event, dragState, {
+			onStartDrag() {
+				isDragging = true;
+			},
+			resolveNextOffset({ startOffset, dragDeltaY }) {
+				const nextOffset = Math.max(0, startOffset + dragDeltaY);
+				const resistance = nextOffset > 0 ? nextOffset * 0.08 : 0;
+				return Math.max(0, nextOffset - resistance);
+			}
+		});
+		if (!result) return;
+
+		currentTranslateY = result.nextOffset;
+	}
+
+	function handleSheetHandlePointerEnd(event: PointerEvent) {
+		const result = endSheetDrag(event, dragState, {
+			releasePointerCapture(pointerId) {
+				if (sheetHandleRef?.hasPointerCapture(pointerId)) {
+					sheetHandleRef.releasePointerCapture(pointerId);
+				}
+			}
+		});
+		if (!result) return;
+
+		if (!result.wasDragging) {
+			resetDragState();
+			return;
+		}
+
+		const shouldClose = currentTranslateY > 120 && result.dragDeltaY > 0;
+		isDragging = false;
+
+		if (shouldClose) {
+			startMobileClose({ restoreFocus: true });
+			return;
+		}
+
+		currentTranslateY = 0;
+		resetDragState();
+	}
+
+	function handleSheetHandleClick(event: MouseEvent) {
+		if (dragState.suppressHandleClick) {
+			dragState.suppressHandleClick = false;
+			event.preventDefault();
+		}
+	}
 
 	function toggleMenu() {
-		isOpen = !isOpen;
+		if (isOpen) {
+			closeMenu();
+			return;
+		}
+
+		openMenu();
 	}
 
 	function handleDocumentKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
-			isOpen = false;
+			closeMenu({ restoreFocus: true });
 		}
 	}
 
-	// Close dropdown when clicking outside
-	$effect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (dropdownRef && !dropdownRef.contains(event.target as Node)) {
-				isOpen = false;
-			}
-		}
+	function handleDocumentClick(event: MouseEvent) {
+		if (isMobileVariant) return;
+		if (!isOpen || !dropdownRef) return;
 
-		if (isOpen) {
-			document.addEventListener('click', handleClickOutside);
-			return () => document.removeEventListener('click', handleClickOutside);
+		if (!dropdownRef.contains(event.target as Node)) {
+			closeMenu();
 		}
-	});
+	}
+
+	function handleTriggerKeydown(event: KeyboardEvent) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			if (!isOpen) {
+				openMenu({ focusFirstItem: true });
+				return;
+			}
+
+			focusFirstAction();
+		}
+	}
+
 </script>
 
-<svelte:document onkeydown={handleDocumentKeydown} />
+<svelte:document onkeydown={handleDocumentKeydown} onclick={handleDocumentClick} />
 
-{#if isLoggedIn}
-	<!-- User Menu (Logged In) -->
-	<div class="relative" bind:this={dropdownRef}>
-		<button
-			type="button"
-			onclick={toggleMenu}
-			class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-ink hover:text-coral transition-colors"
-			aria-expanded={isOpen}
-			aria-haspopup="menu"
-			aria-label="Open user menu"
-		>
-			<div class="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
-				<User size={16} class="text-coral" />
-			</div>
-			<span class="hidden lg:inline max-w-[120px] truncate">{userName || 'User'}</span>
-			<ChevronDown 
-				size={14} 
-				class="transition-transform duration-200 {isOpen ? 'rotate-180' : ''}" 
-			/>
-		</button>
+<div class="relative" bind:this={dropdownRef}>
+	<UserMenuTrigger
+		{isLoggedIn}
+		{isOpen}
+		{isMobileVariant}
+		{userName}
+		{userEmail}
+		{triggerId}
+		menuId={menuId}
+		bind:triggerRef
+		onclick={toggleMenu}
+		onkeydown={handleTriggerKeydown}
+	/>
 
-		{#if isOpen}
-			<div
-				class="absolute right-0 mt-2 w-56 bg-white border border-mist shadow-lg z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-				role="menu"
-				aria-label="User menu"
-			>
-				<!-- User Info -->
-				<div class="px-4 py-3 border-b border-mist/50">
-					<p class="text-sm font-medium text-ink truncate">{userName || 'User'}</p>
-					<p class="text-xs text-stone truncate">{userEmail || ''}</p>
-				</div>
+	{#if isOpen && !isMobileVariant}
+		<UserMenuDesktopPanel
+			{menuId}
+			{triggerId}
+			panelClass={panelClass}
+			{isLoggedIn}
+			{userName}
+			{userEmail}
+			{loginUrl}
+			{logoutUrl}
+			{logoutCsrfToken}
+			bind:firstActionRef
+			onNavigate={() => closeMenu()}
+		/>
+	{/if}
+</div>
 
-				<!-- Menu Items -->
-				<div class="py-1">
-					<!-- Backend: Add profile link when ready -->
-					<!-- 
-					<a 
-						href={profileUrl} 
-						class="flex items-center gap-3 px-4 py-2 text-sm text-stone hover:text-ink hover:bg-mist/20 transition-colors"
-						role="menuitem"
-						onclick={closeMenu}
-					>
-						<User size={16} />
-						Profile
-					</a>
-					-->
-					
-					<!-- Backend: Add settings link when ready -->
-					<!-- 
-					<a 
-						href={settingsUrl} 
-						class="flex items-center gap-3 px-4 py-2 text-sm text-stone hover:text-ink hover:bg-mist/20 transition-colors"
-						role="menuitem"
-						onclick={closeMenu}
-					>
-						<Settings size={16} />
-						Settings
-					</a>
-					-->
-
-					<div class="border-t border-mist/50 my-1"></div>
-
-					<form method="POST" action={logoutUrl}>
-						<input type="hidden" name="csrf_token" value={logoutCsrfToken} />
-						<button
-							type="submit"
-							class="w-full flex items-center gap-3 px-4 py-2 text-sm text-stone hover:text-red-600 hover:bg-red-50 transition-colors text-left"
-							role="menuitem"
-						>
-							<LogOut size={16} />
-							Sign out
-						</button>
-					</form>
-				</div>
-			</div>
-		{/if}
-	</div>
-{:else}
-	<!-- Login Button (Logged Out) -->
-	<a
-		href={loginUrl}
-		class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-ink border border-mist hover:border-coral hover:text-coral transition-all duration-200"
-	>
-		<User size={16} />
-		<span class="hidden sm:inline">Sign in</span>
-	</a>
-{/if}
-
-<style>
-	@keyframes animate-in {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.animate-in {
-		animation: animate-in 0.15s ease-out;
-	}
-
-	:global(html.dark) .hover\:bg-red-50:hover {
-		background-color: rgba(239, 68, 68, 0.1);
-	}
-</style>
+<UserMenuMobileSheet
+	isVisible={isMobileVariant && isMobileSheetVisible}
+	{isOverlayVisible}
+	{isClosingSheet}
+	{isDragging}
+	{currentTranslateY}
+	{menuId}
+	{sheetTitleId}
+	bind:sheetElement
+	bind:sheetCloseRef
+	bind:sheetHandleRef
+	bind:firstActionRef
+	{isLoggedIn}
+	{userName}
+	{userEmail}
+	{loginUrl}
+	{logoutUrl}
+	{logoutCsrfToken}
+	onClose={() => closeMenu({ restoreFocus: true })}
+	onNavigate={() => closeMenu()}
+	onHandlePointerDown={handleSheetHandlePointerDown}
+	onHandlePointerMove={handleSheetHandlePointerMove}
+	onHandlePointerEnd={handleSheetHandlePointerEnd}
+	onHandleClick={handleSheetHandleClick}
+/>
