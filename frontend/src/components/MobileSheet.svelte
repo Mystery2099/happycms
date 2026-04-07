@@ -12,6 +12,7 @@
 		ariaLabelledby?: string;
 		ariaDescribedby?: string;
 		panelClass?: string;
+		panelStyle?: string;
 		sheetElement?: HTMLElement | null;
 		initialFocusElement?: HTMLElement | null;
 		onClose?: () => void;
@@ -27,6 +28,7 @@
 		ariaLabelledby,
 		ariaDescribedby,
 		panelClass = '',
+		panelStyle = '',
 		sheetElement = $bindable<HTMLElement | null>(null),
 		initialFocusElement = null,
 		onClose,
@@ -130,6 +132,7 @@
 				id={panelId}
 				data-mobile-sheet-id={panelDataId}
 				class={panelClass}
+				style={panelStyle}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={ariaLabelledby}

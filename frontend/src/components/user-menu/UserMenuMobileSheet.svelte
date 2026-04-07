@@ -10,6 +10,7 @@
 		isOverlayVisible: boolean;
 		isClosingSheet: boolean;
 		isDragging: boolean;
+		isAnimatingIntro: boolean;
 		currentTranslateY: number;
 		menuId: string;
 		sheetTitleId: string;
@@ -36,6 +37,7 @@
 		isOverlayVisible,
 		isClosingSheet,
 		isDragging,
+		isAnimatingIntro,
 		currentTranslateY,
 		menuId,
 		sheetTitleId,
@@ -68,11 +70,9 @@
 		initialFocusElement={sheetCloseRef}
 		{onClose}
 		panelClass="pointer-events-auto overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
+		panelStyle={`transform: translateY(${Math.max(0, currentTranslateY)}px);`}
 	>
-		<div
-			id={menuId}
-			style:transform={isClosingSheet ? 'translateY(100%)' : `translateY(${currentTranslateY}px)`}
-		>
+		<div id={menuId}>
 			<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
 				<button
 					bind:this={sheetHandleRef}
@@ -108,7 +108,10 @@
 				</div>
 			</div>
 
-			<div class="max-h-[calc(100dvh-7rem)] overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+			<div
+				class="max-h-[calc(100dvh-7rem)] overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4"
+				aria-busy={isClosingSheet || isAnimatingIntro}
+			>
 				<div class="space-y-4 pb-4">
 					<div class="rounded-2xl bg-mist/35 px-4 py-4 dark:bg-slate-800/60">
 						<div class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone dark:text-slate-400">

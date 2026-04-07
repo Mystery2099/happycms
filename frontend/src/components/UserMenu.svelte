@@ -35,6 +35,7 @@
 	let isMobileSheetVisible = $state(false);
 	let isOverlayVisible = $state(false);
 	let isClosingSheet = $state(false);
+	let isAnimatingIntro = $state(false);
 	let isDragging = $state(false);
 	let dropdownRef = $state<HTMLDivElement | null>(null);
 	let triggerRef = $state<HTMLButtonElement | null>(null);
@@ -69,16 +70,22 @@
 		isOpen = true;
 
 		if (isMobileVariant) {
-			currentTranslateY = 0;
+			currentTranslateY = window.innerHeight + 32;
 			isDragging = false;
 			isMobileSheetVisible = true;
 			isOverlayVisible = false;
 			isClosingSheet = false;
+			isAnimatingIntro = true;
 			clearSheetAnimationTimeout();
 
 			tick().then(() => {
 				requestAnimationFrame(() => {
 					isOverlayVisible = true;
+					currentTranslateY = 0;
+					sheetAnimationTimeout = setTimeout(() => {
+						isAnimatingIntro = false;
+						sheetAnimationTimeout = null;
+					}, 280);
 				});
 			});
 		}
@@ -109,6 +116,7 @@
 		isMobileSheetVisible = false;
 		isOverlayVisible = false;
 		isClosingSheet = false;
+		isAnimatingIntro = false;
 		isDragging = false;
 		currentTranslateY = 0;
 		resetDragState();
@@ -122,9 +130,10 @@
 		if (isClosingSheet) return;
 
 		isClosingSheet = true;
+		isAnimatingIntro = false;
 		isDragging = false;
 		isOverlayVisible = false;
-		currentTranslateY = window.innerHeight;
+		currentTranslateY = window.innerHeight + 32;
 		resetDragState();
 		clearSheetAnimationTimeout();
 		sheetAnimationTimeout = setTimeout(() => {
@@ -278,6 +287,7 @@
 	isVisible={isMobileVariant && isMobileSheetVisible}
 	{isOverlayVisible}
 	{isClosingSheet}
+	{isAnimatingIntro}
 	{isDragging}
 	{currentTranslateY}
 	{menuId}
