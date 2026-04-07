@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { FileText, Home, PlusCircle, Search } from '@lucide/svelte';
+	import MobileNav from './MobileNav.svelte';
 	import ThemeDropdown from './ThemeDropdown.svelte';
 	import UserMenu from './UserMenu.svelte';
 
@@ -66,7 +67,6 @@
 					<ThemeDropdown variant="desktop" />
 				</div>
 
-				<!-- User Auth Menu -->
 				<div class="pl-4 border-l border-mist">
 					<UserMenu
 						{isLoggedIn}
@@ -85,3 +85,5 @@
 		</div>
 	</div>
 </header>
+
+<MobileNav {currentPage} {routes} {isLoggedIn} {isAdmin} {loginUrl} {logoutUrl} {logoutCsrfToken} />
