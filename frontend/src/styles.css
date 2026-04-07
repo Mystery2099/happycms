@@ -436,21 +436,17 @@ html.dark .site-header.is-scrolled {
 .theme-selector-btn {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	padding: 6px 10px;
-	border-radius: 6px;
-	font-size: 13px;
-	font-weight: 500;
+	gap: 8px;
+	padding: 0;
 	color: var(--stone, #57534e);
 	background: transparent;
-	border: 1px solid transparent;
-	transition: all 0.15s ease;
+	border: none;
+	transition: color 0.15s ease;
 	cursor: pointer;
 }
 
 .theme-selector-btn:hover {
-	background: rgba(0, 0, 0, 0.04);
-	border-color: rgba(0, 0, 0, 0.08);
+	color: var(--ink, #1a1a1a);
 }
 
 html.dark .theme-selector-btn {
@@ -458,75 +454,13 @@ html.dark .theme-selector-btn {
 }
 
 html.dark .theme-selector-btn:hover {
-	background: rgba(255, 255, 255, 0.06);
-	border-color: rgba(255, 255, 255, 0.1);
-}
-
-.theme-dropdown {
-	position: absolute;
-	top: 100%;
-	right: 0;
-	margin-top: 8px;
-	min-width: 140px;
-	background: rgba(250, 249, 247, 0.98);
-	border: 1px solid rgba(231, 229, 228, 0.8);
-	border-radius: 8px;
-	padding: 4px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-	opacity: 0;
-	visibility: hidden;
-	transform: translateY(-8px);
-	transition: all 0.15s ease;
-	z-index: 100;
-}
-
-.theme-dropdown.is-open,
-.theme-dropdown--mounted {
-	opacity: 1;
-	visibility: visible;
-	transform: translateY(0);
-}
-
-html.dark .theme-dropdown {
-	background: rgba(15, 23, 42, 0.98);
-	border-color: rgba(51, 65, 85, 0.6);
-}
-
-.theme-option {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	width: 100%;
-	padding: 8px 10px;
-	border-radius: 6px;
-	font-size: 13px;
-	color: var(--ink, #1a1a1a);
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	transition: background 0.1s ease;
-}
-
-.theme-option:hover {
-	background: rgba(0, 0, 0, 0.04);
-}
-
-.theme-option.is-active {
-	background: rgba(220, 95, 80, 0.1);
-	color: #dc5f50;
-}
-
-html.dark .theme-option {
 	color: #f8fafc;
 }
 
-html.dark .theme-option:hover {
-	background: rgba(255, 255, 255, 0.06);
-}
-
-html.dark .theme-option.is-active {
-	background: rgba(251, 113, 133, 0.15);
-	color: #fb7185;
+.dropdown-trigger-inline {
+	min-width: 8.75rem;
+	padding-right: 0.875rem;
+	padding-left: 0.875rem;
 }
 
 .mobile-theme-toggle {

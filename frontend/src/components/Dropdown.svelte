@@ -1,16 +1,21 @@
 <script lang="ts">
-	import { ChevronDown, Check, X } from '@lucide/svelte';
-	import type { Component } from 'svelte';
-	import { onMount, tick } from 'svelte';
-
-	interface Option {
-		value: string;
-		label: string;
-		icon?: Component;
-	}
+	import { innerHeight, innerWidth } from 'svelte/reactivity/window';
+	import { tick } from 'svelte';
+	import DropdownDesktopList from './dropdown/DropdownDesktopList.svelte';
+	import DropdownMobileSheet from './dropdown/DropdownMobileSheet.svelte';
+	import DropdownTrigger from './dropdown/DropdownTrigger.svelte';
+	import type { DropdownOption } from '../lib/dropdown';
+	import { createSheetStyleManager } from '../lib/mobile-sheet-styles';
+	import {
+		beginSheetDrag,
+		createSheetDragState,
+		endSheetDrag,
+		resetSheetDrag,
+		updateSheetDrag
+	} from '../lib/sheet-drag';
 
 	interface Props {
-		options: Option[];
+		options: DropdownOption[];
 		value: string;
 		placeholder?: string;
 		class?: string;
@@ -46,33 +51,29 @@
 	}: Props = $props();
 
 	let isOpen = $state(false);
-	let viewportWidth = $state(1024);
-	let viewportHeight = $state(900);
 	let isExpanded = $state(false);
 	let isDragging = $state(false);
 	let highlightedIndex = $state(-1);
 	let selectedOption = $derived(options.find((opt) => opt.value === value));
 	let selectedLabel = $derived(selectedOption?.label ?? placeholder);
 	let SelectedIcon = $derived(selectedOption?.icon);
+	let viewportWidth = $derived(innerWidth.current ?? 1024);
+	let viewportHeight = $derived(innerHeight.current ?? 900);
 	let isMobile = $derived(viewportWidth < mobileBreakpoint);
+	let rootElement = $state<HTMLDivElement | null>(null);
 	let triggerElement = $state<HTMLButtonElement | null>(null);
 	let listboxElement = $state<HTMLDivElement | null>(null);
 	let sheetElement = $state<HTMLElement | null>(null);
 	let handleElement = $state<HTMLButtonElement | null>(null);
 	let optionElements = $state<HTMLButtonElement[]>([]);
-	let styleElement: HTMLStyleElement | null = null;
-	let sheetRule: CSSStyleRule | null = null;
-	let scrollRule: CSSStyleRule | null = null;
 	const sheetInstanceId = `dropdown-sheet-${Math.random().toString(36).slice(2, 10)}`;
 	const listboxId = `dropdown-listbox-${Math.random().toString(36).slice(2, 10)}`;
 	const triggerId = `dropdown-trigger-${Math.random().toString(36).slice(2, 10)}`;
-	let currentTranslateY = 0;
+	const mobileSheetTitleId = `dropdown-sheet-title-${Math.random().toString(36).slice(2, 10)}`;
+	let currentTranslateY = $state(0);
 	let shouldHintMoreContent = $derived(!isExpanded && options.length > 6);
-	let activePointerId: number | null = null;
-	let dragStartY = 0;
-	let dragStartOffset = 0;
-	let dragDeltaY = 0;
-	let suppressHandleClick = false;
+	const dragState = createSheetDragState();
+	const sheetStyleManager = createSheetStyleManager(sheetInstanceId);
 	let isMobileSheetVisible = $state(false);
 	let isOverlayVisible = $state(false);
 	let isAnimatingIntro = $state(false);
@@ -80,11 +81,11 @@
 	let sheetAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	const defaultTriggerClass =
-		'input-minimal hover:border-stone flex w-full items-center justify-between gap-2 text-left transition-all duration-300 focus:translate-y-[-1px]';
+		'input-minimal hover:border-stone flex min-h-[48px] w-full items-center justify-between gap-3 rounded-xl border border-mist/80 bg-white/70 px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition-all duration-200 hover:bg-white focus:translate-y-[-1px] dark:border-slate-700 dark:bg-slate-900/80 dark:hover:bg-slate-900';
 	const defaultMenuClass =
-		'border-mist absolute top-full right-0 left-0 z-50 mt-1 transform rounded-lg border bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800';
+		'border-mist absolute top-full right-0 left-0 z-50 mt-2 transform overflow-hidden rounded-2xl border bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95';
 	const defaultOptionClass =
-		'hover:bg-mist/30 flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm capitalize transition-colors duration-150 dark:hover:bg-slate-700/50';
+		'hover:bg-mist/20 flex min-h-[46px] w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-ink transition-colors duration-150 dark:text-slate-100 dark:hover:bg-slate-800/80';
 
 	function getSelectedIndex() {
 		const selectedIndex = options.findIndex((option) => option.value === value);
@@ -158,65 +159,14 @@
 		});
 	}
 
-	function getSheetFocusableElements() {
-		if (!sheetElement) return [] as HTMLElement[];
-
-		return Array.from(
-			sheetElement.querySelectorAll<HTMLElement>(
-				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-			)
-		).filter((element) => !element.hasAttribute('hidden'));
-	}
-
-	function trapSheetFocus(event: KeyboardEvent) {
-		if (event.key !== 'Tab') return;
-
-		const focusableElements = getSheetFocusableElements();
-		if (focusableElements.length === 0) {
-			event.preventDefault();
-			return;
-		}
-
-		const firstElement = focusableElements[0];
-		const lastElement = focusableElements[focusableElements.length - 1];
-		const activeElement = document.activeElement as HTMLElement | null;
-		const focusIsInsideSheet = !!(activeElement && sheetElement?.contains(activeElement));
-
-		if (!focusIsInsideSheet) {
-			event.preventDefault();
-			(event.shiftKey ? lastElement : firstElement).focus();
-			return;
-		}
-
-		if (event.shiftKey && activeElement === firstElement) {
-			event.preventDefault();
-			lastElement.focus();
-			return;
-		}
-
-		if (!event.shiftKey && activeElement === lastElement) {
-			event.preventDefault();
-			firstElement.focus();
-		}
-	}
-
-	function keepFocusInsideSheet(event: FocusEvent) {
-		if (!isMobile || !isOpen || !sheetElement) return;
-
-		const nextTarget = event.target as HTMLElement | null;
-		if (!nextTarget || sheetElement.contains(nextTarget)) return;
-
-		const [firstElement] = getSheetFocusableElements();
-		(firstElement ?? handleElement)?.focus();
-	}
-
 	function resetDragState() {
-		const pointerId = activePointerId;
-		dragDeltaY = 0;
-		if (pointerId !== null && handleElement?.hasPointerCapture(pointerId)) {
-			handleElement.releasePointerCapture(pointerId);
-		}
-		activePointerId = null;
+		resetSheetDrag(dragState, {
+			releasePointerCaptureIfNeeded(pointerId) {
+				if (handleElement?.hasPointerCapture(pointerId)) {
+					handleElement.releasePointerCapture(pointerId);
+				}
+			}
+		});
 	}
 
 	function finalizeClose({ restoreFocus = isMobile } = {}) {
@@ -351,23 +301,11 @@
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (!isOpen) return;
-
-		if (isMobile) {
-			trapSheetFocus(event);
-		}
-
-		if (event.key === 'Escape') {
-			close();
-		}
-	}
-
 	function handleClickOutside(event: MouseEvent) {
 		if (isMobile || !isOpen) return;
 
 		const target = event.target as HTMLElement;
-		if (!target.closest('[data-dropdown-root]')) {
+		if (rootElement && !rootElement.contains(target)) {
 			close();
 		}
 	}
@@ -394,31 +332,26 @@
 
 	function applySheetTranslateY(nextTranslateY: number) {
 		currentTranslateY = Math.max(0, nextTranslateY);
-		if (sheetRule) {
-			sheetRule.style.transform = `translateY(${currentTranslateY}px)`;
-		}
 	}
 
 	function updateSheetStyles() {
-		if (!sheetRule || !scrollRule) return;
-
 		if ((!isOpen && !isMobileSheetVisible) || !isMobile) {
-			sheetRule.style.cssText = '';
-			scrollRule.style.cssText = '';
+			sheetStyleManager.clear();
 			return;
 		}
 
 		const maxSheetHeight = getMaximumSheetHeight();
 		const scrollHeight = Math.max(maxSheetHeight - 92, 220);
 
-		sheetRule.style.height = `${maxSheetHeight}px`;
-		sheetRule.style.maxHeight = `calc(100dvh - ${getExpandedTopOffset()}px)`;
-		applySheetTranslateY(
-			isDragging || isAnimatingIntro || isClosingSheet ? currentTranslateY : getRestingTranslateY()
-		);
-
-		scrollRule.style.maxHeight = `${scrollHeight}px`;
-		scrollRule.style.overflowY = isExpanded ? 'auto' : 'hidden';
+		sheetStyleManager.update({
+			isActive: true,
+			height: maxSheetHeight,
+			maxHeight: `calc(100dvh - ${getExpandedTopOffset()}px)`,
+			translateY:
+				isDragging || isAnimatingIntro || isClosingSheet ? currentTranslateY : getRestingTranslateY(),
+			scrollHeight,
+			allowScroll: isExpanded
+		});
 	}
 
 	function finishDrag() {
@@ -426,9 +359,9 @@
 		const collapsedOffset = getCollapsedOffset();
 		const snapThreshold = 80;
 		const closeThreshold = Math.max(collapsedOffset + 140, viewportHeight * 0.72);
-		const wantsClose = finalOffset > closeThreshold && dragDeltaY > 0;
-		const wantsExpand = dragDeltaY < -snapThreshold || finalOffset < collapsedOffset * 0.5;
-		const wantsCollapse = dragDeltaY > snapThreshold || finalOffset >= collapsedOffset * 0.5;
+		const wantsClose = finalOffset > closeThreshold && dragState.dragDeltaY > 0;
+		const wantsExpand = dragState.dragDeltaY < -snapThreshold || finalOffset < collapsedOffset * 0.5;
+		const wantsCollapse = dragState.dragDeltaY > snapThreshold || finalOffset >= collapsedOffset * 0.5;
 
 		if (wantsClose) {
 			startCloseAnimation();
@@ -446,33 +379,35 @@
 	}
 
 	function handleHandlePointerMove(event: PointerEvent) {
-		if (event.pointerId !== activePointerId) return;
+		const result = updateSheetDrag(event, dragState, {
+			onStartDrag() {
+				isDragging = true;
+			},
+			resolveNextOffset({ startOffset, dragDeltaY }) {
+				const collapsedOffset = getCollapsedOffset();
+				const nextOffset = Math.max(0, startOffset + dragDeltaY);
+				const resistance =
+					nextOffset > collapsedOffset ? (nextOffset - collapsedOffset) * 0.35 : 0;
 
-		dragDeltaY = event.clientY - dragStartY;
-		if (!isDragging && Math.abs(dragDeltaY) < 6) return;
+				return nextOffset - resistance;
+			}
+		});
+		if (!result) return;
 
-		if (!isDragging) {
-			isDragging = true;
-			suppressHandleClick = true;
-		}
-
-		const collapsedOffset = getCollapsedOffset();
-		const nextOffset = Math.max(0, dragStartOffset + dragDeltaY);
-		const resistance =
-			nextOffset > collapsedOffset ? (nextOffset - collapsedOffset) * 0.35 : 0;
-
-		event.preventDefault();
-		applySheetTranslateY(nextOffset - resistance);
+		applySheetTranslateY(result.nextOffset);
 	}
 
 	function handleHandlePointerEnd(event: PointerEvent) {
-		if (event.pointerId !== activePointerId) return;
+		const result = endSheetDrag(event, dragState, {
+			releasePointerCapture(pointerId) {
+				if (handleElement?.hasPointerCapture(pointerId)) {
+					handleElement.releasePointerCapture(pointerId);
+				}
+			}
+		});
+		if (!result) return;
 
-		if (handleElement?.hasPointerCapture(event.pointerId)) {
-			handleElement.releasePointerCapture(event.pointerId);
-		}
-
-		if (!isDragging) {
+		if (!result.wasDragging) {
 			resetDragState();
 			return;
 		}
@@ -483,15 +418,13 @@
 
 	function handleHandlePointerDown(event: PointerEvent) {
 		if (!isOpen || !isMobile) return;
-		if (!event.isPrimary) return;
-		if (event.pointerType === 'mouse' && event.button !== 0) return;
 
-		activePointerId = event.pointerId;
-		dragStartY = event.clientY;
-		dragStartOffset = currentTranslateY || getRestingTranslateY();
-		dragDeltaY = 0;
-		suppressHandleClick = false;
-		handleElement?.setPointerCapture(event.pointerId);
+		beginSheetDrag(event, dragState, {
+			currentOffset: currentTranslateY || getRestingTranslateY(),
+			setPointerCapture(pointerId) {
+				handleElement?.setPointerCapture(pointerId);
+			}
+		});
 	}
 
 	function toggleSheetExpansion() {
@@ -500,20 +433,9 @@
 		applySheetTranslateY(getRestingTranslateY());
 	}
 
-	function portal(node: HTMLElement) {
-		const target = document.body;
-		target.appendChild(node);
-
-		return {
-			destroy() {
-				node.remove();
-			}
-		};
-	}
-
 	function handleHandleClick(event: MouseEvent) {
-		if (suppressHandleClick) {
-			suppressHandleClick = false;
+		if (dragState.suppressHandleClick) {
+			dragState.suppressHandleClick = false;
 			event.preventDefault();
 			return;
 		}
@@ -521,56 +443,14 @@
 		toggleSheetExpansion();
 	}
 
-	onMount(() => {
-		const nonce = document
-			.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')
-			?.getAttribute('content');
-
-		styleElement = document.createElement('style');
-		if (nonce) {
-			styleElement.setAttribute('nonce', nonce);
-		}
-
-		document.head.appendChild(styleElement);
-		const stylesheet = styleElement.sheet as CSSStyleSheet | null;
-		if (stylesheet) {
-			const sheetSelector = `[data-dropdown-sheet-id="${sheetInstanceId}"]`;
-			const scrollSelector = `${sheetSelector} .dropdown-sheet-scroll`;
-			stylesheet.insertRule(`${sheetSelector} {}`, 0);
-			stylesheet.insertRule(`${scrollSelector} {}`, 1);
-			sheetRule = stylesheet.cssRules[0] as CSSStyleRule;
-			scrollRule = stylesheet.cssRules[1] as CSSStyleRule;
-		}
+	$effect(() => {
+		sheetStyleManager.mount();
 		updateSheetStyles();
 
 		return () => {
 			clearSheetAnimationTimeout();
-			styleElement?.remove();
-			styleElement = null;
-			sheetRule = null;
-			scrollRule = null;
+			sheetStyleManager.destroy();
 		};
-	});
-
-	$effect(() => {
-		if (!isMobile || !isOpen) return;
-
-		const previousOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-		document.addEventListener('focusin', keepFocusInsideSheet);
-
-		return () => {
-			document.body.style.overflow = previousOverflow;
-			document.removeEventListener('focusin', keepFocusInsideSheet);
-		};
-	});
-
-	$effect(() => {
-		if (!isOpen || !isMobile) return;
-
-		tick().then(() => {
-			handleElement?.focus();
-		});
 	});
 
 	$effect(() => {
@@ -584,199 +464,76 @@
 	});
 </script>
 
-<svelte:window
-	bind:innerWidth={viewportWidth}
-	bind:innerHeight={viewportHeight}
-	onclick={handleClickOutside}
-	onkeydown={handleKeydown}
-/>
+<svelte:window onclick={handleClickOutside} />
 
-<div class="relative {className}" data-dropdown-root>
-	<button
-		bind:this={triggerElement}
-		type="button"
-		class={triggerClass || defaultTriggerClass}
+<div bind:this={rootElement} class="relative {className}" data-dropdown-root>
+	<DropdownTrigger
+		{isOpen}
+		{isMobile}
+		{triggerId}
+		{listboxId}
+		{ariaLabel}
+		{ariaLabelledby}
+		{ariaDescribedby}
+		{showIconInTrigger}
+		{showLabelInTrigger}
+		{selectedLabel}
+		selectedIcon={SelectedIcon}
+		{triggerClass}
+		{defaultTriggerClass}
+		bind:triggerElement
 		onclick={toggle}
 		onkeydown={handleTriggerKeydown}
-		id={triggerId}
-		aria-controls={isOpen ? listboxId : undefined}
-		aria-describedby={ariaDescribedby}
-		aria-expanded={isOpen}
-		aria-haspopup={isMobile ? 'dialog' : 'listbox'}
-		aria-label={ariaLabel}
-		aria-labelledby={ariaLabelledby}
-	>
-		<span class="flex min-w-0 items-center gap-2">
-			{#if showIconInTrigger && SelectedIcon}
-				<SelectedIcon size={16} />
-			{/if}
-			{#if showLabelInTrigger}
-				<span class="truncate capitalize">{selectedLabel}</span>
-			{/if}
-		</span>
-		<ChevronDown
-			size={16}
-			class="shrink-0 transition-transform duration-200 {isOpen ? 'rotate-180' : ''}"
-		/>
-	</button>
+	/>
 
 	{#if isOpen && !isMobile}
-		<div
-			bind:this={listboxElement}
-			class={menuClass || defaultMenuClass}
-			id={listboxId}
-			role="listbox"
-			aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-			aria-labelledby={ariaLabelledby}
-			aria-describedby={ariaDescribedby}
-		>
-			<div class="max-h-60 overflow-y-auto py-1">
-				{#each options as option, index (option.value)}
-					{@const Icon = option.icon}
-					<button
-						bind:this={optionElements[index]}
-						type="button"
-						class="{optionClass || defaultOptionClass} {value === option.value
-							? 'text-ink bg-mist/20 dark:bg-slate-700/30'
-							: 'text-stone'}"
-						onclick={() => selectOption(option.value)}
-						onkeydown={(event) => handleDesktopOptionKeydown(event, index)}
-						role="option"
-						tabindex={highlightedIndex === index ? 0 : -1}
-						aria-selected={value === option.value}
-					>
-						{#if Icon}
-							<Icon size={16} />
-						{/if}
-						{option.label}
-					</button>
-				{/each}
-			</div>
+		<div bind:this={listboxElement}>
+			<DropdownDesktopList
+				{options}
+				{value}
+				{highlightedIndex}
+				{listboxId}
+				{menuClass}
+				{defaultMenuClass}
+				{optionClass}
+				{defaultOptionClass}
+				{listAriaLabel}
+				{ariaLabel}
+				{ariaLabelledby}
+				{ariaDescribedby}
+				{selectedLabel}
+				bind:optionElements
+				onSelect={selectOption}
+				onOptionKeydown={handleDesktopOptionKeydown}
+			/>
 		</div>
 	{/if}
 </div>
 
-{#if isMobile && isMobileSheetVisible}
-	<div use:portal>
-		<div class="fixed inset-0 z-[140]" aria-hidden="true">
-			<button
-				type="button"
-				class="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity duration-180 ease-out {isOverlayVisible ? 'opacity-100' : 'opacity-0'}"
-				onclick={close}
-				tabindex="-1"
-				aria-label="Close options"
-			></button>
-		</div>
-
-		<div class="fixed inset-x-0 bottom-0 z-[150] pointer-events-none">
-			<div
-				bind:this={sheetElement}
-				data-dropdown-sheet-id={sheetInstanceId}
-				id={listboxId}
-				class="pointer-events-auto overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] transition-transform duration-220 ease-out dark:border-slate-700 dark:bg-slate-900"
-				class:dropdown-sheet--dragging={isDragging}
-				role="dialog"
-				aria-modal="true"
-				aria-label={listAriaLabel ?? ariaLabel ?? selectedLabel}
-				aria-labelledby={ariaLabelledby}
-				aria-describedby={ariaDescribedby}
-			>
-				<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
-				<button
-					bind:this={handleElement}
-					type="button"
-					class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing"
-					onpointerdown={handleHandlePointerDown}
-					onpointermove={handleHandlePointerMove}
-					onpointerup={handleHandlePointerEnd}
-					onpointercancel={handleHandlePointerEnd}
-					onclick={handleHandleClick}
-					aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
-				>
-					<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
-				</button>
-				<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
-					<div>
-						<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
-							Choose
-						</p>
-						<h2 class="text-base font-medium text-ink dark:text-slate-50">
-							{listAriaLabel ?? ariaLabel ?? selectedLabel}
-						</h2>
-						{#if shouldHintMoreContent}
-							<p class="mt-1 flex items-center gap-1.5 text-xs font-medium text-coral dark:text-rose-300">
-								<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-coral/10 dark:bg-rose-300/10">
-									<ChevronDown size={12} class="-rotate-90" />
-								</span>
-								Pull up to reveal more options
-							</p>
-						{/if}
-					</div>
-					<div class="flex items-center gap-2">
-						<button
-							type="button"
-							class="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone transition-colors hover:text-ink dark:text-slate-300 dark:hover:text-slate-50"
-							onclick={toggleSheetExpansion}
-							aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
-						>
-							{isExpanded ? 'Peek' : 'Expand'}
-						</button>
-						<button
-							type="button"
-							class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
-							onclick={close}
-							aria-label="Close options"
-						>
-							<X size={18} />
-						</button>
-					</div>
-				</div>
-			</div>
-
-				<div class="dropdown-sheet-scroll relative px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-					<div class="space-y-2 pb-4">
-						{#each options as option (option.value)}
-							{@const Icon = option.icon}
-							<button
-								type="button"
-								class="flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors {value === option.value
-									? 'border-coral bg-coral/10 text-ink dark:border-rose-400 dark:bg-rose-400/15 dark:text-slate-50'
-									: 'border-stone-200/80 bg-white/80 text-stone hover:border-stone-300 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50'}"
-								onclick={() => selectOption(option.value)}
-								role="option"
-								aria-selected={value === option.value}
-							>
-								<span class="flex min-w-0 items-center gap-3">
-									{#if Icon}
-										<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone dark:bg-slate-700 dark:text-slate-200">
-											<Icon size={18} />
-										</span>
-									{/if}
-									<span class="truncate text-sm font-medium capitalize">{option.label}</span>
-								</span>
-								{#if value === option.value}
-									<span class="flex h-8 w-8 items-center justify-center rounded-full bg-coral text-white dark:bg-rose-400 dark:text-slate-950">
-										<Check size={16} />
-									</span>
-								{/if}
-							</button>
-						{/each}
-					</div>
-
-					{#if shouldHintMoreContent}
-						<div
-							class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-[24px] bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
-							aria-hidden="true"
-						></div>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
+{#if isMobile}
+	<DropdownMobileSheet
+		{options}
+		{value}
+		{selectedLabel}
+		{listboxId}
+		{sheetInstanceId}
+		{mobileSheetTitleId}
+		isVisible={isMobileSheetVisible}
+		{isOverlayVisible}
+		{isDragging}
+		{isExpanded}
+		{shouldHintMoreContent}
+		{ariaDescribedby}
+		{listAriaLabel}
+		{ariaLabel}
+		bind:sheetElement
+		bind:handleElement
+		onClose={close}
+		onSelect={selectOption}
+		onHandlePointerDown={handleHandlePointerDown}
+		onHandlePointerMove={handleHandlePointerMove}
+		onHandlePointerEnd={handleHandlePointerEnd}
+		onHandleClick={handleHandleClick}
+		onToggleSheetExpansion={toggleSheetExpansion}
+	/>
 {/if}
-
-<style>
-	.dropdown-sheet--dragging {
-		transition: none;
-	}
-</style>
