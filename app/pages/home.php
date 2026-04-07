@@ -27,7 +27,7 @@ $homePageProps = [
         $recentThoughts
     ),
     'routes' => [
-        'create' => route_url('create'),
+        'create' => $canManageThoughts ? route_url('create') : null,
         'search' => route_url('search'),
         'thoughts' => route_url('thoughts'),
     ],

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { AlertTriangle, BadgeX, Trash2 } from '@lucide/svelte';
+	import DisplayHeading from '../components/site/DisplayHeading.svelte';
+	import Section from '../components/site/Section.svelte';
 
 	type Thought = {
 		id: number;
@@ -24,8 +26,8 @@
 	}
 </script>
 
-<section class="section-padding">
-	<div class="max-w-2xl mx-auto px-6 lg:px-8">
+<Section widthClass="max-w-2xl">
+	<div>
 		<div
 			class="bg-coral/10 border-coral mb-8 border-l-4 p-4"
 			role="alert"
@@ -44,14 +46,14 @@
 		</div>
 
 		<div class="mb-12 text-center">
-			<p class="text-coral text-sm font-medium uppercase tracking-widest mb-4 inline-flex items-center gap-2">
-				<Trash2 size={16} />
-				Delete Confirmation
-			</p>
-			<h1 class="font-display text-display-md text-ink inline-flex items-center gap-3">
-				<AlertTriangle size={24} class="text-coral" />
-				Are you sure?
-			</h1>
+			<DisplayHeading
+				level="h1"
+				eyebrow="Delete Confirmation"
+				title="Are you sure?"
+				icon={AlertTriangle}
+				className="items-center"
+				eyebrowClass="text-coral inline-flex items-center gap-2 justify-center"
+			/>
 		</div>
 
 		<div class="border-mist bg-wheat/5 mb-8 border p-8">
@@ -75,4 +77,4 @@
 			</button>
 		</form>
 	</div>
-</section>
+</Section>

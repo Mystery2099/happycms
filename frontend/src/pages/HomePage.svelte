@@ -12,26 +12,15 @@
 		Type
 	} from '@lucide/svelte';
 	import FamousThoughts from '../components/FamousThoughts.svelte';
-
-	type DashboardStats = {
-		total: number;
-		categories: number;
-		highMood: number;
-		withImages: number;
-	};
-
-	type RecentThought = {
-		id: number;
-		title: string;
-		author: string;
-		category: string;
-		moodScore: number;
-		thought: string;
-		editUrl: string | null;
-	};
+	import FeatureList from '../components/home/FeatureList.svelte';
+	import QuickLinks from '../components/home/QuickLinks.svelte';
+	import DisplayHeading from '../components/site/DisplayHeading.svelte';
+	import Section from '../components/site/Section.svelte';
+	import RecentThoughts from '../components/thoughts/RecentThoughts.svelte';
+	import type { DashboardStats, RecentThought } from '../lib/types';
 
 	type Routes = {
-		create: string;
+		create: string | null;
 		search: string;
 		thoughts: string;
 	};
@@ -46,9 +35,38 @@
 
 	let { stats, recentThoughts, routes, heroImageUrl, apiUrl }: Props = $props();
 
-	function renderMood(score: number): string {
-		return '★'.repeat(score);
-	}
+	const featureItems = [
+		{
+			number: '01',
+			title: 'Template System',
+			description: 'PHP layout includes with a Svelte-rendered shell for consistent pages',
+			icon: FileText
+		},
+		{
+			number: '02',
+			title: 'HTML Structure',
+			description: 'Tables, headings, images, navigation, and semantic page structure',
+			icon: Type
+		},
+		{
+			number: '03',
+			title: 'Server-Side Processing',
+			description: 'Form handling, validation, and database operations',
+			icon: Save
+		},
+		{
+			number: '04',
+			title: 'AJAX Integration',
+			description: 'Fetch API for loading famous quotes dynamically',
+			icon: Search
+		}
+	];
+
+	const quickLinks = $derived.by(() => [
+		{ href: routes.create, label: 'Create a new record', icon: PlusCircle },
+		{ href: routes.search, label: 'Search the database', icon: Search },
+		{ href: routes.thoughts, label: 'Manage all records', icon: FileText }
+	]);
 </script>
 
 <section class="border-b border-mist">
@@ -64,10 +82,12 @@
 					development. Create, browse, and search through moments of joy.
 				</p>
 				<div class="flex flex-wrap gap-4">
-					<a href={routes.create} class="btn-primary">
-						<PlusCircle size={16} />
-						Add a Happy Thought
-					</a>
+					{#if routes.create}
+						<a href={routes.create} class="btn-primary">
+							<PlusCircle size={16} />
+							Add a Happy Thought
+						</a>
+					{/if}
 					<a href={routes.thoughts} class="btn-secondary">
 						<FileText size={16} />
 						Browse Collection
@@ -118,12 +138,16 @@
 	</div>
 </section>
 
-<section class="section-padding">
-	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+<Section>
+	<div>
 		<div class="mb-8 flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
 			<div>
-				<h2 class="font-display text-display-md text-ink mb-2">Recent Entries</h2>
-				<p class="text-stone">The latest happy thoughts from our collection</p>
+				<DisplayHeading
+					title="Recent Entries"
+					description="The latest happy thoughts from our collection"
+					className="space-y-0"
+					titleClass="mb-2"
+				/>
 			</div>
 			<a href={routes.thoughts} class="editorial-link inline-flex items-center gap-2 text-sm">
 				View all thoughts
@@ -131,192 +155,26 @@
 			</a>
 		</div>
 
-		<div class="border border-mist">
-			<div class="md:hidden">
-				<div class="divide-y divide-mist">
-					{#each recentThoughts as thought (thought.id)}
-						<article class="space-y-4 p-5">
-							<div class="flex items-start justify-between gap-3">
-								<div class="min-w-0">
-									{#if thought.editUrl}
-										<a
-											href={thought.editUrl}
-											class="font-display text-xl leading-tight text-ink transition-colors hover:text-coral"
-										>
-											{thought.title}
-										</a>
-									{:else}
-										<p class="font-display text-xl leading-tight text-ink">{thought.title}</p>
-									{/if}
-									<p class="mt-2 text-sm leading-relaxed text-stone line-clamp-2">
-										{thought.thought}
-									</p>
-								</div>
-								<span
-									class="bg-mist/50 text-stone inline-flex shrink-0 items-center px-2.5 py-0.5 text-xs font-medium"
-								>
-									{thought.category}
-								</span>
-							</div>
-
-							<div class="flex items-center justify-between gap-3 border-t border-mist pt-3">
-								<p class="text-sm font-medium text-stone">{thought.author}</p>
-								<p class="text-sm text-wheat">{renderMood(thought.moodScore)}</p>
-							</div>
-						</article>
-					{/each}
-				</div>
-			</div>
-
-			<div class="hidden overflow-hidden md:block">
-				<table class="data-table">
-					<caption class="sr-only">Recent happy thoughts from the database</caption>
-					<thead>
-						<tr>
-							<th>Title</th>
-							<th>Author</th>
-							<th>Category</th>
-							<th class="text-right">Mood</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each recentThoughts as thought (thought.id)}
-							<tr>
-								<td>
-									{#if thought.editUrl}
-										<a
-											href={thought.editUrl}
-											class="font-medium text-ink transition-colors hover:text-coral"
-										>
-											{thought.title}
-										</a>
-									{:else}
-										<p class="font-medium text-ink">{thought.title}</p>
-									{/if}
-									<p class="text-sm text-stone line-clamp-1 mt-1">{thought.thought}</p>
-								</td>
-								<td class="text-stone">{thought.author}</td>
-								<td>
-									<span
-										class="bg-mist/50 text-stone inline-flex items-center px-2.5 py-0.5 text-xs font-medium"
-									>
-										{thought.category}
-									</span>
-								</td>
-								<td class="text-right text-wheat">{renderMood(thought.moodScore)}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		</div>
+		<RecentThoughts thoughts={recentThoughts} />
 	</div>
-</section>
+</Section>
 
-<section class="section-padding border-t border-mist bg-white">
-	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+<Section sectionClass="border-t border-mist bg-white">
+	<div>
 		<div class="grid gap-16 lg:grid-cols-2">
 			<div>
-				<h2 class="font-display text-display-md text-ink mb-6">What This Site Demonstrates</h2>
-				<div class="space-y-4">
-					<div class="flex gap-4">
-						<span class="text-coral inline-flex items-center gap-2 font-medium">
-							<FileText size={16} />
-							01
-						</span>
-						<div>
-							<p class="font-medium text-ink">Template System</p>
-							<p class="text-sm text-stone">
-								PHP layout includes with a Svelte-rendered shell for consistent pages
-							</p>
-						</div>
-					</div>
-					<div class="flex gap-4">
-						<span class="text-coral inline-flex items-center gap-2 font-medium">
-							<Type size={16} />
-							02
-						</span>
-						<div>
-							<p class="font-medium text-ink">HTML Structure</p>
-							<p class="text-sm text-stone">
-								Tables, headings, images, navigation, and semantic page structure
-							</p>
-						</div>
-					</div>
-					<div class="flex gap-4">
-						<span class="text-coral inline-flex items-center gap-2 font-medium">
-							<Save size={16} />
-							03
-						</span>
-						<div>
-							<p class="font-medium text-ink">Server-Side Processing</p>
-							<p class="text-sm text-stone">
-								Form handling, validation, and database operations
-							</p>
-						</div>
-					</div>
-					<div class="flex gap-4">
-						<span class="text-coral inline-flex items-center gap-2 font-medium">
-							<Search size={16} />
-							04
-						</span>
-						<div>
-							<p class="font-medium text-ink">AJAX Integration</p>
-							<p class="text-sm text-stone">
-								Fetch API for loading famous quotes dynamically
-							</p>
-						</div>
-					</div>
-				</div>
+				<DisplayHeading title="What This Site Demonstrates" className="mb-6" />
+				<FeatureList items={featureItems} />
 			</div>
 
 			<div>
-				<h2 class="font-display text-display-md text-ink mb-6">Quick Links</h2>
-				<nav class="space-y-3" aria-label="Primary actions">
-					<a
-						href={routes.create}
-						class="group border-mist flex items-center justify-between border-b py-3"
-					>
-						<span
-							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
-						>
-							<PlusCircle size={16} />
-							Create a new record
-						</span>
-						<ArrowRight size={16} class="text-stone" />
-					</a>
-					<a
-						href={routes.search}
-						class="group border-mist flex items-center justify-between border-b py-3"
-					>
-						<span
-							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
-						>
-							<Search size={16} />
-							Search the database
-						</span>
-						<ArrowRight size={16} class="text-stone" />
-					</a>
-					<a
-						href={routes.thoughts}
-						class="group border-mist flex items-center justify-between border-b py-3"
-					>
-						<span
-							class="text-ink inline-flex items-center gap-3 transition-colors group-hover:text-coral"
-						>
-							<FileText size={16} />
-							Manage all records
-						</span>
-						<ArrowRight size={16} class="text-stone" />
-					</a>
-				</nav>
+				<DisplayHeading title="Quick Links" className="mb-6" />
+				<QuickLinks items={quickLinks} />
 			</div>
 		</div>
 	</div>
-</section>
+</Section>
 
-<section class="section-padding border-t border-mist">
-	<div class="max-w-6xl mx-auto px-6 lg:px-8">
-		<FamousThoughts {apiUrl} />
-	</div>
-</section>
+<Section sectionClass="border-t border-mist">
+	<FamousThoughts {apiUrl} />
+</Section>

@@ -13,7 +13,11 @@
 		Type,
 		User
 	} from '@lucide/svelte';
-	import FormDropdown from '../components/FormDropdown.svelte';
+	import DisplayHeading from '../components/site/DisplayHeading.svelte';
+	import Section from '../components/site/Section.svelte';
+	import DropdownField from '../components/site/form/DropdownField.svelte';
+	import InputField from '../components/site/form/InputField.svelte';
+	import TextareaField from '../components/site/form/TextareaField.svelte';
 
 	type ThoughtFormData = {
 		title: string;
@@ -73,8 +77,8 @@
 	const imageErrorId = 'thought-image-error';
 </script>
 
-<section class="section-padding">
-	<div class="max-w-6xl mx-auto px-6 lg:px-8">
+<Section>
+	<div>
 		{#if backUrl}
 			<div class="mb-8">
 				<a
@@ -112,14 +116,14 @@
 
 		<div class="grid gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
 			<aside>
-				<p class="text-sm font-medium text-stone uppercase tracking-widest mb-4">{pageLabel}</p>
-				<h1 class="font-display text-display-md text-ink mb-6 inline-flex items-center gap-3">
-					{#if mode === 'edit'}
-						<Pencil size={24} class="text-coral" />
-					{/if}
-					{title}
-				</h1>
-				<p class="text-stone leading-relaxed mb-8">{description}</p>
+				<DisplayHeading
+					level="h1"
+					eyebrow={pageLabel}
+					title={title}
+					description={description}
+					icon={mode === 'edit' ? Pencil : undefined}
+					className="mb-8"
+				/>
 
 				{#if sideImageUrl}
 					<div
@@ -152,155 +156,90 @@
 						{/if}
 
 						<div class="grid gap-8 md:grid-cols-2">
-							<div>
-								<label
-									for="thought-title"
-									class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-								>
-									<Type size={16} />
-									Title
-								</label>
-								<input
-									id="thought-title"
-									type="text"
-									name="title"
-									value={thoughtData.title}
-									class="input-minimal"
-									placeholder="Give your thought a title"
-									required
-									minlength="3"
-									maxlength="80"
-									aria-invalid={errors.title ? 'true' : undefined}
-									aria-describedby={errors.title ? titleErrorId : undefined}
-								/>
-								{#if errors.title}
-									<p id={titleErrorId} class="mt-2 text-sm text-coral">{errors.title}</p>
-								{/if}
-							</div>
+							<InputField
+								id="thought-title"
+								name="title"
+								label="Title"
+								icon={Type}
+								value={thoughtData.title}
+								placeholder="Give your thought a title"
+								required={true}
+								minlength={3}
+								maxlength={80}
+								error={errors.title}
+								errorId={titleErrorId}
+							/>
 
-							<div>
-								<label
-									for="thought-author"
-									class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-								>
-									<User size={16} />
-									Author
-								</label>
-								<input
-									id="thought-author"
-									type="text"
-									name="author"
-									value={thoughtData.author}
-									class="input-minimal"
-									placeholder="Your name"
-									required
-									minlength="2"
-									maxlength="60"
-									aria-invalid={errors.author ? 'true' : undefined}
-									aria-describedby={errors.author ? authorErrorId : undefined}
-								/>
-								{#if errors.author}
-									<p id={authorErrorId} class="mt-2 text-sm text-coral">{errors.author}</p>
-								{/if}
-							</div>
+							<InputField
+								id="thought-author"
+								name="author"
+								label="Author"
+								icon={User}
+								value={thoughtData.author}
+								placeholder="Your name"
+								required={true}
+								minlength={2}
+								maxlength={60}
+								error={errors.author}
+								errorId={authorErrorId}
+							/>
 						</div>
 
 						<div class="grid gap-8 md:grid-cols-2">
-							<div>
-								<label
-									id={categoryLabelId}
-									class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-								>
-									<Tag size={16} />
-									Category
-								</label>
-								<FormDropdown
-									name="category"
-									options={categories}
-									selected={thoughtData.category}
-									ariaLabel="Category"
-									ariaLabelledby={categoryLabelId}
-									ariaDescribedby={errors.category ? categoryErrorId : undefined}
-								/>
-								{#if errors.category}
-									<p id={categoryErrorId} class="mt-2 text-sm text-coral">{errors.category}</p>
-								{/if}
-							</div>
+							<DropdownField
+								name="category"
+								label="Category"
+								labelId={categoryLabelId}
+								options={categories}
+								selected={thoughtData.category}
+								icon={Tag}
+								error={errors.category}
+								errorId={categoryErrorId}
+							/>
 
-							<div>
-								<label
-									for="thought-mood"
-									class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-								>
-									<SmilePlus size={16} />
-									Mood Score (1-5)
-								</label>
-								<input
-									id="thought-mood"
-									type="number"
-									name="mood_score"
-									value={thoughtData.mood_score}
-									min="1"
-									max="5"
-									class="input-minimal"
-									aria-invalid={errors.mood_score ? 'true' : undefined}
-									aria-describedby={errors.mood_score ? moodErrorId : undefined}
-								/>
-								{#if errors.mood_score}
-									<p id={moodErrorId} class="mt-2 text-sm text-coral">{errors.mood_score}</p>
-								{/if}
-							</div>
+							<InputField
+								id="thought-mood"
+								name="mood_score"
+								type="number"
+								label="Mood Score (1-5)"
+								icon={SmilePlus}
+								value={thoughtData.mood_score}
+								min={1}
+								max={5}
+								error={errors.mood_score}
+								errorId={moodErrorId}
+							/>
 						</div>
 
-						<div>
-							<label
-								for="thought-content"
-								class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-							>
-								<MessageSquareText size={16} />
-								Your Happy Thought
-							</label>
-								<textarea
-									id="thought-content"
-								name="thought"
-								rows="5"
-								class="input-minimal resize-none"
-								placeholder="Share what made you happy..."
-									required
-									minlength="12"
-									maxlength="400"
-									aria-invalid={errors.thought ? 'true' : undefined}
-									aria-describedby={errors.thought ? `${thoughtHintId} ${thoughtErrorId}` : thoughtHintId}
-								>{thoughtData.thought}</textarea>
-							<p id={thoughtHintId} class="mt-2 text-xs text-stone">Minimum 12 characters, maximum 400</p>
-							{#if errors.thought}
-								<p id={thoughtErrorId} class="mt-2 text-sm text-coral">{errors.thought}</p>
-							{/if}
-						</div>
+						<TextareaField
+							id="thought-content"
+							name="thought"
+							label="Your Happy Thought"
+							icon={MessageSquareText}
+							value={thoughtData.thought}
+							placeholder="Share what made you happy..."
+							required={true}
+							rows={5}
+							minlength={12}
+							maxlength={400}
+							hint="Minimum 12 characters, maximum 400"
+							hintId={thoughtHintId}
+							error={errors.thought}
+							errorId={thoughtErrorId}
+						/>
 
-						<div>
-							<label
-								for="thought-image"
-								class="text-sm font-medium text-stone mb-2 inline-flex items-center gap-2"
-							>
-								<Image size={16} />
-								Image Path (Optional)
-							</label>
-								<input
-									id="thought-image"
-								type="text"
-								name="image_path"
-								value={thoughtData.image_path}
-									class="input-minimal"
-									placeholder="public/images/spring-hero.jpg"
-									aria-invalid={errors.image_path ? 'true' : undefined}
-									aria-describedby={errors.image_path ? `${imageHintId} ${imageErrorId}` : imageHintId}
-								/>
-							<p id={imageHintId} class="mt-2 text-xs text-stone">Optional. Use a local image path from this project.</p>
-							{#if errors.image_path}
-								<p id={imageErrorId} class="mt-2 text-sm text-coral">{errors.image_path}</p>
-							{/if}
-						</div>
+						<InputField
+							id="thought-image"
+							name="image_path"
+							label="Image Path (Optional)"
+							icon={Image}
+							value={thoughtData.image_path}
+							placeholder="public/images/spring-hero.jpg"
+							hint="Optional. Use a local image path from this project."
+							hintId={imageHintId}
+							error={errors.image_path}
+							errorId={imageErrorId}
+						/>
 
 						<div class="flex flex-wrap gap-4 pt-4">
 							<button type="submit" class="btn-primary">
@@ -317,4 +256,4 @@
 			</div>
 		</div>
 	</div>
-</section>
+</Section>

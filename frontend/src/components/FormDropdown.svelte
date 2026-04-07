@@ -28,6 +28,11 @@
 	let dropdownOptions = $derived(options.map((option) => ({ value: option, label: option })));
 
 	$effect(() => {
+		if (selected && selected !== value) {
+			value = selected;
+			return;
+		}
+
 		if (!value && initialValue) {
 			value = initialValue;
 		}
@@ -35,7 +40,7 @@
 </script>
 
 <div class={className}>
-	<input type="hidden" {name} value={value} />
+	<input {id} type="hidden" {name} value={value} />
 	<Dropdown
 		options={dropdownOptions}
 		bind:value
