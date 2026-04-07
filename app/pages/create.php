@@ -6,6 +6,7 @@ require_once dirname(__DIR__, 2) . '/app/bootstrap.php';
 require_request_method(['GET', 'POST']);
 require_role(AUTH_ROLE_ADMIN);
 
+$currentUser = current_user();
 $thoughtData = [
     'title' => '',
     'author' => '',
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = array_merge($errors, $formErrors);
 
     if (!$errors) {
-        create_thought($thoughtData);
+        create_thought($thoughtData, isset($currentUser['id']) ? (int) $currentUser['id'] : null);
         set_flash('success', 'Happy thought created successfully.');
         redirect_route('thoughts');
     }

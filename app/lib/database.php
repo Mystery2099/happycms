@@ -43,20 +43,6 @@ function get_pdo(): PDO
 function initialize_database(PDO $pdo): void
 {
     $pdo->exec(
-        'CREATE TABLE IF NOT EXISTS happy_thoughts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            author TEXT NOT NULL,
-            category TEXT NOT NULL,
-            mood_score INTEGER NOT NULL DEFAULT 3,
-            thought TEXT NOT NULL,
-            image_path TEXT DEFAULT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )'
-    );
-
-    $pdo->exec(
         'CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT NOT NULL UNIQUE,
@@ -69,7 +55,27 @@ function initialize_database(PDO $pdo): void
         )'
     );
 
-    seed_default_admin_user($pdo);
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS happy_thoughts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            author TEXT NOT NULL,
+            category TEXT NOT NULL,
+            mood_score INTEGER NOT NULL DEFAULT 3,
+            thought TEXT NOT NULL,
+            image_path TEXT DEFAULT NULL,
+            created_by_user_id INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL,
+            updated_by_user_id INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )'
+    );
+
+    ensure_happy_thought_audit_columns($pdo);
+    ensure_happy_thought_audit_indexes($pdo);
+
+    $defaultAdminUserId = seed_default_admin_user($pdo);
+    backfill_happy_thought_audit_users($pdo, $defaultAdminUserId);
 
     $count = (int) $pdo->query('SELECT COUNT(*) FROM happy_thoughts')->fetchColumn();
     if ($count > 0) {
@@ -120,23 +126,95 @@ function initialize_database(PDO $pdo): void
     ];
 
     $statement = $pdo->prepare(
-        'INSERT INTO happy_thoughts (title, author, category, mood_score, thought, image_path)
-         VALUES (:title, :author, :category, :mood_score, :thought, :image_path)'
+        'INSERT INTO happy_thoughts (
+            title,
+            author,
+            category,
+            mood_score,
+            thought,
+            image_path,
+            created_by_user_id,
+            updated_by_user_id
+         ) VALUES (
+            :title,
+            :author,
+            :category,
+            :mood_score,
+            :thought,
+            :image_path,
+            :created_by_user_id,
+            :updated_by_user_id
+         )'
     );
 
     foreach ($seedThoughts as $thought) {
-        $statement->execute($thought);
+        $statement->execute([
+            ...$thought,
+            'created_by_user_id' => $defaultAdminUserId,
+            'updated_by_user_id' => $defaultAdminUserId,
+        ]);
     }
 }
 
-function seed_default_admin_user(PDO $pdo): void
+function happy_thought_columns(PDO $pdo): array
+{
+    $columns = [];
+    $statement = $pdo->query('PRAGMA table_info(happy_thoughts)');
+    foreach ($statement->fetchAll() as $column) {
+        $name = $column['name'] ?? null;
+        if (is_string($name) && $name !== '') {
+            $columns[] = $name;
+        }
+    }
+
+    return $columns;
+}
+
+function ensure_happy_thought_audit_columns(PDO $pdo): void
+{
+    $columns = happy_thought_columns($pdo);
+    if (!in_array('created_by_user_id', $columns, true)) {
+        $pdo->exec(
+            'ALTER TABLE happy_thoughts
+             ADD COLUMN created_by_user_id INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL'
+        );
+    }
+
+    if (!in_array('updated_by_user_id', $columns, true)) {
+        $pdo->exec(
+            'ALTER TABLE happy_thoughts
+             ADD COLUMN updated_by_user_id INTEGER DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL'
+        );
+    }
+}
+
+function ensure_happy_thought_audit_indexes(PDO $pdo): void
+{
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_happy_thoughts_created_by_user_id ON happy_thoughts(created_by_user_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_happy_thoughts_updated_by_user_id ON happy_thoughts(updated_by_user_id)');
+}
+
+function backfill_happy_thought_audit_users(PDO $pdo, int $defaultAdminUserId): void
+{
+    $statement = $pdo->prepare(
+        'UPDATE happy_thoughts
+         SET created_by_user_id = COALESCE(created_by_user_id, :user_id),
+             updated_by_user_id = COALESCE(updated_by_user_id, :user_id)
+         WHERE created_by_user_id IS NULL
+            OR updated_by_user_id IS NULL'
+    );
+    $statement->execute(['user_id' => $defaultAdminUserId]);
+}
+
+function seed_default_admin_user(PDO $pdo): int
 {
     $email = auth_default_admin_email();
     $statement = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
     $statement->execute(['email' => $email]);
 
-    if ($statement->fetchColumn() !== false) {
-        return;
+    $existingId = $statement->fetchColumn();
+    if ($existingId !== false) {
+        return (int) $existingId;
     }
 
     $insertStatement = $pdo->prepare(
@@ -151,6 +229,8 @@ function seed_default_admin_user(PDO $pdo): void
         'role' => AUTH_ROLE_ADMIN,
         'is_active' => 1,
     ]);
+
+    return (int) $pdo->lastInsertId();
 }
 
 function normalize_database_user(array $user): array

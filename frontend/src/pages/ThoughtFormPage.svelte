@@ -30,6 +30,16 @@
 
 	type FormErrors = Partial<Record<keyof ThoughtFormData | 'form', string>>;
 
+	type ThoughtMetadata = {
+		id: number;
+		createdAt: string;
+		updatedAt: string;
+		category: string;
+		moodScore: number;
+		createdBy: string | null;
+		updatedBy: string | null;
+	};
+
 	interface Props {
 		mode: 'create' | 'edit';
 		pageLabel: string;
@@ -45,7 +55,7 @@
 		csrfToken: string;
 		sideImageUrl: string | null;
 		sideImageAlt: string | null;
-		metadata: { id: number; updatedAt: string; category: string; moodScore: number } | null;
+		metadata: ThoughtMetadata | null;
 	}
 
 	let {
@@ -93,15 +103,11 @@
 
 		{#if metadata}
 			<div class="border-mist mb-8 border-b pb-6">
-				<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 					<div>
 						<p class="text-sm text-stone inline-flex items-center gap-2">
 							<Hash size={16} />
 							Editing thought #{metadata.id}
-						</p>
-						<p class="text-sm text-stone mt-1 inline-flex items-center gap-2">
-							<CalendarDays size={16} />
-							Last updated: {metadata.updatedAt}
 						</p>
 					</div>
 					<span
@@ -110,6 +116,36 @@
 						<Tag size={12} class="mr-1.5" />
 						{metadata.category} • {'★'.repeat(metadata.moodScore)}
 					</span>
+				</div>
+
+				<div class="mt-5 grid gap-4 md:grid-cols-2">
+					<div class="bg-mist/35 rounded-3xl px-5 py-4">
+						<p class="text-sm text-stone inline-flex items-center gap-2">
+							<User size={16} />
+							Created by
+						</p>
+						<p class="text-ink mt-2 text-base font-medium">
+							{metadata.createdBy ?? 'Unknown user'}
+						</p>
+						<p class="text-sm text-stone mt-2 inline-flex items-center gap-2">
+							<CalendarDays size={16} />
+							{metadata.createdAt}
+						</p>
+					</div>
+
+					<div class="bg-mist/35 rounded-3xl px-5 py-4">
+						<p class="text-sm text-stone inline-flex items-center gap-2">
+							<Pencil size={16} />
+							Last edited by
+						</p>
+						<p class="text-ink mt-2 text-base font-medium">
+							{metadata.updatedBy ?? 'Unknown user'}
+						</p>
+						<p class="text-sm text-stone mt-2 inline-flex items-center gap-2">
+							<CalendarDays size={16} />
+							{metadata.updatedAt}
+						</p>
+					</div>
 				</div>
 			</div>
 		{/if}
