@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from '@lucide/svelte';
+	import AuthField from '../components/site/form/AuthField.svelte';
 
 	interface Props {
 		loginUrl: string;
@@ -37,11 +38,11 @@
 </script>
 
 <section class="min-h-[calc(100vh-200px)] flex items-center justify-center px-6 py-16">
-		<div class="w-full max-w-md">
-			<!-- Login Card -->
-			<div
-				class="border border-mist bg-canvas-elevated p-8 shadow-sm rounded-xl dark:border-slate-700 dark:bg-slate-800/95 dark:shadow-card"
-			>
+	<div class="w-full max-w-md">
+		<!-- Login Card -->
+		<div
+			class="rounded-xl border border-mist bg-canvas-elevated p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800/95 dark:shadow-card"
+		>
 			<!-- Header -->
 			<div class="text-center mb-8">
 				<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coral/10 mb-4">
@@ -64,52 +65,35 @@
 				<input type="hidden" name="csrf_token" value={csrfToken} />
 				<input type="hidden" name="redirect" value={redirectTo} />
 
-				<!-- Email Field -->
-				<div class="space-y-2">
-					<label for="email" class="block text-sm font-medium text-ink">Email address</label>
-					<div class="relative">
-						<div class="absolute left-0 top-0 bottom-0 flex items-center pl-3 pointer-events-none">
-							<User size={16} class="text-stone" />
-						</div>
-							<input
-								type="email"
-							id="email"
-							name="email"
-							value={initialEmail}
-							placeholder="you@example.com"
-							required
-							autocomplete="email"
-								class="w-full pl-10 pr-4 py-3 border-b-2 border-mist bg-transparent text-ink placeholder:text-stone/85 focus:border-coral focus:outline-none transition-colors rounded-md dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-400"
-						/>
-				</div>
-			</div>
+				<AuthField
+					id="email"
+					name="email"
+					label="Email address"
+					icon={User}
+					type="email"
+					value={initialEmail}
+					placeholder="you@example.com"
+					required
+					autocomplete="email"
+				/>
 
-			<!-- Password Field -->
-				<div class="space-y-2">
-					<div class="flex items-center justify-between">
-						<label for="password" class="block text-sm font-medium text-ink">Password</label>
-						<!-- Backend: Add forgot password link here -->
-						<!-- <a href="/forgot-password" class="text-xs text-coral hover:underline">Forgot password?</a> -->
-					</div>
-					<div class="relative">
-						<div class="absolute left-0 top-0 bottom-0 flex items-center pl-3 pointer-events-none">
-							<Lock size={16} class="text-stone" />
-						</div>
-							<input
-								type={showPassword ? 'text' : 'password'}
-							id="password"
-							name="password"
-							bind:value={password}
-							placeholder="Enter your password"
-							required
-							autocomplete="current-password"
-								class="w-full pl-10 pr-12 py-3 border-b-2 border-mist bg-transparent text-ink placeholder:text-stone/85 focus:border-coral focus:outline-none transition-colors rounded-md dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-400"
-						/>
-							<button
-								type="button"
-								onclick={togglePassword}
-								class="absolute right-0 top-0 bottom-0 flex items-center pr-3 text-stone hover:text-ink transition-colors dark:text-slate-400 dark:hover:text-slate-100"
-								aria-label={showPassword ? 'Hide password' : 'Show password'}
+				<AuthField
+					id="password"
+					name="password"
+					label="Password"
+					icon={Lock}
+					type={showPassword ? 'text' : 'password'}
+					bind:value={password}
+					placeholder="Enter your password"
+					required
+					autocomplete="current-password"
+				>
+					{#snippet trailingControl()}
+						<button
+							type="button"
+							onclick={togglePassword}
+							class="text-stone transition-colors hover:text-ink dark:text-slate-400 dark:hover:text-slate-100"
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
 							{#if showPassword}
 								<EyeOff size={18} />
@@ -117,18 +101,18 @@
 								<Eye size={18} />
 							{/if}
 						</button>
-					</div>
-				</div>
+					{/snippet}
+				</AuthField>
 
 				<!-- Remember Me -->
 				<div class="flex items-center">
-						<input
-							type="checkbox"
+					<input
+						type="checkbox"
 						id="remember"
 						name="remember"
 						checked={rememberMe}
-							class="w-4 h-4 border-mist rounded bg-canvas-elevated text-coral focus:ring-coral focus:ring-offset-0 cursor-pointer dark:border-slate-600 dark:bg-slate-800"
-						/>
+						class="h-4 w-4 cursor-pointer rounded border-mist bg-canvas-elevated text-coral focus:ring-coral focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-800"
+					/>
 					<label for="remember" class="ml-2 text-sm text-stone cursor-pointer select-none">
 						Remember me for 30 days
 					</label>

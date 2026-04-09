@@ -6,6 +6,7 @@
 	import DropdownTrigger from './dropdown/DropdownTrigger.svelte';
 	import type { DropdownOption } from '../lib/dropdown';
 	import { createSheetStyleManager } from '../lib/mobile-sheet-styles';
+	import { desktopSurfaceTriggerBaseClass } from '../lib/ui-classes';
 	import {
 		beginSheetDrag,
 		createSheetDragState,
@@ -73,19 +74,18 @@
 	let currentTranslateY = $state(0);
 	let shouldHintMoreContent = $derived(!isExpanded && options.length > 6);
 	const dragState = createSheetDragState();
-		const sheetStyleManager = createSheetStyleManager(sheetInstanceId);
+	const sheetStyleManager = createSheetStyleManager(sheetInstanceId);
 	let isMobileSheetVisible = $state(false);
 	let isOverlayVisible = $state(false);
 	let isAnimatingIntro = $state(false);
 	let isClosingSheet = $state(false);
 	let sheetAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
-		const defaultTriggerClass =
-			'input-minimal hover:border-coral/40 flex min-h-[48px] w-full items-center justify-between gap-3 rounded-md border border-mist/80 bg-canvas-elevated px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-coral/5 hover:shadow-card focus:-translate-y-px dark:border-slate-700 dark:bg-slate-800/95 dark:hover:border-slate-500 dark:hover:bg-slate-700/95 dark:hover:text-slate-50';
-		const defaultMenuClass =
-			'border-mist absolute top-full right-0 left-0 z-50 mt-2 transform overflow-hidden rounded-lg border bg-white/95 shadow-dropdown backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95';
-		const defaultOptionClass =
-			'flex min-h-[46px] w-full items-center gap-3 rounded-md px-4 py-3 text-left text-sm font-medium text-ink transition-colors duration-150 hover:bg-coral/6 hover:text-ink dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-50';
+	const defaultTriggerClass = `${desktopSurfaceTriggerBaseClass} w-full`;
+	const defaultMenuClass =
+		'border-mist absolute top-full right-0 left-0 z-50 mt-2 transform overflow-hidden rounded-lg border bg-white/95 shadow-dropdown backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95';
+	const defaultOptionClass =
+		'flex min-h-[46px] w-full items-center gap-3 rounded-md px-4 py-3 text-left text-sm font-medium text-ink transition-colors duration-150 hover:bg-coral/6 hover:text-ink dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-50';
 
 	function getSelectedIndex() {
 		const selectedIndex = options.findIndex((option) => option.value === value);

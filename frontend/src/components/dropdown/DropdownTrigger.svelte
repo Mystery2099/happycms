@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronDown } from '@lucide/svelte';
 	import type { Component } from 'svelte';
+	import { desktopSurfaceTriggerOpenClass } from '../../lib/ui-classes';
 
 	interface Props {
 		isOpen: boolean;
@@ -48,9 +49,7 @@
 	type="button"
 	class={[
 		triggerClass || defaultTriggerClass,
-		isOpen
-			? 'border-coral bg-canvas-elevated text-ink shadow-card dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
-			: ''
+		isOpen ? desktopSurfaceTriggerOpenClass : ''
 	]}
 	{onclick}
 	{onkeydown}

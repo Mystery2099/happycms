@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { Check, ChevronDown, X } from '@lucide/svelte';
 	import type { DropdownOption } from '../../lib/dropdown';
+	import {
+		getMobileSheetPanelClass,
+		mobileSheetCloseButtonClass,
+		mobileSheetHandleBarClass,
+		mobileSheetHandleButtonClass,
+		mobileSheetHeaderClass
+	} from '../../lib/ui-classes';
 	import MobileSheet from '../MobileSheet.svelte';
 
 	interface Props {
@@ -56,24 +63,24 @@
 	}: Props = $props();
 </script>
 
-	<MobileSheet
+<MobileSheet
 		isVisible={isVisible}
 		isOverlayVisible={isOverlayVisible}
 		panelId={listboxId}
 		panelDataId={sheetInstanceId}
-	closeLabel="Close options"
+		closeLabel="Close options"
 	ariaLabelledby={mobileSheetTitleId}
 	ariaDescribedby={ariaDescribedby}
 	bind:sheetElement
 	initialFocusElement={handleElement}
 	{onClose}
-		panelClass="pointer-events-auto overflow-hidden rounded-t-sheet border border-b-0 border-stone-200/80 bg-canvas shadow-sheet dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
-	>
-		<div class="sticky top-0 z-10 bg-canvas/95 backdrop-blur-sm dark:bg-slate-900/95">
+	panelClass={getMobileSheetPanelClass(isDragging)}
+>
+		<div class={mobileSheetHeaderClass}>
 			<button
 				bind:this={handleElement}
 				type="button"
-				class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing"
+				class={mobileSheetHandleButtonClass}
 				onpointerdown={onHandlePointerDown}
 				onpointermove={onHandlePointerMove}
 				onpointerup={onHandlePointerEnd}
@@ -81,7 +88,7 @@
 				onclick={onHandleClick}
 				aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
 			>
-				<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
+				<span class={mobileSheetHandleBarClass}></span>
 			</button>
 			<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
 				<div>
@@ -111,7 +118,7 @@
 					</button>
 					<button
 						type="button"
-						class="flex h-11 w-11 items-center justify-center rounded-md bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+						class={mobileSheetCloseButtonClass}
 						onclick={onClose}
 						aria-label="Close options"
 					>
@@ -130,12 +137,12 @@
 			>
 				{#each options as option (option.value)}
 					{@const Icon = option.icon}
-						<button
-							type="button"
-							class="flex min-h-14 w-full items-center justify-between gap-3 rounded-md border px-4 py-3 text-left transition-colors {value === option.value
-								? 'border-coral bg-coral/10 text-ink shadow-sm dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
-								: 'border-stone-200/80 bg-white/90 text-stone hover:border-stone-300 hover:bg-stone-50 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700/95 dark:hover:text-slate-50'}"
-							onclick={() => onSelect(option.value)}
+					<button
+						type="button"
+						class="flex min-h-14 w-full items-center justify-between gap-3 rounded-md border px-4 py-3 text-left transition-colors {value === option.value
+							? 'border-coral bg-coral/10 text-ink shadow-sm dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
+							: 'border-stone-200/80 bg-white/90 text-stone hover:border-stone-300 hover:bg-stone-50 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700/95 dark:hover:text-slate-50'}"
+						onclick={() => onSelect(option.value)}
 						role="option"
 						aria-selected={value === option.value}
 					>

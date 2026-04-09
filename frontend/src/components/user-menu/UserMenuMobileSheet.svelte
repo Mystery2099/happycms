@@ -1,5 +1,12 @@
 <script lang="ts">
 	import { Palette } from '@lucide/svelte';
+	import {
+		getMobileSheetPanelClass,
+		mobileSheetCloseButtonClass,
+		mobileSheetHandleBarClass,
+		mobileSheetHandleButtonClass,
+		mobileSheetHeaderClass
+	} from '../../lib/ui-classes';
 	import MobileSheet from '../MobileSheet.svelte';
 	import ThemeSelector from '../ThemeSelector.svelte';
 	import UserMenuAccountCard from './UserMenuAccountCard.svelte';
@@ -69,15 +76,15 @@
 		bind:sheetElement
 		initialFocusElement={sheetCloseRef}
 		{onClose}
-		panelClass="pointer-events-auto overflow-hidden rounded-t-sheet border border-b-0 border-stone-200/80 bg-canvas shadow-sheet dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
+		panelClass={getMobileSheetPanelClass(isDragging)}
 		panelStyle={`transform: translateY(${Math.max(0, currentTranslateY)}px);`}
 	>
 		<div id={menuId}>
-			<div class="sticky top-0 z-10 bg-canvas/95 backdrop-blur-sm dark:bg-slate-900/95">
+			<div class={mobileSheetHeaderClass}>
 				<button
 					bind:this={sheetHandleRef}
 					type="button"
-					class="mx-auto mt-3 flex h-8 w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing"
+					class={mobileSheetHandleButtonClass}
 					onpointerdown={onHandlePointerDown}
 					onpointermove={onHandlePointerMove}
 					onpointerup={onHandlePointerEnd}
@@ -85,7 +92,7 @@
 					onclick={onHandleClick}
 					aria-label="Drag to close site menu"
 				>
-					<span class="h-1.5 w-12 rounded-full bg-stone-300/80 dark:bg-slate-600"></span>
+					<span class={mobileSheetHandleBarClass}></span>
 				</button>
 				<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-3 dark:border-slate-800">
 					<div>
@@ -99,7 +106,7 @@
 					<button
 						bind:this={sheetCloseRef}
 						type="button"
-						class="flex h-11 w-11 items-center justify-center rounded-md bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+						class={mobileSheetCloseButtonClass}
 						onclick={onClose}
 						aria-label="Close site menu"
 					>

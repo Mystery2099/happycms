@@ -10,43 +10,36 @@
 	let { editUrl, deleteUrl, layout = 'card' }: Props = $props();
 
 	let hasActions = $derived(Boolean(editUrl && deleteUrl));
+	const isTableLayout = $derived(layout === 'table');
+	const containerClass = $derived(
+		isTableLayout ? 'flex items-center justify-end gap-2' : 'flex items-center gap-4'
+	);
+	const editActionClass = $derived(
+		[
+			'inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm transition-all hover:bg-coral/5 hover:text-ink',
+			isTableLayout ? 'text-stone' : 'text-stone font-medium'
+		].join(' ')
+	);
+	const deleteActionClass = $derived(
+		[
+			'inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm transition-all hover:bg-coral/10 hover:text-coral',
+			isTableLayout ? 'text-coral' : 'text-coral font-medium'
+		].join(' ')
+	);
 </script>
 
 {#if hasActions}
-	{#if layout === 'table'}
-		<div class="flex items-center justify-end gap-2">
-				<a
-					href={editUrl ?? undefined}
-					class="text-sm text-stone inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 transition-all hover:bg-coral/5 hover:text-ink"
-				>
+	<div class={containerClass}>
+		<a href={editUrl ?? undefined} class={editActionClass}>
 				<Pencil size={14} />
 				Edit
-			</a>
+		</a>
+		{#if isTableLayout}
 			<span class="text-mist">|</span>
-				<a
-					href={deleteUrl ?? undefined}
-					class="text-coral text-sm inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 transition-all hover:bg-coral/10 hover:text-coral"
-				>
-				<Trash2 size={14} />
-				Delete
-			</a>
-		</div>
-	{:else}
-		<div class="flex items-center gap-4">
-				<a
-					href={editUrl ?? undefined}
-					class="text-stone flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm font-medium transition-all hover:bg-coral/5 hover:text-ink"
-				>
-				<Pencil size={14} />
-				Edit
-			</a>
-				<a
-					href={deleteUrl ?? undefined}
-					class="text-coral flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm font-medium transition-all hover:bg-coral/10 hover:text-coral"
-				>
-				<Trash2 size={14} />
-				Delete
-			</a>
-		</div>
-	{/if}
+		{/if}
+		<a href={deleteUrl ?? undefined} class={deleteActionClass}>
+			<Trash2 size={14} />
+			Delete
+		</a>
+	</div>
 {/if}

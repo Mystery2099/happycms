@@ -17,11 +17,8 @@
 				<article class="space-y-4 p-5">
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
-								{#if thought.editUrl}
-									<a
-										href={thought.editUrl}
-										class="font-display text-xl leading-tight text-ink decoration-coral/50 underline-offset-4 transition-all hover:text-coral hover:underline"
-									>
+							{#if thought.editUrl}
+								<a href={thought.editUrl} class="thought-title-link font-display text-xl leading-tight">
 									{thought.title}
 								</a>
 							{:else}
@@ -56,13 +53,10 @@
 				{#each thoughts as thought (thought.id)}
 					<tr>
 						<td>
-								{#if thought.editUrl}
-									<a
-										href={thought.editUrl}
-										class="font-medium text-ink decoration-coral/50 underline-offset-4 transition-all hover:text-coral hover:underline"
-									>
-										{thought.title}
-									</a>
+							{#if thought.editUrl}
+								<a href={thought.editUrl} class="thought-title-link font-medium">
+									{thought.title}
+								</a>
 							{:else}
 								<p class="font-medium text-ink">{thought.title}</p>
 							{/if}
