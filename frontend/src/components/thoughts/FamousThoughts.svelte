@@ -5,7 +5,7 @@
 	type Quote = {
 		author: string;
 		quote: string;
-		category: string;
+		catecycleQuotery: string;
 	};
 
 	let { apiUrl = 'api/famous-thoughts.php' } = $props<{ apiUrl?: string }>();
@@ -19,7 +19,7 @@
 
 	let currentQuote = $derived(quotes[visibleIndex] ?? null);
 
-	function go(direction: number) {
+	function cycleQuote(direction: number) {
 		if (!quotes.length || isTransitioning) return;
 
 		const nextIndex = (index + direction + quotes.length) % quotes.length;
@@ -140,14 +140,14 @@
 				<div class={['mt-8 flex items-center justify-between gap-4 transition-opacity duration-250 ease-out motion-reduce:transition-none', isTransitioning ? 'opacity-0' : 'opacity-100']}>
 					<div>
 						<p class="text-ink font-medium">{currentQuote.author}</p>
-						<p class="text-stone text-sm">{currentQuote.category}</p>
+						<p class="text-stone text-sm">{currentQuote.catecycleQuotery}</p>
 					</div>
 
 					<div class="flex gap-2">
 						<button
 							type="button"
 							class="border-mist hover:border-coral dark:hover:border-coral dark:hover:text-coral flex h-10 w-10 items-center justify-center border transition-[transform,background-color,border-color] duration-200 hover:-translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:border-slate-600 dark:text-slate-300"
-							onclick={() => go(-1)}
+							onclick={() => cycleQuote(-1)}
 							aria-label="Previous quote"
 						>
 							<ChevronLeft size={16} />
@@ -155,7 +155,7 @@
 						<button
 							type="button"
 							class="bg-ink text-canvas hover:bg-coral dark:hover:bg-coral flex h-10 w-10 items-center justify-center transition-[transform,background-color] duration-200 hover:translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:bg-slate-700 dark:text-slate-100"
-							onclick={() => go(1)}
+							onclick={() => cycleQuote(1)}
 							aria-label="Next quote"
 						>
 							<ChevronRight size={16} />

@@ -2,6 +2,7 @@
 	import { AlertTriangle, BadgeX, Trash2 } from '@lucide/svelte';
 	import DisplayHeading from '../components/site/DisplayHeading.svelte';
 	import Section from '../components/site/Section.svelte';
+	import ThoughtMood from '../components/thoughts/ThoughtMood.svelte';
 
 	type Thought = {
 		id: number;
@@ -20,10 +21,6 @@
 	}
 
 	let { thought, formAction, cancelUrl, csrfToken }: Props = $props();
-
-	function renderMood(score: number): string {
-		return '★'.repeat(score);
-	}
 </script>
 
 <Section widthClass="max-w-2xl">
@@ -61,7 +58,7 @@
 			<p class="text-stone mb-4">By {thought.author} • {thought.category}</p>
 			<p class="text-stone leading-relaxed">{thought.thought}</p>
 			<div class="border-mist mt-4 border-t pt-4">
-				<span class="text-wheat">{renderMood(thought.moodScore)}</span>
+				<ThoughtMood score={thought.moodScore} />
 			</div>
 		</div>
 

@@ -9,7 +9,6 @@
 
 	let { editUrl, deleteUrl, layout = 'card' }: Props = $props();
 
-	let hasActions = $derived(Boolean(editUrl && deleteUrl));
 	const isTableLayout = $derived(layout === 'table');
 	const actionBaseClass =
 		'inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm transition-all';
@@ -38,16 +37,16 @@
 	);
 </script>
 
-{#if hasActions}
+{#if editUrl && deleteUrl}
 	<div class={containerClass}>
-		<a href={editUrl ?? undefined} class={editActionClass}>
+		<a href={editUrl} class={editActionClass}>
 			<Pencil size={14} />
 			Edit
 		</a>
 		{#if isTableLayout}
 			<span class="text-mist">|</span>
 		{/if}
-		<a href={deleteUrl ?? undefined} class={deleteActionClass}>
+		<a href={deleteUrl} class={deleteActionClass}>
 			<Trash2 size={14} />
 			Delete
 		</a>

@@ -18,27 +18,7 @@
 	import DropdownField from '../components/site/form/DropdownField.svelte';
 	import InputField from '../components/site/form/InputField.svelte';
 	import TextareaField from '../components/site/form/TextareaField.svelte';
-
-	type ThoughtFormData = {
-		title: string;
-		author: string;
-		category: string;
-		mood_score: number;
-		thought: string;
-		image_path: string;
-	};
-
-	type FormErrors = Partial<Record<keyof ThoughtFormData | 'form', string>>;
-
-	type ThoughtMetadata = {
-		id: number;
-		createdAt: string;
-		updatedAt: string;
-		category: string;
-		moodScore: number;
-		createdBy: string | null;
-		updatedBy: string | null;
-	};
+	import type { ThoughtFormData, ThoughtFormErrors, ThoughtMetadata } from '../lib/types';
 
 	interface Props {
 		mode: 'create' | 'edit';
@@ -50,7 +30,7 @@
 		cancelUrl: string;
 		backUrl?: string;
 		thoughtData: ThoughtFormData;
-		errors: FormErrors;
+		errors: ThoughtFormErrors;
 		categories: string[];
 		csrfToken: string;
 		sideImageUrl: string | null;

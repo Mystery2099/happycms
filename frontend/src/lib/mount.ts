@@ -19,7 +19,10 @@ export function parseJsonScript<T>(scriptId: string): T | null {
 
 	try {
 		return JSON.parse(element.textContent ?? '') as T;
-	} catch {
+	} catch (error) {
+		if (import.meta.env.DEV) {
+			console.warn(`[mount] Failed to parse JSON from script#${scriptId}:`, error);
+		}
 		return null;
 	}
 }
@@ -31,14 +34,23 @@ export function parseJsonScript<T>(scriptId: string): T | null {
 export function mountPage<TComponent extends Component<any>>(
 	selector: string,
 	scriptId: string,
-	loader: ComponentLoader<TComponent>
+	loader: ComponentLoader<TComponent>,
+	propsTransformer?: (target: HTMLElement, props: Record<string, unknown>) => Record<string, unknown>
 ): void {
 	const target = document.querySelector<HTMLElement>(selector);
 	if (!target) {
 		return;
 	}
 
-	const props = parseJsonScript<ComponentProps<TComponent>>(scriptId);
+	const rawProps = parseJsonScript<ComponentProps<TComponent>>(scriptId);
+	if (!rawProps && !propsTransformer) {
+		return;
+	}
+
+	const props = rawProps && propsTransformer
+		? propsTransformer(target, rawProps as Record<string, unknown>) as ComponentProps<TComponent>
+		: rawProps;
+
 	if (!props) {
 		return;
 	}

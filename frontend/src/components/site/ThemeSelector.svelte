@@ -21,11 +21,7 @@
 	let theme = $state<Theme>('system');
 
 	const isMobileVariant = $derived(variant === 'mobile');
-	const groupClass = $derived(
-		isMobileVariant
-			? 'w-full'
-			: 'w-full'
-	);
+	const groupClass = 'w-full';
 	const buttonClass = $derived(
 		isMobileVariant
 			? 'min-h-11 px-2 py-2 text-xs'

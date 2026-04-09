@@ -1,7 +1,7 @@
 import { FileText, Home, PlusCircle, Search } from '@lucide/svelte';
-import type { IconComponent } from './types';
+import type { IconComponent, RouteKey } from './types';
 
-export type PrimaryNavRoute = 'home' | 'thoughts' | 'create' | 'search';
+export type PrimaryNavRoute = Exclude<RouteKey, 'login'>;
 
 export type PrimaryNavItem = {
 	key: PrimaryNavRoute;

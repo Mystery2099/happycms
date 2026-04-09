@@ -1,5 +1,4 @@
 import './styles.css';
-import { mount } from 'svelte';
 import { mountPage } from './lib/mount';
 
 mountPage('[data-home-page]', 'home-page-props', () => import('./pages/HomePage.svelte'));
@@ -10,15 +9,6 @@ mountPage('[data-login-page]', 'login-page-props', () => import('./pages/LoginPa
 mountPage('[data-site-header]', 'site-header-props', () => import('./components/site/SiteHeader.svelte'));
 mountPage('[data-site-footer]', 'site-footer-props', () => import('./components/site/SiteFooter.svelte'));
 mountPage('[data-flash-banner]', 'flash-banner-props', () => import('./components/site/FlashBanner.svelte'));
-
-const dashboardTarget = document.querySelector<HTMLElement>('[data-happy-dashboard]');
-if (dashboardTarget) {
-	import('./components/thoughts/FamousThoughts.svelte').then(({ default: FamousThoughts }) => {
-		mount(FamousThoughts, {
-			target: dashboardTarget,
-			props: {
-				apiUrl: dashboardTarget.dataset.apiUrl ?? 'api/famous-thoughts.php'
-			}
-		});
-	});
-}
+mountPage('[data-happy-dashboard]', 'happy-dashboard-props', () => import('./components/thoughts/FamousThoughts.svelte'), (target) => ({
+	apiUrl: target.dataset.apiUrl ?? 'api/famous-thoughts.php'
+}));
