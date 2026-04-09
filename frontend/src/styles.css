@@ -257,15 +257,6 @@
 	color: color-mix(in srgb, var(--coral) 30%, transparent);
 }
 
-.thought-title-link {
-	@apply text-ink underline-offset-4 transition-all;
-	text-decoration-color: color-mix(in srgb, var(--coral) 50%, transparent);
-}
-
-.thought-title-link:hover {
-	@apply text-coral underline;
-}
-
 [data-site-header],
 [data-site-footer],
 [data-flash-banner] {

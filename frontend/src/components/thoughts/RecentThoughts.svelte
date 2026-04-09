@@ -75,3 +75,14 @@
 		</table>
 	</div>
 </div>
+
+<style>
+	.thought-title-link {
+		@apply text-ink underline-offset-4 transition-all;
+		text-decoration-color: color-mix(in srgb, var(--coral) 50%, transparent);
+	}
+
+	.thought-title-link:hover {
+		@apply text-coral underline;
+	}
+</style>

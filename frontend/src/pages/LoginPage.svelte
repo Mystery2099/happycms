@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from '@lucide/svelte';
-	import AuthField from '../components/site/form/AuthField.svelte';
+	import LoginField from '../components/login/LoginField.svelte';
 
 	interface Props {
 		loginUrl: string;
@@ -28,7 +28,6 @@
 
 	function handleSubmit() {
 		isLoading = true;
-		// Form submits to backend - the isLoading state provides visual feedback
 		return true;
 	}
 
@@ -39,11 +38,9 @@
 
 <section class="min-h-[calc(100vh-200px)] flex items-center justify-center px-6 py-16">
 	<div class="w-full max-w-md">
-		<!-- Login Card -->
 		<div
 			class="rounded-xl border border-mist bg-canvas-elevated p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800/95 dark:shadow-card"
 		>
-			<!-- Header -->
 			<div class="text-center mb-8">
 				<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coral/10 mb-4">
 					<User size={24} class="text-coral" />
@@ -52,7 +49,6 @@
 				<p class="text-stone text-sm">Sign in to access your happy thoughts</p>
 			</div>
 
-			<!-- Error Message -->
 			{#if error}
 				<div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md flex items-start gap-3" role="alert">
 					<AlertCircle size={18} class="text-red-500 shrink-0 mt-0.5" />
@@ -60,12 +56,11 @@
 				</div>
 			{/if}
 
-			<!-- Login Form -->
 			<form method="POST" action={loginUrl} class="space-y-6" onsubmit={handleSubmit}>
 				<input type="hidden" name="csrf_token" value={csrfToken} />
 				<input type="hidden" name="redirect" value={redirectTo} />
 
-				<AuthField
+				<LoginField
 					id="email"
 					name="email"
 					label="Email address"
@@ -77,7 +72,7 @@
 					autocomplete="email"
 				/>
 
-				<AuthField
+				<LoginField
 					id="password"
 					name="password"
 					label="Password"
@@ -102,9 +97,8 @@
 							{/if}
 						</button>
 					{/snippet}
-				</AuthField>
+				</LoginField>
 
-				<!-- Remember Me -->
 				<div class="flex items-center">
 					<input
 						type="checkbox"
@@ -118,7 +112,6 @@
 					</label>
 				</div>
 
-				<!-- Submit Button -->
 				<button
 					type="submit"
 					disabled={isLoading}
@@ -134,7 +127,6 @@
 				</button>
 			</form>
 
-			<!-- Back to Home -->
 			<div class="mt-6 text-center">
 				<a href={homeUrl} class="text-sm text-stone hover:text-ink transition-colors inline-flex items-center gap-1">
 					← Back to home
@@ -142,10 +134,8 @@
 			</div>
 		</div>
 
-		<!-- Sign Up Prompt (optional - remove if not needed) -->
 		<div class="mt-6 text-center">
 			<p class="text-sm text-stone">
-				<!-- Backend: Uncomment and add register URL when ready -->
 				<!-- Don't have an account? 
 				<a href="/register" class="text-coral hover:underline font-medium">Create one</a> -->
 			</p>

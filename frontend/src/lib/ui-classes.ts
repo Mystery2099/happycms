@@ -23,15 +23,15 @@ export function getMobileSheetPanelClass(isDragging: boolean) {
 }
 
 export function getDesktopSurfaceTriggerClass({
-	isInline = false,
+	extraClass = '',
 	isOpen = false
 }: {
-	isInline?: boolean;
+	extraClass?: string;
 	isOpen?: boolean;
 }) {
 	return [
 		desktopSurfaceTriggerBaseClass,
-		isInline ? 'dropdown-trigger-inline' : '',
+		extraClass,
 		isOpen ? desktopSurfaceTriggerOpenClass : ''
 	];
 }

@@ -31,7 +31,7 @@
 	const triggerClass = $derived(
 		isMobileVariant
 			? 'bottom-nav-item user-menu-trigger-mobile w-full border-0 bg-transparent shadow-none'
-			: getDesktopSurfaceTriggerClass({ isInline: true, isOpen })
+			: getDesktopSurfaceTriggerClass({ extraClass: 'dropdown-trigger-inline', isOpen })
 	);
 </script>
 
