@@ -90,6 +90,12 @@
 		}
 	}
 
+	function handleOverlayPointerDown(event: PointerEvent) {
+		event.preventDefault();
+		event.stopPropagation();
+		onClose?.();
+	}
+
 	$effect(() => {
 		if (!isVisible) return;
 
@@ -120,7 +126,7 @@
 			<button
 				type="button"
 				class="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity duration-180 ease-out {isOverlayVisible ? 'opacity-100' : 'opacity-0'}"
-				onclick={() => onClose?.()}
+				onpointerdown={handleOverlayPointerDown}
 				tabindex="-1"
 				aria-label={closeLabel}
 			></button>

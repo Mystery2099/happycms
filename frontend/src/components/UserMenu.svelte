@@ -129,6 +129,7 @@
 	function startMobileClose({ restoreFocus = false } = {}) {
 		if (isClosingSheet) return;
 
+		isOpen = false;
 		isClosingSheet = true;
 		isAnimatingIntro = false;
 		isDragging = false;

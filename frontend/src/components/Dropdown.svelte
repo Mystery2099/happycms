@@ -196,6 +196,7 @@
 			return;
 		}
 
+		isOpen = false;
 		isDragging = false;
 		isAnimatingIntro = false;
 		isClosingSheet = true;
@@ -445,12 +446,15 @@
 
 	$effect(() => {
 		sheetStyleManager.mount();
-		updateSheetStyles();
 
 		return () => {
 			clearSheetAnimationTimeout();
 			sheetStyleManager.destroy();
 		};
+	});
+
+	$effect(() => {
+		updateSheetStyles();
 	});
 
 	$effect(() => {
@@ -487,7 +491,7 @@
 	/>
 
 	{#if isOpen && !isMobile}
-		<div bind:this={listboxElement}>
+		<div bind:this={listboxElement} class="origin-top animate-dropdown-enter motion-reduce:animate-none" data-dropdown-open>
 			<DropdownDesktopList
 				{options}
 				{value}
