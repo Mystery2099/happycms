@@ -44,12 +44,26 @@ export default {
 			transitionDuration: {
 				'150': '150ms',
 				'200': '200ms',
+				'250': '250ms',
 				'300': '300ms',
 				'400': '400ms'
 			},
 			transitionTimingFunction: {
 				'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
-				'in-out-smooth': 'cubic-bezier(0.4, 0, 0.2, 1)'
+				'in-out-smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+				'enter': 'cubic-bezier(0.22, 1, 0.36, 1)',
+				'move': 'cubic-bezier(0.25, 1, 0.5, 1)'
+			},
+			keyframes: {
+				'dropdown-enter': {
+					from: {
+						opacity: '0',
+						transform: 'scaleY(0.88)'
+					}
+				}
+			},
+			animation: {
+				'dropdown-enter': 'dropdown-enter 200ms cubic-bezier(0.22, 1, 0.36, 1) both'
 			}
 		}
 	},

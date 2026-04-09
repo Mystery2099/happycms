@@ -14,15 +14,25 @@
 	let error = $state('');
 	let quotes = $state<Quote[]>([]);
 	let index = $state(0);
+	let visibleIndex = $state(0);
+	let isTransitioning = $state(false);
 
-	let currentQuote = $derived(quotes[index] ?? null);
+	let currentQuote = $derived(quotes[visibleIndex] ?? null);
 
 	function go(direction: number) {
-		if (!quotes.length) {
-			return;
-		}
+		if (!quotes.length || isTransitioning) return;
 
-		index = (index + direction + quotes.length) % quotes.length;
+		const nextIndex = (index + direction + quotes.length) % quotes.length;
+		isTransitioning = true;
+		index = nextIndex;
+
+		requestAnimationFrame(() => {
+			visibleIndex = nextIndex;
+		});
+
+		setTimeout(() => {
+			isTransitioning = false;
+		}, 300);
 	}
 
 	onMount(() => {
@@ -115,19 +125,19 @@
 				</div>
 			{:else if currentQuote}
 				<div class="relative" aria-live="polite" aria-atomic="true">
-					<p class="sr-only">Showing quote {index + 1} of {quotes.length}</p>
+					<p class="sr-only">Showing quote {visibleIndex + 1} of {quotes.length}</p>
 					<span
 						class="quote-mark absolute -top-4 -left-2 transition-transform duration-500 hover:scale-110"
 					aria-hidden="true"
-					>"</span
+				>"</span
 				>
 				<blockquote
-					class="font-display text-ink pl-6 text-2xl leading-relaxed transition-opacity duration-300 lg:text-3xl"
+					class={['font-display text-ink pl-6 text-2xl leading-relaxed lg:text-3xl transition-[opacity,filter] duration-250 ease-enter motion-reduce:transition-none', isTransitioning ? 'opacity-0 blur-[2px]' : 'opacity-100 blur-0']}
 				>
 					{currentQuote.quote}
 				</blockquote>
 
-				<div class="mt-8 flex items-center justify-between gap-4">
+				<div class={['mt-8 flex items-center justify-between gap-4 transition-opacity duration-250 ease-out motion-reduce:transition-none', isTransitioning ? 'opacity-0' : 'opacity-100']}>
 					<div>
 						<p class="text-ink font-medium">{currentQuote.author}</p>
 						<p class="text-stone text-sm">{currentQuote.category}</p>
@@ -136,7 +146,7 @@
 					<div class="flex gap-2">
 						<button
 							type="button"
-							class="border-mist hover:border-coral dark:hover:border-coral dark:hover:text-coral flex h-10 w-10 items-center justify-center border transition-all duration-200 hover:-translate-x-0.5 active:scale-95 dark:border-slate-600 dark:text-slate-300"
+							class="border-mist hover:border-coral dark:hover:border-coral dark:hover:text-coral flex h-10 w-10 items-center justify-center border transition-[transform,background-color,border-color] duration-200 hover:-translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:border-slate-600 dark:text-slate-300"
 							onclick={() => go(-1)}
 							aria-label="Previous quote"
 						>
@@ -144,7 +154,7 @@
 						</button>
 						<button
 							type="button"
-							class="bg-ink text-canvas hover:bg-coral dark:hover:bg-coral flex h-10 w-10 items-center justify-center transition-all duration-200 hover:translate-x-0.5 active:scale-95 dark:bg-slate-700 dark:text-slate-100"
+							class="bg-ink text-canvas hover:bg-coral dark:hover:bg-coral flex h-10 w-10 items-center justify-center transition-[transform,background-color] duration-200 hover:translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:bg-slate-700 dark:text-slate-100"
 							onclick={() => go(1)}
 							aria-label="Next quote"
 						>
