@@ -8,7 +8,7 @@
 		mobileSheetHandleButtonClass,
 		mobileSheetHeaderClass
 	} from '../../lib/ui-classes';
-	import MobileSheet from '../MobileSheet.svelte';
+	import MobileSheet from '../site/MobileSheet.svelte';
 
 	interface Props {
 		options: DropdownOption[];

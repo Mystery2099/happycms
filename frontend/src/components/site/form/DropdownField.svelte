@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { IconComponent } from '../../../lib/types';
-	import FormDropdown from '../../FormDropdown.svelte';
+	import FormDropdown from '../../dropdown/FormDropdown.svelte';
 
 	interface Props {
 		name: string;

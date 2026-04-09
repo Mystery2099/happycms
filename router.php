@@ -21,7 +21,7 @@ function is_allowed_static_path(string $path): bool
         return true;
     }
 
-    return preg_match('#^/(?:public/(?:assets|icons|images)|images)/[A-Za-z0-9._/-]+$#', $path) === 1;
+    return preg_match('#^/public/(?:assets|icons|images)/[A-Za-z0-9._/-]+$#', $path) === 1;
 }
 
 function is_allowed_php_entrypoint(string $path): bool

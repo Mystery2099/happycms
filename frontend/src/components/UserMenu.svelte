@@ -268,7 +268,8 @@
 	/>
 
 	{#if isOpen && !isMobileVariant}
-		<UserMenuDesktopPanel
+		<div class="origin-top animate-dropdown-enter motion-reduce:animate-none">
+			<UserMenuDesktopPanel
 			{menuId}
 			{triggerId}
 			panelClass={panelClass}
@@ -281,6 +282,7 @@
 			bind:firstActionRef
 			onNavigate={() => closeMenu()}
 		/>
+		</div>
 	{/if}
 </div>
 

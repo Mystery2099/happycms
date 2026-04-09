@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Palette } from '@lucide/svelte';
-	import ThemeSelector from '../ThemeSelector.svelte';
+	import ThemeSelector from '../site/ThemeSelector.svelte';
 	import UserMenuAccountCard from './UserMenuAccountCard.svelte';
 	import UserMenuAuthAction from './UserMenuAuthAction.svelte';
 

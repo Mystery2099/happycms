@@ -11,7 +11,7 @@
 		Tag,
 		Type
 	} from '@lucide/svelte';
-	import FamousThoughts from '../components/FamousThoughts.svelte';
+	import FamousThoughts from '../components/thoughts/FamousThoughts.svelte';
 	import FeatureList from '../components/home/FeatureList.svelte';
 	import QuickLinks from '../components/home/QuickLinks.svelte';
 	import DisplayHeading from '../components/site/DisplayHeading.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { on } from 'svelte/events';
-	import SegmentedControl from './site/SegmentedControl.svelte';
+	import SegmentedControl from './SegmentedControl.svelte';
 	import {
 		getStoredTheme,
 		isTheme,
@@ -10,7 +10,7 @@
 		themeOptions,
 		type Theme,
 		type ThemeChangeDetail
-	} from '../lib/theme';
+	} from '../../lib/theme';
 	type Variant = 'desktop' | 'mobile';
 
 	interface Props {

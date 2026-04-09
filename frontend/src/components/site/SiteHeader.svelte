@@ -1,8 +1,8 @@
 <script lang="ts">
-	import MobileNav from './MobileNav.svelte';
-	import PrimaryNavLinks from './navigation/PrimaryNavLinks.svelte';
-	import UserMenu from './UserMenu.svelte';
-	import { buildPrimaryNavItems, type PrimaryNavRoute } from '../lib/navigation';
+	import MobileNav from '../navigation/MobileNav.svelte';
+	import PrimaryNavLinks from '../navigation/PrimaryNavLinks.svelte';
+	import UserMenu from '../UserMenu.svelte';
+	import { buildPrimaryNavItems, type PrimaryNavRoute } from '../../lib/navigation';
 
 	interface Props {
 		currentPage: string;

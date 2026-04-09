@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { listFocusableElements } from '../lib/focus';
-	import { portal } from '../lib/portal';
+	import { listFocusableElements } from '../../lib/focus';
+	import { portal } from '../../lib/portal';
 
 	interface Props {
 		panelId?: string;

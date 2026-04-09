@@ -7,8 +7,8 @@
 		mobileSheetHandleButtonClass,
 		mobileSheetHeaderClass
 	} from '../../lib/ui-classes';
-	import MobileSheet from '../MobileSheet.svelte';
-	import ThemeSelector from '../ThemeSelector.svelte';
+	import MobileSheet from '../site/MobileSheet.svelte';
+	import ThemeSelector from '../site/ThemeSelector.svelte';
 	import UserMenuAccountCard from './UserMenuAccountCard.svelte';
 	import UserMenuAuthAction from './UserMenuAuthAction.svelte';
 
