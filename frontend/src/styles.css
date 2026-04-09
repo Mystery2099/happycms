@@ -253,7 +253,7 @@
 /* Quote styling */
 .quote-mark {
 	font-family: 'Sora', system-ui, sans-serif;
-	@apply text-6xl leading-none select-none;
+	@apply text-5xl sm:text-6xl lg:text-7xl leading-none select-none;
 	color: color-mix(in srgb, var(--coral) 30%, transparent);
 }
 

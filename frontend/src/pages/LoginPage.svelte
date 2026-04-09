@@ -45,7 +45,7 @@
 				<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-coral/10 mb-4">
 					<User size={24} class="text-coral" />
 				</div>
-				<h1 class="font-display text-2xl text-ink mb-2">Welcome back</h1>
+				<h1 class="font-display text-2xl sm:text-3xl text-ink mb-2">Welcome back</h1>
 				<p class="text-stone text-sm">Sign in to access your happy thoughts</p>
 			</div>
 

@@ -35,7 +35,7 @@
 	<div class="max-w-6xl mx-auto px-6 lg:px-8">
 		<div class="header-inner flex items-center justify-between">
 			<a href={routes.home} class="group">
-				<span class="font-display text-xl text-ink tracking-tight">Happy Thoughts</span>
+				<span class="font-display text-lg sm:text-xl text-ink tracking-tight">Happy Thoughts</span>
 			</a>
 
 			<nav aria-label="Primary" class="hidden md:flex items-center gap-8">

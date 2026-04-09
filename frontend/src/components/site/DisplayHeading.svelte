@@ -40,7 +40,7 @@
 	<svelte:element
 		this={level}
 		class={[
-			'font-display text-display-md text-ink',
+			'font-display text-2xl sm:text-3xl lg:text-4xl text-ink',
 			Icon ? 'inline-flex items-center gap-3' : '',
 			titleClass
 		]}

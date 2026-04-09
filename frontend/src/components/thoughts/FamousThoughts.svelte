@@ -5,7 +5,7 @@
 	type Quote = {
 		author: string;
 		quote: string;
-		catecycleQuotery: string;
+		category: string;
 	};
 
 	let { apiUrl = 'api/famous-thoughts.php' } = $props<{ apiUrl?: string }>();
@@ -35,6 +35,13 @@
 		}, 300);
 	}
 
+	function handleQuoteNavKeydown(event: KeyboardEvent, direction: number) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			cycleQuote(direction);
+		}
+	}
+
 	onMount(() => {
 		fetch(apiUrl)
 			.then((response) => {
@@ -57,7 +64,7 @@
 
 <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
 	<div>
-		<h2 class="font-display text-display-md text-ink mb-4">Interactive Display</h2>
+		<h2 class="font-display text-2xl sm:text-3xl lg:text-4xl text-ink mb-4">Interactive Display</h2>
 		<p class="text-stone mb-8">
 			Three client-driven formatting changes demonstrate JavaScript interactivity:
 		</p>
@@ -140,7 +147,7 @@
 				<div class={['mt-8 flex items-center justify-between gap-4 transition-opacity duration-250 ease-out motion-reduce:transition-none', isTransitioning ? 'opacity-0' : 'opacity-100']}>
 					<div>
 						<p class="text-ink font-medium">{currentQuote.author}</p>
-						<p class="text-stone text-sm">{currentQuote.catecycleQuotery}</p>
+						<p class="text-stone text-sm">{currentQuote.category}</p>
 					</div>
 
 					<div class="flex gap-2">
@@ -148,6 +155,7 @@
 							type="button"
 							class="border-mist hover:border-coral dark:hover:border-coral dark:hover:text-coral flex h-10 w-10 items-center justify-center border transition-[transform,background-color,border-color] duration-200 hover:-translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:border-slate-600 dark:text-slate-300"
 							onclick={() => cycleQuote(-1)}
+							onkeydown={(e) => handleQuoteNavKeydown(e, -1)}
 							aria-label="Previous quote"
 						>
 							<ChevronLeft size={16} />
@@ -156,6 +164,7 @@
 							type="button"
 							class="bg-ink text-canvas hover:bg-coral dark:hover:bg-coral flex h-10 w-10 items-center justify-center transition-[transform,background-color] duration-200 hover:translate-x-0.5 active:scale-[0.97] ease-enter motion-reduce:transition-none dark:bg-slate-700 dark:text-slate-100"
 							onclick={() => cycleQuote(1)}
+							onkeydown={(e) => handleQuoteNavKeydown(e, 1)}
 							aria-label="Next quote"
 						>
 							<ChevronRight size={16} />

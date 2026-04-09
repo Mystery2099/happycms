@@ -73,8 +73,7 @@
 	<div class="max-w-6xl mx-auto px-6 py-16 lg:px-8 lg:py-24">
 		<div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
 			<div>
-				<p class="text-sm font-medium uppercase tracking-widest text-stone mb-4">CISY 7203</p>
-				<h1 class="font-display text-display-lg text-ink mb-6">
+<h1 class="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-ink mb-6">
 					A collection of happy thoughts for brighter days.
 				</h1>
 				<p class="text-stone leading-relaxed mb-8 max-w-lg">

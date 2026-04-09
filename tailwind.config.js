@@ -21,9 +21,10 @@ export default {
 				sans: ['Sora', 'system-ui', 'sans-serif']
 			},
 			fontSize: {
-				'display-xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
-				'display-lg': ['3rem', { lineHeight: '1.15', letterSpacing: '-0.01em' }],
-				'display-md': ['2rem', { lineHeight: '1.2' }]
+				'display-xl': '4.5rem',
+				'display-lg': '3rem',
+				'display-md': '2rem',
+				'display-sm': '1.5rem'
 			},
 			borderRadius: {
 				// Design system radius tokens

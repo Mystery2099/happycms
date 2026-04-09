@@ -54,7 +54,7 @@
 		</div>
 
 		<div class="border-mist bg-wheat/5 mb-8 border p-8">
-			<p class="font-display text-2xl text-ink mb-2">{thought.title}</p>
+			<p class="font-display text-xl sm:text-2xl text-ink mb-2">{thought.title}</p>
 			<p class="text-stone mb-4">By {thought.author} • {thought.category}</p>
 			<p class="text-stone leading-relaxed">{thought.thought}</p>
 			<div class="border-mist mt-4 border-t pt-4">
