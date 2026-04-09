@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 function boot_session(): void
 {
+    /**
+     * Start a hardened session with strict cookie settings and a writable
+     * fallback save path for environments where the default session dir is unusable.
+     */
     if (session_status() !== PHP_SESSION_NONE) {
         return;
     }
@@ -52,6 +56,10 @@ function set_flash(string $type, string $message): void
 
 function get_flash(): ?array
 {
+    /**
+     * Flash messages are single-read by design so banners disappear after the
+     * next rendered response instead of persisting across navigation.
+     */
     if (!isset($_SESSION['flash'])) {
         return null;
     }

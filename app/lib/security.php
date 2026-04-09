@@ -4,10 +4,20 @@ declare(strict_types=1);
 
 function csp_nonce(): string
 {
+    /**
+     * Reuse one nonce value for the whole response so every inline script/style
+     * generated during rendering can be authorized by the same CSP header.
+     */
     static $nonce = null;
 
     if (!is_string($nonce)) {
-        $nonce = bin2hex(random_bytes(16));
+        try {
+            $nonce = bin2hex(random_bytes(16));
+        } catch (Random\RandomException $exception) {
+            log_internal_error($exception);
+
+            throw new RuntimeException('Unable to generate a CSP nonce.', 0, $exception);
+        }
     }
 
     return $nonce;
@@ -36,6 +46,10 @@ function send_common_security_headers(): void
 
 function send_page_security_headers(): void
 {
+    /**
+     * Emit the HTML page policy, including a per-response CSP nonce used by the
+     * server-rendered shell and Vite bundle bootstrap.
+     */
     send_common_security_headers();
 
     if (headers_sent()) {
@@ -78,6 +92,10 @@ function send_json_security_headers(): void
 
 function current_origin(): ?string
 {
+    /**
+     * Parse the current request host into a normalized origin string for same-
+     * origin checks without trusting malformed Host headers.
+     */
     $hostHeader = $_SERVER['HTTP_HOST'] ?? '';
     if (!is_string($hostHeader) || trim($hostHeader) === '') {
         return null;
@@ -104,6 +122,10 @@ function request_uses_https(): bool
 
 function is_same_origin_request(): bool
 {
+    /**
+     * Accept either Origin or Referer for same-origin validation so normal form
+     * posts and fetch/XHR requests are both covered by one gate.
+     */
     $expectedOrigin = current_origin();
     if ($expectedOrigin === null) {
         return false;
@@ -134,6 +156,10 @@ function is_same_origin_request(): bool
 
 function csrf_token(): string
 {
+    /**
+     * Lazily create a stable token for the current session so multiple forms on
+     * the same page can share it without regenerating mid-request.
+     */
     if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }

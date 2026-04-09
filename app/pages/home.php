@@ -34,10 +34,7 @@ $homePageProps = [
     'heroImageUrl' => asset_url('public/images/spring-hero.jpg'),
     'apiUrl' => asset_url('api/famous-thoughts.php'),
 ];
-$homePagePropsJson = json_encode(
-    $homePageProps,
-    JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
-);
+$homePagePropsJson = page_props_json($homePageProps);
 $pageTitle = 'Happy Thoughts | Home';
 $pageDescription = 'A collection of happy moments and positive reflections.';
 $currentPage = 'home';

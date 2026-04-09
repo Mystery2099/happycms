@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 function normalized_text_input(mixed $value, int $maxLength): string
 {
+    /**
+     * Normalize free-form text by trimming, removing control characters, and
+     * enforcing a maximum length with multibyte-safe truncation when available.
+     */
     $text = trim((string) $value);
     $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $text) ?? '';
 
@@ -34,6 +38,10 @@ function normalized_search_query(mixed $value): string
 
 function normalize_local_image_path(?string $path): ?string
 {
+    /**
+     * Accept only project-local images from whitelisted directories, then resolve
+     * them against the real filesystem to block traversal and broken references.
+     */
     $path = trim((string) $path);
     if ($path === '') {
         return null;
@@ -72,6 +80,10 @@ function normalize_local_image_path(?string $path): ?string
 
 function validate_thought_input(array $input): array
 {
+    /**
+     * Return a normalized thought payload alongside field-level validation errors
+     * so page handlers can re-render the form without duplicating normalization.
+     */
     $data = [
         'title' => normalized_text_input($input['title'] ?? '', 80),
         'author' => normalized_text_input($input['author'] ?? '', 60),
@@ -121,6 +133,10 @@ function validate_thought_input(array $input): array
 
 function validate_login_input(array $input): array
 {
+    /**
+     * Normalize login form input into a predictable auth payload before the
+     * authentication layer decides whether the credentials are valid.
+     */
     $email = strtolower(normalized_text_input($input['email'] ?? '', 255));
     $password = (string) ($input['password'] ?? '');
     $remember = isset($input['remember']) && (string) $input['remember'] !== '0';

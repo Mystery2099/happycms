@@ -20,10 +20,15 @@ function render_error_response(int $statusCode = 500): never
         send_json_security_headers();
         header('Content-Type: application/json; charset=utf-8');
 
-        echo json_encode([
-            'success' => false,
-            'error' => 'A server error occurred.',
-        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        try {
+            echo json_encode([
+                'success' => false,
+                'error' => 'A server error occurred.',
+            ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            log_internal_error($exception);
+            echo '{"success":false,"error":"A server error occurred."}';
+        }
 
         exit;
     }

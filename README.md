@@ -1,12 +1,15 @@
 # HappyCMS
 
-HappyCMS is a small PHP + SQLite content management system where PHP is used for backend responsibilities and Svelte is used as aggressively as possible for the frontend.
+HappyCMS is a small PHP + SQLite CMS with a Svelte frontend shell. PHP owns routing, sessions, validation, security headers, and persistence; Svelte owns the interactive UI layer and page components.
 
-## Architecture
+The project was built to satisfy the PHP assignment requirements in [docs/assignment-requirements.md](docs/assignment-requirements.md) without treating PHP templates as the main frontend system.
 
-- PHP handles routing, request validation, sessions, security headers, and SQLite persistence.
-- Svelte handles the client-side UI layer, including the home page shell, theme controls, list controls, and Fetch API quote browser.
-- The split is intended to satisfy the PHP assignment requirements in [docs/assignment-requirements.md](docs/assignment-requirements.md) without treating PHP templates as the primary frontend technology.
+## Stack
+
+- PHP for routing, request handling, authentication, sessions, and SQLite access
+- SQLite for persistence
+- Svelte 5 + Vite for the client UI
+- Bun for frontend dependency management and builds
 
 ## Quick Start
 
@@ -22,137 +25,185 @@ Then open:
 http://127.0.0.1:8000
 ```
 
-This is the main recommended way to run the project.
+`run.sh` does two things:
+
+1. builds the frontend with `bun run build`
+2. starts PHP's built-in server with `router.php`
+
+You can change the host or port:
+
+```bash
+./run.sh 8080
+HOST=0.0.0.0 PORT=9000 ./run.sh
+```
 
 ## Requirements
 
 - PHP
 - Bun
 
-Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory, so no separate database server is required.
+Install frontend dependencies once before the first build:
 
-## Project URLs
+```bash
+bun install
+```
 
-When the app is running, the main pages are:
+## Useful Commands
+
+```bash
+bun install
+bun run build
+./run.sh
+php -S 127.0.0.1:8000 -t . router.php
+```
+
+## Main Routes
 
 - `/`
 - `/login/`
+- `/thoughts/`
 - `/create/`
 - `/search/`
-- `/thoughts/`
 - `/thoughts/edit/?id=1`
 - `/thoughts/delete/?id=1`
+- `/api/famous-thoughts.php`
 
-## Run It The Simple Way
+Unknown routes are redirected back to `/`.
 
-From the project root:
+## Authentication
 
-```bash
-./run.sh
-```
+The app uses PHP session-based authentication with role-based authorization.
 
-This script:
+- Reading content is public.
+- Creating, editing, and deleting thoughts requires an authenticated `admin`.
+- Logout is a CSRF-protected `POST`.
 
-1. builds the Svelte frontend with `bun run build`
-2. starts PHP's built-in server
+Default seeded users on first run:
 
-By default, it runs at:
+- Admin: `admin@happycms.local` / `ChangeMe123!`
+- Guest: `guest@happycms.local` / `Guest123!`
 
-```text
-http://127.0.0.1:8000
-```
+Seed credentials can be overridden before startup with:
 
-To use a different port:
+- `HAPPYCMS_ADMIN_NAME`
+- `HAPPYCMS_ADMIN_EMAIL`
+- `HAPPYCMS_ADMIN_PASSWORD`
+- `HAPPYCMS_GUEST_NAME`
+- `HAPPYCMS_GUEST_EMAIL`
+- `HAPPYCMS_GUEST_PASSWORD`
 
-```bash
-./run.sh 8080
-```
+If a seeded user already exists in the database, HappyCMS keeps the existing record instead of overwriting it.
 
-You can also change the host or port with environment variables:
+More detail lives in [AUTH.md](AUTH.md).
 
-```bash
-HOST=0.0.0.0 PORT=9000 ./run.sh
-```
+## Runtime Data
 
-## Run It On WAMP
-
-There are two reasonable ways to do this.
-
-### Option 1: Use the project directly in your WAMP web root
-
-1. Copy the project folder into your WAMP web root, usually something like:
+Runtime SQLite data is stored outside the web root by default in a sibling directory:
 
 ```text
-C:\wamp64\www\happycms
+../happycms-data/database/
 ```
 
-2. Open a terminal in the project folder and build the frontend:
+This keeps the SQLite database out of static file serving paths. You can override the data directory with:
+
+```bash
+HAPPYCMS_DATA_DIR=/custom/path ./run.sh
+```
+
+The famous-thoughts seed file is read from the external data directory first, then falls back to `storage/database/famous-thoughts.txt`.
+
+## Project Structure
+
+```text
+app/
+  bootstrap.php         Shared application bootstrap
+  lib/                  Backend helpers for auth, DB, routing, security, validation
+  pages/                PHP page controllers
+  views/layout/         Shared layout wrappers
+frontend/src/
+  components/           Reusable Svelte components
+  pages/                Svelte page components mounted from PHP
+  lib/                  Frontend utilities for mounting, theme, focus, drag behavior
+public/
+  assets/               Built frontend assets
+  icons/                Static icons
+  images/               Public demo images
+storage/database/
+  famous-thoughts.txt   Fallback quote seed data
+router.php              Front controller for PHP's built-in server
+run.sh                  Build + run helper
+```
+
+## Frontend/Backend Split
+
+- PHP renders the document shell, serializes page props, and enforces auth/security rules.
+- Svelte mounts into page targets using JSON script payloads generated by PHP.
+- Vite builds the frontend into `public/assets/`.
+
+This means the site still behaves like a PHP application at the routing layer while the visible UI is mostly component-driven.
+
+## Static Files and Routing Rules
+
+`router.php` only serves a narrow set of static files directly:
+
+- `public/assets/`
+- `public/icons/`
+- `public/images/`
+- `images/`
+- `favicon.ico`
+
+It blocks direct access to paths like `storage/`, dotfiles, and `node_modules/`.
+
+## Running On WAMP
+
+Two practical options:
+
+### Option 1: Use the project inside your WAMP web root
+
+1. Copy the project to something like `C:\wamp64\www\happycms`
+2. Run:
 
 ```bash
 bun install
 bun run build
 ```
 
-3. Start WAMP.
-
-4. Open the site in a browser:
-
-```text
-http://localhost/happycms/
-```
+3. Start WAMP
+4. Open `http://localhost/happycms/`
 
 ### Option 2: Use a VirtualHost
 
-If your instructor or environment uses WAMP virtual hosts, point the host to this project folder and browse to that hostname instead.
+Point the virtual host at this project directory and browse to that hostname.
 
-Important notes for WAMP:
+Notes:
 
-- The built frontend files must exist in `public/assets/`, so run `bun run build` before opening the site.
-- Runtime SQLite data is written outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
-- This project does not require MySQL.
+- The built assets must exist in `public/assets/`.
+- Runtime SQLite data still lives outside the web root by default unless `HAPPYCMS_DATA_DIR` is set.
+- MySQL is not required.
 
-## Run It With Docker
+## Running With Docker
 
-This project does not include a `Dockerfile`, but it can still be run with the official Node and PHP images.
+There is no `Dockerfile`, but you can still run the app with official Bun and PHP images.
 
-### Step 1: Build the frontend assets
-
-From the project root:
+Build assets:
 
 ```bash
 docker run --rm -v "${PWD}:/app" -w /app oven/bun:1 bun install
 docker run --rm -v "${PWD}:/app" -w /app oven/bun:1 bun run build
 ```
 
-### Step 2: Run PHP's built-in server in a container
+Run PHP:
 
 ```bash
-docker run --rm -it -p 8000:8000 -v "${PWD}:/app" -w /app php:8.2-cli php -S 0.0.0.0:8000 -t /app
+docker run --rm -it -p 8000:8000 -v "${PWD}:/app" -w /app php:8.2-cli php -S 0.0.0.0:8000 -t /app /app/router.php
 ```
 
-Then open:
+Then open `http://127.0.0.1:8000`.
 
-```text
-http://127.0.0.1:8000
-```
-
-### Docker note for Windows PowerShell
-
-If `${PWD}` does not behave correctly in PowerShell, use the full project path instead. Example:
-
-```powershell
-docker run --rm -v "C:\path\to\happycms:/app" -w /app oven/bun:1 bun run build
-docker run --rm -it -p 8000:8000 -v "C:\path\to\happycms:/app" -w /app php:8.2-cli php -S 0.0.0.0:8000 -t /app
-```
+On Windows PowerShell, replace `${PWD}` with the full project path if needed.
 
 ## Notes
 
-- Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
-- Authentication seeds database users by default:
-  - Admin: `admin@happycms.local` / `ChangeMe123!`
-  - Guest: `guest@happycms.local` / `Guest123!`
-- You can override the seeded users with `HAPPYCMS_ADMIN_*` and `HAPPYCMS_GUEST_*` environment variables.
-- Seed quote data for the API is read from `storage/database/famous-thoughts.txt` unless an override file exists in the external data directory.
-- Static site assets live under `public/`, with icons in `public/icons/` and demo images in `public/images/`.
-- If the page loads without styling, the frontend probably has not been built yet. Run `bun run build`.
-- Unknown routes are redirected back to `/`.
+- If the site loads without styling, the frontend likely has not been built yet. Run `bun run build`.
+- Demo images live in `public/images/`.
+- Thought image paths are validated against allowed local directories and extensions.

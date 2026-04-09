@@ -13,6 +13,7 @@ require_once __DIR__ . '/lib/errors.php';
 require_once __DIR__ . '/lib/validation.php';
 require_once __DIR__ . '/lib/thoughts.php';
 require_once __DIR__ . '/lib/famous-thoughts.php';
+require_once __DIR__ . '/lib/rate-limit.php';
 require_once __DIR__ . '/lib/shell.php';
 
 boot_session();

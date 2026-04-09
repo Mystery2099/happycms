@@ -1,3 +1,7 @@
+/**
+ * Collect the focusable descendants used for keyboard focus trapping inside
+ * sheets and dropdowns. Hidden nodes are excluded from the returned list.
+ */
 export function listFocusableElements(container: HTMLElement | null): HTMLElement[] {
 	if (!container) return [];
 

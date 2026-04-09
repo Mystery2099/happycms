@@ -7,6 +7,10 @@ export type SheetDragState = {
 	isDragging: boolean;
 };
 
+/**
+ * Keep transient pointer drag state outside component markup so mobile sheet
+ * interactions can be coordinated across pointerdown, move, and release events.
+ */
 export function createSheetDragState(): SheetDragState {
 	return {
 		activePointerId: null,
@@ -18,6 +22,10 @@ export function createSheetDragState(): SheetDragState {
 	};
 }
 
+/**
+ * Claim the active pointer and snapshot the starting geometry for a potential
+ * drag gesture. Non-primary pointers and non-left mouse buttons are ignored.
+ */
 export function beginSheetDrag(
 	event: PointerEvent,
 	state: SheetDragState,
@@ -42,6 +50,10 @@ export function beginSheetDrag(
 	return true;
 }
 
+/**
+ * Convert pointer movement into the next sheet offset once the gesture crosses a
+ * small threshold, preventing accidental drags from taps on the handle.
+ */
 export function updateSheetDrag(
 	event: PointerEvent,
 	state: SheetDragState,
@@ -75,6 +87,10 @@ export function updateSheetDrag(
 	};
 }
 
+/**
+ * Finish the active drag gesture and report whether a real drag occurred so the
+ * caller can decide between snapping, closing, or treating it as a tap.
+ */
 export function endSheetDrag(
 	event: PointerEvent,
 	state: SheetDragState,
@@ -94,6 +110,10 @@ export function endSheetDrag(
 	};
 }
 
+/**
+ * Clear all drag bookkeeping and release any captured pointer after interruptions
+ * such as closing the sheet or tearing down the component.
+ */
 export function resetSheetDrag(
 	state: SheetDragState,
 	{

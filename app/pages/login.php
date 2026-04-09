@@ -19,8 +19,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     [$credentials, $validationErrors] = validate_login_input($_POST);
     $formState['email'] = $credentials['email'];
     $formState['remember'] = $credentials['remember'];
+    $ipRetryAfter = consume_rate_limit('login-ip', 10, 300);
+    $emailRetryAfter = $credentials['email'] !== ''
+        ? consume_rate_limit('login-email', 5, 300, $credentials['email'])
+        : null;
+    $retryAfter = $ipRetryAfter ?? $emailRetryAfter;
 
-    if (!is_same_origin_request()) {
+    if ($retryAfter !== null) {
+        http_response_code(429);
+        header('Retry-After: ' . $retryAfter);
+        $error = 'Too many sign-in attempts. Wait about ' . $retryAfter . ' seconds and try again.';
+    } elseif (!is_same_origin_request()) {
         $error = 'Invalid request origin. Refresh the page and try again.';
     } elseif (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
         $error = 'Your session expired. Refresh the page and try again.';

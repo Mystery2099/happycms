@@ -5,8 +5,8 @@ declare(strict_types=1);
 function app_data_root_path(): string
 {
     /**
-     * Runtime data lives outside the web root by default so SQLite and uploads
-     * are not served directly if the project folder is exposed by a web server.
+     * Resolve the writable runtime data directory, defaulting outside the web root
+     * so SQLite files are not exposed by a direct static file serving setup.
      */
     $configuredPath = getenv('HAPPYCMS_DATA_DIR');
     if (is_string($configuredPath) && trim($configuredPath) !== '') {
@@ -23,6 +23,10 @@ function database_path(): string
 
 function get_pdo(): PDO
 {
+    /**
+     * Reuse a single PDO instance per request so schema initialization and seed
+     * checks run once while every caller sees consistent connection settings.
+     */
     static $pdo = null;
 
     if ($pdo instanceof PDO) {
@@ -46,6 +50,10 @@ function get_pdo(): PDO
 
 function initialize_database(PDO $pdo): void
 {
+    /**
+     * Keep schema creation and first-run seed data together so a fresh install is
+     * immediately usable and older databases are migrated forward on boot.
+     */
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -177,6 +185,10 @@ function happy_thought_columns(PDO $pdo): array
 
 function ensure_happy_thought_audit_columns(PDO $pdo): void
 {
+    /**
+     * Add ownership columns lazily for databases created before audit metadata
+     * existed, allowing deployments to self-migrate without a separate step.
+     */
     $columns = happy_thought_columns($pdo);
     if (!in_array('created_by_user_id', $columns, true)) {
         $pdo->exec(
@@ -195,6 +207,10 @@ function ensure_happy_thought_audit_columns(PDO $pdo): void
 
 function ensure_happy_thought_audit_indexes(PDO $pdo): void
 {
+    /**
+     * Index audit ownership columns because admin listings and joins resolve
+     * creator/editor names on nearly every thought read.
+     */
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_happy_thoughts_created_by_user_id ON happy_thoughts(created_by_user_id)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_happy_thoughts_updated_by_user_id ON happy_thoughts(updated_by_user_id)');
 }
@@ -227,8 +243,8 @@ function env_seed_user_value(string $key, string $defaultValue, bool $normalizeE
 function default_seed_user_definitions(): array
 {
     /**
-     * Seed users are configuration defaults, not hardcoded runtime identities.
-     * The database becomes the source of truth after the first successful seed.
+     * Build the initial user set from environment overrides. After the first
+     * seed, the database owns those identities and subsequent boots preserve them.
      */
     return [
         'admin' => [
@@ -263,8 +279,8 @@ function seed_default_users(PDO $pdo): array
 function seed_database_user(PDO $pdo, array $user): int
 {
     /**
-     * Seeding is intentionally idempotent by email so local databases keep any
-     * existing user record instead of overwriting passwords or roles on boot.
+     * Seed users idempotently by email so local databases keep any existing
+     * password or role changes instead of being reset on every application boot.
      */
     $statement = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
     $statement->execute(['email' => $user['email']]);
@@ -292,6 +308,10 @@ function seed_database_user(PDO $pdo, array $user): int
 
 function normalize_database_user(array $user): array
 {
+    /**
+     * Convert raw SQLite values into the stable shape expected by auth and page
+     * rendering code, especially for boolean-like integer fields.
+     */
     return [
         'id' => (int) $user['id'],
         'email' => (string) $user['email'],

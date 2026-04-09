@@ -13,6 +13,10 @@ type SheetStyleManager = {
 };
 
 export function createSheetStyleManager(sheetDataId: string): SheetStyleManager {
+	/**
+	 * Scope runtime-generated sheet rules to a single data attribute so drag
+	 * translations and height clamps can update without inline style churn.
+	 */
 	let styleElement: HTMLStyleElement | null = null;
 	let sheetRule: CSSStyleRule | null = null;
 	let scrollRule: CSSStyleRule | null = null;

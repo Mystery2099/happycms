@@ -6,6 +6,10 @@ export type ComponentLoader<TComponent extends Component<any>> = () => Promise<{
 	default: TComponent;
 }>;
 
+/**
+ * Read server-rendered page props from an inline JSON script tag. Returning
+ * `null` keeps partial pages safe when a mount point exists without payload data.
+ */
 export function parseJsonScript<T>(scriptId: string): T | null {
 	const element = document.getElementById(scriptId);
 
@@ -20,6 +24,10 @@ export function parseJsonScript<T>(scriptId: string): T | null {
 	}
 }
 
+/**
+ * Mount a lazily loaded Svelte page component only when both the target element
+ * and its serialized props are present on the current document.
+ */
 export function mountPage<TComponent extends Component<any>>(
 	selector: string,
 	scriptId: string,

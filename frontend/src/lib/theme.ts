@@ -18,6 +18,10 @@ export function isTheme(value: string | null | undefined): value is Theme {
 	return value === 'system' || value === 'light' || value === 'dark';
 }
 
+/**
+ * Apply the requested theme to the root document, resolving `system` to the
+ * current media query so native form controls match the visible palette.
+ */
 export function applyThemeToDocument(nextTheme: Theme) {
 	const html = document.documentElement;
 
@@ -40,6 +44,10 @@ export function dispatchThemeChange(nextTheme: Theme) {
 	);
 }
 
+/**
+ * Persist the chosen theme, update the document immediately, and broadcast a
+ * custom event so detached UI controls can stay in sync.
+ */
 export function syncTheme(nextTheme: Theme) {
 	applyThemeToDocument(nextTheme);
 	localStorage.setItem(THEME_STORAGE_KEY, nextTheme);

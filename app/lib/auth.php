@@ -58,6 +58,10 @@ function authenticated_user_id(): ?int
 
 function current_user(): ?array
 {
+    /**
+     * Resolve and memoize the authenticated user once per request. Invalid or
+     * deactivated accounts are logged out immediately to clear stale sessions.
+     */
     static $user = null;
     static $resolved = false;
 
@@ -95,6 +99,10 @@ function user_has_role(string $role): bool
 
 function login_user(int $userId, bool $remember = false): void
 {
+    /**
+     * Rotate the session id on login and immediately re-issue the cookie so the
+     * remember-me lifetime and security flags match the new authenticated session.
+     */
     session_regenerate_id(true);
     $_SESSION['session_initialized'] = true;
     $_SESSION['auth_user_id'] = $userId;
@@ -105,6 +113,10 @@ function login_user(int $userId, bool $remember = false): void
 
 function logout_user(): void
 {
+    /**
+     * Clear auth state and expire the session cookie while keeping the session
+     * initialized, so CSRF and flash storage can continue to work after logout.
+     */
     unset($_SESSION['auth_user_id'], $_SESSION['auth_remember_me']);
 
     setcookie(session_name(), '', [
@@ -169,6 +181,10 @@ function login_route_url(array $params = []): string
 
 function require_login(): void
 {
+    /**
+     * Preserve the current path and query string so the user returns to the
+     * protected page they originally requested after a successful login.
+     */
     if (is_logged_in()) {
         return;
     }

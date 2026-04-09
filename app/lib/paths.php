@@ -9,10 +9,27 @@ function h(?string $value): string
 
 function page_props_json(array $props): string
 {
-    return json_encode(
-        $props,
-        JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
-    );
+    /**
+     * Encode page props for inline JSON script tags with HTML-sensitive
+     * characters escaped so the payload stays safe inside the document. Invalid
+     * UTF-8 is substituted to avoid turning a render into a 500 for otherwise
+     * serializable page data.
+     */
+    try {
+        return json_encode(
+            $props,
+            JSON_HEX_TAG
+            | JSON_HEX_AMP
+            | JSON_HEX_APOS
+            | JSON_HEX_QUOT
+            | JSON_INVALID_UTF8_SUBSTITUTE
+            | JSON_THROW_ON_ERROR
+        );
+    } catch (JsonException $exception) {
+        log_internal_error($exception);
+
+        return '{}';
+    }
 }
 
 function project_root_path(): string
@@ -22,6 +39,10 @@ function project_root_path(): string
 
 function project_relative_script_path(): string
 {
+    /**
+     * Derive the executing script path relative to the project root so routing
+     * still works when the app is served from a nested directory.
+     */
     $scriptFilename = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
     $projectRoot = realpath(project_root_path());
 
@@ -43,6 +64,10 @@ function project_relative_script_path(): string
 
 function base_url_path(): string
 {
+    /**
+     * Infer the deployment subdirectory from the current script path. The result
+     * is empty for root installs and a stable prefix for nested installs.
+     */
     $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
     $relativeScriptPath = project_relative_script_path();
 
@@ -55,6 +80,10 @@ function base_url_path(): string
 
 function route_url(string $route, array $params = []): string
 {
+    /**
+     * Centralize route generation so PHP pages and the Svelte shell agree on
+     * path structure regardless of where the application is mounted.
+     */
     $routePaths = [
         'home' => '/',
         'create' => '/create/',
