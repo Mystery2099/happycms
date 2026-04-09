@@ -17,10 +17,9 @@
 
 	function normalizeImageUrl(url: string | null): string | null {
 		if (!url) return null;
-		if (url.startsWith('https://') && typeof location !== 'undefined' && location.protocol === 'http:') {
-			return url.replace('https://', 'http://');
-		}
-		return url;
+		if (typeof location === 'undefined') return url;
+		const currentProto = location.protocol === 'https:' ? 'https:' : 'http:';
+		return url.replace(/^https?:/, currentProto);
 	}
 </script>
 
@@ -32,7 +31,7 @@
 			{#if thought.imageUrl}
 				<div class="aspect-[16/10] overflow-hidden">
 					<img
-						src={normalizeImageUrl(thought.imageUrl) ?? ''}
+						src={normalizeImageUrl(thought.imageUrl) ?? thought.imageUrl}
 						alt={thought.title}
 						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 					/>
