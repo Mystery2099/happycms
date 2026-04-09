@@ -9,19 +9,27 @@ HappyCMS now uses PHP session-based authentication with role-based authorization
 - The header sign-in menu is powered by server props from PHP.
 - Logout is handled as a CSRF-protected `POST`.
 
-## Default Admin Account
+## Seeded Database Users
 
-On first run, the app seeds a default admin user into SQLite:
+On first run, the app seeds database-backed users into SQLite:
 
-- Email: `admin@happycms.local`
-- Password: `ChangeMe123!`
-- Role: `admin`
+- Admin
+  - Email: `admin@happycms.local`
+  - Password: `ChangeMe123!`
+  - Role: `admin`
+- Guest
+  - Email: `guest@happycms.local`
+  - Password: `Guest123!`
+  - Role: `guest`
 
-For a different seeded admin, set these environment variables before starting the app:
+For different seeded credentials, set these environment variables before starting the app:
 
 - `HAPPYCMS_ADMIN_NAME`
 - `HAPPYCMS_ADMIN_EMAIL`
 - `HAPPYCMS_ADMIN_PASSWORD`
+- `HAPPYCMS_GUEST_NAME`
+- `HAPPYCMS_GUEST_EMAIL`
+- `HAPPYCMS_GUEST_PASSWORD`
 
 Example:
 
@@ -29,10 +37,13 @@ Example:
 HAPPYCMS_ADMIN_NAME="Professor Demo" \
 HAPPYCMS_ADMIN_EMAIL="prof@example.com" \
 HAPPYCMS_ADMIN_PASSWORD="BetterPassword123!" \
+HAPPYCMS_GUEST_NAME="Visitor Demo" \
+HAPPYCMS_GUEST_EMAIL="visitor@example.com" \
+HAPPYCMS_GUEST_PASSWORD="GuestPass123!" \
 ./run.sh
 ```
 
-If the seeded admin already exists in the database, the app will not overwrite it.
+If a seeded user already exists in the database, the app will not overwrite it.
 
 ## Implementation Notes
 

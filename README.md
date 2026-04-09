@@ -148,8 +148,10 @@ docker run --rm -it -p 8000:8000 -v "C:\path\to\happycms:/app" -w /app php:8.2-c
 ## Notes
 
 - Runtime SQLite data is stored outside the web root by default in a sibling `happycms-data/database/` directory. You can override this with `HAPPYCMS_DATA_DIR`.
-- Authentication uses a seeded local admin account by default: `admin@happycms.local` / `ChangeMe123!`
-- You can override the seeded admin with `HAPPYCMS_ADMIN_NAME`, `HAPPYCMS_ADMIN_EMAIL`, and `HAPPYCMS_ADMIN_PASSWORD`.
+- Authentication seeds database users by default:
+  - Admin: `admin@happycms.local` / `ChangeMe123!`
+  - Guest: `guest@happycms.local` / `Guest123!`
+- You can override the seeded users with `HAPPYCMS_ADMIN_*` and `HAPPYCMS_GUEST_*` environment variables.
 - Seed quote data for the API is read from `storage/database/famous-thoughts.txt` unless an override file exists in the external data directory.
 - Static site assets live under `public/`, with icons in `public/icons/` and demo images in `public/images/`.
 - If the page loads without styling, the frontend probably has not been built yet. Run `bun run build`.

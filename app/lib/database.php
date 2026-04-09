@@ -48,7 +48,7 @@ function initialize_database(PDO $pdo): void
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             name TEXT NOT NULL,
-            role TEXT NOT NULL DEFAULT \'admin\',
+            role TEXT NOT NULL DEFAULT \'guest\',
             is_active INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -74,7 +74,8 @@ function initialize_database(PDO $pdo): void
     ensure_happy_thought_audit_columns($pdo);
     ensure_happy_thought_audit_indexes($pdo);
 
-    $defaultAdminUserId = seed_default_admin_user($pdo);
+    $seededUsers = seed_default_users($pdo);
+    $defaultAdminUserId = $seededUsers['admin'];
     backfill_happy_thought_audit_users($pdo, $defaultAdminUserId);
 
     $count = (int) $pdo->query('SELECT COUNT(*) FROM happy_thoughts')->fetchColumn();
@@ -206,11 +207,49 @@ function backfill_happy_thought_audit_users(PDO $pdo, int $defaultAdminUserId): 
     $statement->execute(['user_id' => $defaultAdminUserId]);
 }
 
-function seed_default_admin_user(PDO $pdo): int
+function env_seed_user_value(string $key, string $defaultValue, bool $normalizeEmail = false): string
 {
-    $email = auth_default_admin_email();
+    $value = trim((string) getenv($key));
+    $resolvedValue = $value !== '' ? $value : $defaultValue;
+
+    return $normalizeEmail ? strtolower($resolvedValue) : $resolvedValue;
+}
+
+function default_seed_user_definitions(): array
+{
+    return [
+        'admin' => [
+            'email' => env_seed_user_value('HAPPYCMS_ADMIN_EMAIL', 'admin@happycms.local', true),
+            'password' => env_seed_user_value('HAPPYCMS_ADMIN_PASSWORD', 'ChangeMe123!'),
+            'name' => env_seed_user_value('HAPPYCMS_ADMIN_NAME', 'Happy Admin'),
+            'role' => AUTH_ROLE_ADMIN,
+            'is_active' => 1,
+        ],
+        'guest' => [
+            'email' => env_seed_user_value('HAPPYCMS_GUEST_EMAIL', 'guest@happycms.local', true),
+            'password' => env_seed_user_value('HAPPYCMS_GUEST_PASSWORD', 'Guest123!'),
+            'name' => env_seed_user_value('HAPPYCMS_GUEST_NAME', 'Happy Guest'),
+            'role' => AUTH_ROLE_GUEST,
+            'is_active' => 1,
+        ],
+    ];
+}
+
+function seed_default_users(PDO $pdo): array
+{
+    $seededUsers = [];
+
+    foreach (default_seed_user_definitions() as $key => $user) {
+        $seededUsers[$key] = seed_database_user($pdo, $user);
+    }
+
+    return $seededUsers;
+}
+
+function seed_database_user(PDO $pdo, array $user): int
+{
     $statement = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
-    $statement->execute(['email' => $email]);
+    $statement->execute(['email' => $user['email']]);
 
     $existingId = $statement->fetchColumn();
     if ($existingId !== false) {
@@ -223,11 +262,11 @@ function seed_default_admin_user(PDO $pdo): int
     );
 
     $insertStatement->execute([
-        'email' => $email,
-        'password_hash' => password_hash(auth_default_admin_password(), PASSWORD_DEFAULT, auth_password_options()),
-        'name' => auth_default_admin_name(),
-        'role' => AUTH_ROLE_ADMIN,
-        'is_active' => 1,
+        'email' => $user['email'],
+        'password_hash' => password_hash($user['password'], PASSWORD_DEFAULT, auth_password_options()),
+        'name' => $user['name'],
+        'role' => $user['role'],
+        'is_active' => $user['is_active'],
     ]);
 
     return (int) $pdo->lastInsertId();

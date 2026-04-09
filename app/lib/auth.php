@@ -3,31 +3,11 @@
 declare(strict_types=1);
 
 const AUTH_ROLE_ADMIN = 'admin';
+const AUTH_ROLE_GUEST = 'guest';
 
 function auth_password_options(): array
 {
     return ['cost' => 12];
-}
-
-function auth_default_admin_name(): string
-{
-    $name = trim((string) getenv('HAPPYCMS_ADMIN_NAME'));
-
-    return $name !== '' ? $name : 'Happy Admin';
-}
-
-function auth_default_admin_email(): string
-{
-    $email = trim((string) getenv('HAPPYCMS_ADMIN_EMAIL'));
-
-    return $email !== '' ? strtolower($email) : 'admin@happycms.local';
-}
-
-function auth_default_admin_password(): string
-{
-    $password = (string) getenv('HAPPYCMS_ADMIN_PASSWORD');
-
-    return $password !== '' ? $password : 'ChangeMe123!';
 }
 
 function session_cookie_path(): string
