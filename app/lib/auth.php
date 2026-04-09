@@ -141,6 +141,10 @@ function authenticate_user(string $email, string $password): ?array
 
 function login_redirect_target(): string
 {
+    /**
+     * Only allow local absolute-path redirects. This keeps post-login navigation
+     * flexible without opening the door to off-site or malformed redirect URLs.
+     */
     $redirect = trim((string) ($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
     if ($redirect === '' || $redirect[0] !== '/') {
         return route_url('home');

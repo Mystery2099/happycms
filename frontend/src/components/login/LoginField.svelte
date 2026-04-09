@@ -32,6 +32,7 @@
 	const inputClass = $derived(
 		[
 			'w-full rounded-md border-b-2 border-mist bg-transparent py-3 pl-10 text-ink placeholder:text-stone/85 transition-colors focus:border-coral focus:outline-none dark:border-slate-600 dark:text-slate-100 dark:placeholder:text-slate-400',
+			// Reserve space when a trailing control like the password toggle is rendered.
 			trailingControl ? 'pr-12' : 'pr-4'
 		]
 	);

@@ -1,3 +1,5 @@
+// Shared surface tokens for the dropdown and account-menu family. Keep these
+// limited to visual shell styles so behavior stays owned by each component.
 export const mobileSheetPanelBaseClass =
 	'pointer-events-auto overflow-hidden rounded-t-sheet border border-b-0 border-stone-200/80 bg-canvas shadow-sheet dark:border-slate-700 dark:bg-slate-900';
 
@@ -19,6 +21,7 @@ export const desktopSurfaceTriggerOpenClass =
 	'border-coral bg-canvas-elevated text-ink shadow-card dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50';
 
 export function getMobileSheetPanelClass(isDragging: boolean) {
+	// Dragging disables transition classes so pointer movement stays 1:1 with the sheet.
 	return `${mobileSheetPanelBaseClass} ${isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}`;
 }
 

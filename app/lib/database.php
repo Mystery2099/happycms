@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 function app_data_root_path(): string
 {
+    /**
+     * Runtime data lives outside the web root by default so SQLite and uploads
+     * are not served directly if the project folder is exposed by a web server.
+     */
     $configuredPath = getenv('HAPPYCMS_DATA_DIR');
     if (is_string($configuredPath) && trim($configuredPath) !== '') {
         return rtrim($configuredPath, DIRECTORY_SEPARATOR);
@@ -197,6 +201,11 @@ function ensure_happy_thought_audit_indexes(PDO $pdo): void
 
 function backfill_happy_thought_audit_users(PDO $pdo, int $defaultAdminUserId): void
 {
+    /**
+     * Older databases predate audit ownership columns. When those rows are
+     * migrated forward, attribute them to the seeded admin so admin-only edit
+     * history remains internally consistent.
+     */
     $statement = $pdo->prepare(
         'UPDATE happy_thoughts
          SET created_by_user_id = COALESCE(created_by_user_id, :user_id),
@@ -217,6 +226,10 @@ function env_seed_user_value(string $key, string $defaultValue, bool $normalizeE
 
 function default_seed_user_definitions(): array
 {
+    /**
+     * Seed users are configuration defaults, not hardcoded runtime identities.
+     * The database becomes the source of truth after the first successful seed.
+     */
     return [
         'admin' => [
             'email' => env_seed_user_value('HAPPYCMS_ADMIN_EMAIL', 'admin@happycms.local', true),
@@ -237,6 +250,7 @@ function default_seed_user_definitions(): array
 
 function seed_default_users(PDO $pdo): array
 {
+    /** @var array<string, int> $seededUsers */
     $seededUsers = [];
 
     foreach (default_seed_user_definitions() as $key => $user) {
@@ -248,6 +262,10 @@ function seed_default_users(PDO $pdo): array
 
 function seed_database_user(PDO $pdo, array $user): int
 {
+    /**
+     * Seeding is intentionally idempotent by email so local databases keep any
+     * existing user record instead of overwriting passwords or roles on boot.
+     */
     $statement = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
     $statement->execute(['email' => $user['email']]);
 
