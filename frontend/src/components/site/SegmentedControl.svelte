@@ -44,11 +44,11 @@
 			type="button"
 			class={[
 				'min-w-0 flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all duration-200 active:scale-95',
-				buttonClass,
-				value === option.value
-					? 'bg-white text-ink shadow-sm ring-2 ring-coral ring-offset-1 dark:bg-slate-700 dark:ring-offset-slate-800'
-					: 'text-stone hover:text-ink'
-			]}
+					buttonClass,
+					value === option.value
+						? 'bg-white text-ink shadow-sm ring-2 ring-coral ring-offset-1 dark:bg-slate-700 dark:ring-offset-slate-800'
+						: 'text-stone hover:bg-white/80 hover:text-ink dark:hover:bg-slate-700/70 dark:hover:text-slate-50'
+				]}
 			onclick={() => selectOption(option.value)}
 			aria-pressed={value === option.value}
 			title={option.title ?? option.label}

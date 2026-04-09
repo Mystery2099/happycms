@@ -19,10 +19,12 @@
 		class={
 			isMobile
 				? ['bottom-nav-item', currentPage === item.key ? 'is-active' : '']
-				: [
-						'relative inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200',
-						currentPage === item.key ? 'text-ink' : 'text-stone hover:text-ink'
-					]
+					: [
+							'relative inline-flex items-center gap-2 rounded-sm px-2 py-1 text-sm font-medium transition-all duration-200',
+							currentPage === item.key
+								? 'text-ink'
+								: 'text-stone hover:-translate-y-px hover:bg-coral/5 hover:text-ink'
+						]
 		}
 		aria-current={currentPage === item.key ? 'page' : undefined}
 	>

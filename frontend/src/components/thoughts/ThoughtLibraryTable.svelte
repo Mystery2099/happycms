@@ -14,7 +14,7 @@
 	let { thoughts, rowClass = 'py-5', rowPadding = '1.25rem' }: Props = $props();
 </script>
 
-<div class="border-mist overflow-hidden border">
+<div class="border-mist overflow-hidden border rounded-lg">
 	<table class="data-table">
 		<thead>
 			<tr>

@@ -101,7 +101,7 @@
 					alt="Spring flowers in warm light"
 					class="aspect-[4/3] w-full object-cover"
 				/>
-				<div class="absolute -bottom-4 -left-4 hidden bg-white p-4 shadow-lg lg:block">
+				<div class="absolute -bottom-4 -left-4 hidden bg-canvas-elevated p-4 shadow-lg lg:block">
 					<SmilePlus size={20} class="text-coral mb-2" />
 					<p class="font-display text-2xl text-ink">{stats.total}</p>
 					<p class="text-sm text-stone">Happy thoughts collected</p>
@@ -111,25 +111,25 @@
 	</div>
 </section>
 
-<section class="border-b border-mist bg-white">
+<section class="border-b border-mist bg-canvas-elevated">
 	<div class="max-w-6xl mx-auto px-6 lg:px-8">
 		<div class="grid grid-cols-2 gap-px bg-mist md:grid-cols-4 md:gap-0 md:bg-transparent md:divide-x md:divide-mist">
-			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
+			<div class="bg-canvas-elevated px-4 py-7 text-center md:bg-transparent md:py-8">
 				<FileText size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.total}</p>
 				<p class="text-sm text-stone mt-1">Total Records</p>
 			</div>
-			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
+			<div class="bg-canvas-elevated px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Tag size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.categories}</p>
 				<p class="text-sm text-stone mt-1">Categories</p>
 			</div>
-			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
+			<div class="bg-canvas-elevated px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Star size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.highMood}</p>
 				<p class="text-sm text-stone mt-1">High Mood (4-5★)</p>
 			</div>
-			<div class="bg-white px-4 py-7 text-center md:bg-transparent md:py-8">
+			<div class="bg-canvas-elevated px-4 py-7 text-center md:bg-transparent md:py-8">
 				<Image size={20} class="text-coral mx-auto mb-2" />
 				<p class="font-display text-3xl text-ink">{stats.withImages}</p>
 				<p class="text-sm text-stone mt-1">With Images</p>
@@ -159,7 +159,7 @@
 	</div>
 </Section>
 
-<Section sectionClass="border-t border-mist bg-white">
+<Section sectionClass="border-t border-mist bg-canvas-elevated">
 	<div>
 		<div class="grid gap-16 lg:grid-cols-2">
 			<div>

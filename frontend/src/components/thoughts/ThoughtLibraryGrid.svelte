@@ -17,10 +17,10 @@
 </script>
 
 <div class={`grid ${gridClass}`}>
-	{#each thoughts as thought (thought.id)}
-		<article
-			class="group overflow-hidden rounded-xl border border-mist bg-white transition-all duration-200 hover:shadow-md"
-		>
+		{#each thoughts as thought (thought.id)}
+			<article
+				class="group overflow-hidden rounded-md border border-mist bg-canvas-elevated transition-all duration-200 hover:-translate-y-px hover:border-coral/25 hover:bg-coral/5 hover:shadow-card-hover dark:bg-slate-800/95 dark:hover:border-rose-300/25 dark:hover:bg-slate-700/95"
+			>
 			{#if thought.imageUrl}
 				<div class="aspect-[16/10] overflow-hidden">
 					<img
@@ -33,7 +33,7 @@
 			<div class={bodyClass}>
 				<div class="flex items-start justify-between gap-3">
 					<h3 class={['font-display leading-tight text-ink', titleClass]}>{thought.title}</h3>
-					<ThoughtCategoryBadge category={thought.category} variant="accent" rounded={true} />
+					<ThoughtCategoryBadge category={thought.category} variant="accent" />
 				</div>
 				<p class="text-sm leading-relaxed text-stone whitespace-normal break-words">{thought.thought}</p>
 				<div class={['border-mist/60 flex items-center justify-between border-t', metaClass]}>
