@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     [$thoughtData, $errors] = validate_thought_input($_POST);
-    $errors = array_merge($errors, $formErrors);
+    $errors = $formErrors + $errors;
 
     if (!$errors) {
         update_thought($id, $thoughtData, isset($currentUser['id']) ? (int) $currentUser['id'] : null);
