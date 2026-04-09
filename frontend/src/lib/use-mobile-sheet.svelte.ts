@@ -48,6 +48,16 @@ function getCloseThreshold(variant: SheetVariant) {
 	return variant === 'user-menu' ? USER_MENU_CLOSE_THRESHOLD_PX : SHEET_CLOSE_THRESHOLD_PX;
 }
 
+function getInitialExpandedState(variant: SheetVariant) {
+	return variant === 'user-menu';
+}
+
+function getHiddenTranslateY(variant: SheetVariant, viewportHeight: number) {
+	return variant === 'user-menu'
+		? viewportHeight + SHEET_INITIAL_OFFSET_PX
+		: getMaximumSheetHeight(viewportHeight) + SHEET_INITIAL_OFFSET_PX;
+}
+
 export function createMobileSheetManager(callbacks: MobileSheetCallbacks) {
 	const { variant, sheetDataId } = callbacks;
 
@@ -97,7 +107,7 @@ export function createMobileSheetManager(callbacks: MobileSheetCallbacks) {
 			isAnimatingIntro = false;
 			isDragging = false;
 			isOverlayVisible = false;
-			currentTranslateY = viewportHeight + SHEET_INITIAL_OFFSET_PX;
+			currentTranslateY = getHiddenTranslateY(variant, viewportHeight);
 			resetDragState();
 			clearSheetAnimationTimeout();
 			sheetAnimationTimeout = setTimeout(() => {
@@ -119,7 +129,7 @@ export function createMobileSheetManager(callbacks: MobileSheetCallbacks) {
 		clearSheetAnimationTimeout();
 
 		requestAnimationFrame(() => {
-			currentTranslateY = getMaximumSheetHeight(viewportHeight) + SHEET_INITIAL_OFFSET_PX;
+			currentTranslateY = getHiddenTranslateY(variant, viewportHeight);
 			updateSheetStyles();
 			sheetAnimationTimeout = setTimeout(() => {
 				finalizeClose(true, focusTrigger);
@@ -162,11 +172,12 @@ export function createMobileSheetManager(callbacks: MobileSheetCallbacks) {
 
 	function openSheet(focusTrigger?: () => void) {
 		const viewportHeight = callbacks.getViewportHeight();
+		const initiallyExpanded = getInitialExpandedState(variant);
 
 		isOpen = true;
-		isExpanded = false;
+		isExpanded = initiallyExpanded;
 
-		currentTranslateY = getMaximumSheetHeight(viewportHeight) + SHEET_INITIAL_OFFSET_PX;
+		currentTranslateY = getHiddenTranslateY(variant, viewportHeight);
 		isMobileSheetVisible = true;
 		isOverlayVisible = false;
 		isAnimatingIntro = true;
@@ -175,7 +186,7 @@ export function createMobileSheetManager(callbacks: MobileSheetCallbacks) {
 		tick().then(() => {
 			requestAnimationFrame(() => {
 				isOverlayVisible = true;
-				currentTranslateY = getCollapsedOffset(viewportHeight);
+				currentTranslateY = getRestingTranslateY(viewportHeight, initiallyExpanded);
 				updateSheetStyles();
 				clearSheetAnimationTimeout();
 				sheetAnimationTimeout = setTimeout(() => {

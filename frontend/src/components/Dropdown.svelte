@@ -338,6 +338,7 @@
 		isOverlayVisible={sheet.isOverlayVisible}
 		isDragging={sheet.isDragging}
 		isExpanded={sheet.isExpanded}
+		currentTranslateY={sheet.currentTranslateY}
 		shouldHintMoreContent={shouldHintMoreContent}
 		{ariaDescribedby}
 		{listAriaLabel}

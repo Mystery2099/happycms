@@ -21,6 +21,7 @@
 		isOverlayVisible: boolean;
 		isDragging: boolean;
 		isExpanded: boolean;
+		currentTranslateY: number;
 		shouldHintMoreContent: boolean;
 		ariaDescribedby?: string;
 		listAriaLabel?: string;
@@ -47,6 +48,7 @@
 		isOverlayVisible,
 		isDragging,
 		isExpanded,
+		currentTranslateY,
 		shouldHintMoreContent,
 		ariaDescribedby,
 		listAriaLabel,
@@ -64,33 +66,34 @@
 </script>
 
 <MobileSheet
-		isVisible={isVisible}
-		isOverlayVisible={isOverlayVisible}
-		panelId={listboxId}
-		panelDataId={sheetInstanceId}
-		closeLabel="Close options"
+	isVisible={isVisible}
+	isOverlayVisible={isOverlayVisible}
+	panelId={listboxId}
+	panelDataId={sheetInstanceId}
+	closeLabel="Close options"
 	ariaLabelledby={mobileSheetTitleId}
 	ariaDescribedby={ariaDescribedby}
 	bind:sheetElement
 	initialFocusElement={handleElement}
 	{onClose}
 	panelClass={getMobileSheetPanelClass(isDragging)}
+	panelStyle={`transform: translateY(${Math.max(0, currentTranslateY)}px);`}
 >
-		<div class={mobileSheetHeaderClass}>
-			<button
-				bind:this={handleElement}
-				type="button"
-				class={mobileSheetHandleButtonClass}
-				onpointerdown={onHandlePointerDown}
-				onpointermove={onHandlePointerMove}
-				onpointerup={onHandlePointerEnd}
-				onpointercancel={onHandlePointerEnd}
-				onclick={onHandleClick}
-				aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
-			>
-				<span class={mobileSheetHandleBarClass}></span>
-			</button>
-			<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
+	<div class={mobileSheetHeaderClass}>
+		<button
+			bind:this={handleElement}
+			type="button"
+			class={mobileSheetHandleButtonClass}
+			onpointerdown={onHandlePointerDown}
+			onpointermove={onHandlePointerMove}
+			onpointerup={onHandlePointerEnd}
+			onpointercancel={onHandlePointerEnd}
+			onclick={onHandleClick}
+			aria-label={isExpanded ? 'Collapse options panel' : 'Expand options panel'}
+		>
+			<span class={mobileSheetHandleBarClass}></span>
+		</button>
+		<div class="flex items-center justify-between border-b border-stone-200/70 px-5 pb-3 pt-2 dark:border-slate-800">
 				<div>
 					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400">
 						Choose
