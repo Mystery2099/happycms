@@ -35,8 +35,18 @@ echo Frontend assets will not be rebuilt. Using previously compiled build.
 goto :skip_build
 
 :found_pkg
-echo Building frontend assets with %PKG_MANAGER%...
 cd /d "%PROJECT_ROOT%"
+echo Installing dependencies with %PKG_MANAGER%...
+if "%PKG_MANAGER%"=="bun" (
+  bun install
+) else (
+  npm install
+)
+if %ERRORLEVEL% neq 0 (
+  echo Install failed with exit code %ERRORLEVEL%.
+  exit /b %ERRORLEVEL%
+)
+echo Building frontend assets with %PKG_MANAGER%...
 if "%PKG_MANAGER%"=="bun" (
   bun run build
 ) else (

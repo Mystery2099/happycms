@@ -9,15 +9,21 @@ The project was built to satisfy the PHP assignment requirements in [docs/assign
 - PHP for routing, request handling, authentication, sessions, and SQLite access
 - SQLite for persistence
 - Svelte 5 + Vite for the client UI
-- Bun for frontend dependency management and builds
+- Bun (preferred) or npm for frontend dependency management and builds
 
 ## Quick Start
 
 From the project root:
 
 ```bash
+# Linux / macOS / WSL / Git Bash
 ./run.sh
+
+# Windows CMD
+run.bat
 ```
+
+The script auto-detects your package manager (bun preferred, npm as fallback) and checks for PHP before starting.
 
 Then open:
 
@@ -25,35 +31,42 @@ Then open:
 http://127.0.0.1:8000
 ```
 
-`run.sh` does two things:
+The run script does two things:
 
-1. builds the frontend with `bun run build`
+1. builds the frontend (using `bun run build` or `npm run build`)
 2. starts PHP's built-in server with `router.php`
+
+If neither bun nor npm is installed, the build step is skipped and previously compiled assets are used. If PHP is not installed, the script exits with an error.
 
 You can change the host or port:
 
 ```bash
+# Linux / macOS
 ./run.sh 8080
 HOST=0.0.0.0 PORT=9000 ./run.sh
+
+# Windows CMD
+run.bat 8080
+set HOST=0.0.0.0 && set PORT=9000 && run.bat
 ```
 
 ## Requirements
 
-- PHP
-- Bun
+- **PHP** — required to run the dev server
+- **Bun** or **npm** — needed to build the frontend (bun preferred for speed)
 
 Install frontend dependencies once before the first build:
 
 ```bash
-bun install
+bun install   # or: npm install
 ```
 
 ## Useful Commands
 
 ```bash
-bun install
-bun run build
-./run.sh
+bun install          # or: npm install
+bun run build        # or: npm run build
+./run.sh             # or: run.bat on Windows
 php -S 127.0.0.1:8000 -t . router.php
 ```
 
@@ -107,7 +120,7 @@ Runtime SQLite data is stored outside the web root by default in a sibling direc
 This keeps the SQLite database out of static file serving paths. You can override the data directory with:
 
 ```bash
-HAPPYCMS_DATA_DIR=/custom/path ./run.sh
+HAPPYCMS_DATA_DIR=/custom/path ./run.sh   # or set the env var before run.bat on Windows
 ```
 
 The famous-thoughts seed file is read from the external data directory first, then falls back to `storage/database/famous-thoughts.txt`.
@@ -131,7 +144,8 @@ public/
 storage/database/
   famous-thoughts.txt   Fallback quote seed data
 router.php              Front controller for PHP's built-in server
-run.sh                  Build + run helper
+run.sh                  Build + run helper (Linux/macOS)
+run.bat                 Build + run helper (Windows)
 ```
 
 ## Frontend/Backend Split
@@ -164,8 +178,8 @@ Two practical options:
 2. Run:
 
 ```bash
-bun install
-bun run build
+bun install    # or: npm install
+bun run build  # or: npm run build
 ```
 
 3. Start WAMP
@@ -204,6 +218,6 @@ On Windows PowerShell, replace `${PWD}` with the full project path if needed.
 
 ## Notes
 
-- If the site loads without styling, the frontend likely has not been built yet. Run `bun run build`.
+- If the site loads without styling, the frontend likely has not been built yet. Run `bun run build` (or `npm run build`).
 - Demo images live in `public/images/`.
 - Thought image paths are validated against allowed local directories and extensions.

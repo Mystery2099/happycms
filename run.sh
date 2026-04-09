@@ -32,8 +32,14 @@ elif command -v npm &>/dev/null; then
 fi
 
 if [[ -n "${PKG_MANAGER}" ]]; then
-  echo "Building frontend assets with ${PKG_MANAGER}..."
   cd "${PROJECT_ROOT}"
+  echo "Installing dependencies with ${PKG_MANAGER}..."
+  if [[ "${PKG_MANAGER}" == "bun" ]]; then
+    bun install
+  else
+    npm install
+  fi
+  echo "Building frontend assets with ${PKG_MANAGER}..."
   if [[ "${PKG_MANAGER}" == "bun" ]]; then
     bun run build
   else
