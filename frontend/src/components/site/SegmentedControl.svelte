@@ -55,7 +55,7 @@
 
 <div
   class={[
-    "bg-mist/50 relative rounded-lg p-0.5 dark:bg-slate-800/50",
+    "bg-mist/50 relative min-w-0 rounded-lg p-0.5 dark:bg-slate-800/50",
     groupClass,
   ]}
   role="group"
@@ -70,7 +70,7 @@
   </div>
 
   <div
-    class="relative grid items-center"
+    class="relative grid min-w-0 items-center"
     style:grid-template-columns={`repeat(${options.length}, minmax(0, 1fr))`}
   >
     {#each options as option (option.value)}
@@ -91,7 +91,7 @@
         {#if Icon}
           <Icon size={14} />
         {/if}
-        <span class="truncate">{option.label}</span>
+        <span class="min-w-0 truncate">{option.label}</span>
       </button>
     {/each}
   </div>

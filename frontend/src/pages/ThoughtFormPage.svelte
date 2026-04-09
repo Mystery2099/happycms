@@ -97,7 +97,7 @@
             </p>
           </div>
           <span
-            class="bg-mist/50 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-stone"
+            class="bg-mist/50 inline-flex max-w-full flex-wrap items-center gap-y-1 rounded-full px-3 py-1 text-xs font-medium text-stone"
           >
             <Tag size={12} class="mr-1.5" />
             {metadata.category} • {"★".repeat(metadata.moodScore)}

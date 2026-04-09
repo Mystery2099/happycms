@@ -121,8 +121,10 @@
     </div>
   </div>
 
-  <div class="border-l border-mist pl-0 lg:pl-12">
-    <div class="mb-6 flex items-center justify-between">
+  <div class="lg:border-l lg:border-mist lg:pl-12">
+    <div
+      class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
         <p class="text-sm font-medium uppercase tracking-wider text-stone">
           Fetch API
@@ -170,7 +172,7 @@
 
         <div
           class={[
-            "mt-8 flex items-center justify-between gap-4 transition-opacity duration-250 ease-out motion-reduce:transition-none",
+            "mt-8 flex flex-col gap-4 transition-opacity duration-250 ease-out motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between",
             isTransitioning ? "opacity-0" : "opacity-100",
           ]}
         >

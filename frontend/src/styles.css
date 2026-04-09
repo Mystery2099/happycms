@@ -308,7 +308,7 @@ html.dark .site-header.is-scrolled {
 }
 
 .dropdown-trigger-inline {
-  @apply min-w-[8.75rem] px-3.5;
+  @apply px-3.5 md:min-w-0 lg:min-w-[8.75rem];
 }
 
 .bottom-nav {
@@ -326,11 +326,11 @@ html.dark .bottom-nav {
 }
 
 .bottom-nav-items {
-  @apply flex h-16 items-center justify-around;
+  @apply flex min-h-[4.5rem] items-stretch justify-around;
 }
 
 .bottom-nav-item {
-  @apply relative flex h-full flex-1 flex-col items-center justify-center gap-1 p-2;
+  @apply relative flex min-h-[4.5rem] flex-1 flex-col items-center justify-center gap-1 px-2 py-2.5;
   color: var(--stone, #57534e);
   transition: color 0.15s ease;
 }
@@ -366,7 +366,8 @@ html.dark .bottom-nav-item.is-active {
 }
 
 .bottom-nav-label {
-  @apply text-[11px] font-medium leading-none;
+  font-size: clamp(0.6875rem, 0.66rem + 0.15vw, 0.75rem);
+  @apply max-w-full text-center font-medium leading-tight;
 }
 
 .bottom-nav-item.is-active::before {

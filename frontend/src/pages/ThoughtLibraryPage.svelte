@@ -39,15 +39,20 @@
     routes,
   }: Props = $props();
 
-  let search = $state("");
+  let serverQuery = $state("");
+  let filterQuery = $state("");
   let category = $state("all");
-  let view = $state<"grid" | "table">("table");
+  let view = $state<"grid" | "table">("grid");
   let density = $state<"compact" | "comfortable">("comfortable");
+  let hasSyncedServerQuery = $state(false);
 
-  let viewportWidth = $derived(innerWidth.current ?? 1024);
-  let isMobile = $derived(viewportWidth < 768);
+  let viewportWidth = $derived(innerWidth.current);
+  let isMobile = $derived(viewportWidth === undefined || viewportWidth < 768);
+  let isTableViewport = $derived(
+    viewportWidth !== undefined && viewportWidth >= 1024,
+  );
   let visibleThoughts = $derived.by(() => {
-    const normalizedSearch = search.trim().toLowerCase();
+    const normalizedFilterQuery = filterQuery.trim().toLowerCase();
     const normalizedCategory = category.toLowerCase();
 
     return thoughts.filter((thought) => {
@@ -60,17 +65,20 @@
         .join(" ")
         .toLowerCase();
 
-      const matchesSearch =
-        normalizedSearch === "" || haystack.includes(normalizedSearch);
+      const matchesFilter =
+        normalizedFilterQuery === "" ||
+        haystack.includes(normalizedFilterQuery);
       const matchesCategory =
         normalizedCategory === "all" ||
         thought.category.toLowerCase() === normalizedCategory;
 
-      return matchesSearch && matchesCategory;
+      return matchesFilter && matchesCategory;
     });
   });
   let visibleCount = $derived(visibleThoughts.length);
   let totalCount = $derived(thoughts.length);
+  let hasServerQuery = $derived(serverSearch.trim() !== "");
+  let hasFilterQuery = $derived(filterQuery.trim() !== "");
   let categoryOptions = $derived([
     { value: "all", label: "All categories" },
     ...categories.map((item) => ({ value: item.toLowerCase(), label: item })),
@@ -96,9 +104,10 @@
   );
 
   $effect(() => {
-    if (search === "" && serverSearch !== "") {
-      search = serverSearch;
-    }
+    if (hasSyncedServerQuery) return;
+
+    serverQuery = serverSearch;
+    hasSyncedServerQuery = true;
   });
 </script>
 
@@ -125,19 +134,24 @@
             id="search-query"
             type="search"
             name="q"
-            bind:value={search}
+            bind:value={serverQuery}
             placeholder="Search by title, author, category, or content..."
             class="input-minimal min-w-0"
             aria-label="Search thoughts"
           />
           <button
             type="submit"
-            class="btn-primary justify-center whitespace-nowrap"
+            class="btn-primary w-full justify-center whitespace-nowrap sm:w-auto"
           >
             <Search size={16} />
             Search
           </button>
         </form>
+
+        <p class="mt-3 text-sm leading-relaxed text-stone">
+          This search runs against the database. Use the filter controls below
+          to refine the current results without making another request.
+        </p>
       </div>
     {/if}
 
@@ -196,7 +210,26 @@
           <span class="ml-1">shown</span>
         </span>
 
-        {#if !isMobile}
+        {#if pageMode === "search" && hasServerQuery}
+          <span
+            class="bg-mist/40 inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-stone"
+          >
+            <Search size={12} class="shrink-0" />
+            <span class="truncate">Database search: "{serverSearch}"</span>
+          </span>
+        {/if}
+
+        {#if hasFilterQuery}
+          <span
+            class="bg-coral/10 inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-coral"
+          >
+            <span class="truncate"
+              >Refining visible results: "{filterQuery}"</span
+            >
+          </span>
+        {/if}
+
+        {#if isTableViewport}
           <div class="flex items-center gap-1 border-l border-mist pl-3">
             <SegmentedControl
               options={[
@@ -227,7 +260,7 @@
       </div>
 
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div class="min-w-[220px]">
+        <div class="w-full sm:min-w-[220px] sm:flex-1">
           <span id="client-filter-label" class="sr-only"
             >Filter by category</span
           >
@@ -241,10 +274,10 @@
         </div>
         <input
           type="search"
-          bind:value={search}
-          class="input-minimal min-w-[220px]"
-          placeholder="Filter visible thoughts"
-          aria-label="Filter visible thoughts"
+          bind:value={filterQuery}
+          class="input-minimal w-full sm:min-w-[220px] sm:flex-1"
+          placeholder="Filter the current results"
+          aria-label="Filter the current results"
         />
       </div>
     </div>
@@ -266,7 +299,7 @@
         title="No thoughts match the current filters."
         description="Adjust the search text or category filter to widen the results."
       />
-    {:else if !isMobile && view === "table"}
+    {:else if isTableViewport && view === "table"}
       <ThoughtLibraryTable
         thoughts={visibleThoughts}
         rowClass={tableCellClass}

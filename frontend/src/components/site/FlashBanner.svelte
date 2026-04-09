@@ -28,7 +28,7 @@
   <div class="mx-auto max-w-6xl px-6 py-4 lg:px-8">
     <div
       class={[
-        "flex items-center gap-3 text-sm",
+        "flex items-start gap-3 text-sm",
         type === "success" ? "text-moss" : "text-coral",
       ]}
     >
@@ -41,7 +41,7 @@
         ]}
         aria-hidden="true">{type === "success" ? "✓" : "!"}</span
       >
-      {message}
+      <p class="min-w-0 leading-relaxed">{message}</p>
     </div>
   </div>
 </div>

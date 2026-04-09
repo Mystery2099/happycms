@@ -37,7 +37,7 @@
 </script>
 
 <section
-  class="flex min-h-[calc(100vh-200px)] items-center justify-center px-6 py-16"
+  class="flex min-h-[calc(100dvh-10rem)] items-center justify-center px-6 py-10 sm:py-16"
 >
   <div class="w-full max-w-md">
     <div

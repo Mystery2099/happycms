@@ -98,7 +98,7 @@
     <div
       class="border-stone-200/70 flex items-center justify-between border-b px-5 pb-3 pt-2 dark:border-slate-800"
     >
-      <div>
+      <div class="min-w-0 pr-3">
         <p
           class="text-xs font-semibold uppercase tracking-[0.2em] text-stone dark:text-slate-400"
         >
@@ -106,7 +106,7 @@
         </p>
         <h2
           id={mobileSheetTitleId}
-          class="text-base font-medium text-ink dark:text-slate-50"
+          class="truncate text-base font-medium text-ink dark:text-slate-50"
         >
           {listAriaLabel ?? ariaLabel ?? selectedLabel}
         </h2>

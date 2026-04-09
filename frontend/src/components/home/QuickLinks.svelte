@@ -23,10 +23,10 @@
         class="hover:bg-coral/5 group flex items-center justify-between rounded-md border-b border-mist px-3 py-3 transition-all duration-200 hover:-translate-y-px"
       >
         <span
-          class="inline-flex items-center gap-3 text-ink transition-colors group-hover:text-coral"
+          class="inline-flex min-w-0 items-center gap-3 text-ink transition-colors group-hover:text-coral"
         >
-          <item.icon size={16} />
-          {item.label}
+          <item.icon size={16} class="shrink-0" />
+          <span class="truncate">{item.label}</span>
         </span>
         <ArrowRight
           size={16}

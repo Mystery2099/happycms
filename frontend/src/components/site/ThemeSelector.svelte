@@ -21,9 +21,11 @@
   let theme = $state<Theme>("system");
 
   const isMobileVariant = $derived(variant === "mobile");
-  const groupClass = "w-full";
+  const groupClass = $derived(isMobileVariant ? "w-full min-w-0" : "w-full");
   const buttonClass = $derived(
-    isMobileVariant ? "min-h-11 px-2 py-2 text-xs" : "px-2 py-2 text-xs",
+    isMobileVariant
+      ? "min-h-11 min-w-0 px-2 py-2 text-[0.7rem] sm:text-xs"
+      : "px-2 py-2 text-xs",
   );
 
   function handleThemeChange(nextTheme: string) {

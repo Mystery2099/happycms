@@ -47,8 +47,8 @@
     </div>
   </div>
 
-  <div class="hidden overflow-hidden md:block">
-    <table class="data-table">
+  <div class="hidden overflow-x-auto md:block">
+    <table class="data-table min-w-[40rem]">
       <caption class="sr-only">Recent happy thoughts from the database</caption>
       <thead>
         <tr>

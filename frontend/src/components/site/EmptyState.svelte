@@ -13,7 +13,7 @@
 
 <div
   class={[
-    "rounded-lg border border-dashed border-mist py-16 text-center",
+    "rounded-lg border border-dashed border-mist px-4 py-12 text-center sm:px-6 sm:py-16",
     className,
   ]}
 >
