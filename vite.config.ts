@@ -1,27 +1,27 @@
-import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import path from 'node:path';
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import path from "node:path";
 
 export default defineConfig({
-  base: '/public/assets/',
+  base: "/public/assets/",
   plugins: [svelte()],
   publicDir: false,
   build: {
-    outDir: 'public/assets',
+    outDir: "public/assets",
     emptyOutDir: true,
     rollupOptions: {
-      input: path.resolve(__dirname, 'frontend/src/main.ts'),
+      input: path.resolve(__dirname, "frontend/src/main.ts"),
       output: {
-        entryFileNames: 'app.js',
-        chunkFileNames: 'chunks/[name]-[hash].js',
+        entryFileNames: "app.js",
+        chunkFileNames: "chunks/[name]-[hash].js",
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) {
-            return 'app.css';
+          if (assetInfo.name?.endsWith(".css")) {
+            return "app.css";
           }
 
-          return 'assets/[name]-[hash][extname]';
-        }
-      }
-    }
-  }
+          return "assets/[name]-[hash][extname]";
+        },
+      },
+    },
+  },
 });

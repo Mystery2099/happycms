@@ -2,12 +2,14 @@
  * Collect the focusable descendants used for keyboard focus trapping inside
  * sheets and dropdowns. Hidden nodes are excluded from the returned list.
  */
-export function listFocusableElements(container: HTMLElement | null): HTMLElement[] {
-	if (!container) return [];
+export function listFocusableElements(
+  container: HTMLElement | null,
+): HTMLElement[] {
+  if (!container) return [];
 
-	return Array.from(
-		container.querySelectorAll<HTMLElement>(
-			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-		)
-	).filter((element) => !element.hasAttribute('hidden'));
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hasAttribute("hidden"));
 }

@@ -1,151 +1,155 @@
 <script lang="ts">
-	import { tick } from 'svelte';
-	import { listFocusableElements } from '../../lib/focus';
-	import { portal } from '../../lib/portal';
+  import { tick } from "svelte";
+  import { listFocusableElements } from "../../lib/focus";
+  import { portal } from "../../lib/portal";
 
-	interface Props {
-		panelId?: string;
-		panelDataId?: string;
-		isVisible: boolean;
-		isOverlayVisible?: boolean;
-		closeLabel?: string;
-		ariaLabelledby?: string;
-		ariaDescribedby?: string;
-		panelClass?: string;
-		panelStyle?: string;
-		sheetElement?: HTMLElement | null;
-		initialFocusElement?: HTMLElement | null;
-		onClose?: () => void;
-		children?: () => unknown;
-	}
+  interface Props {
+    panelId?: string;
+    panelDataId?: string;
+    isVisible: boolean;
+    isOverlayVisible?: boolean;
+    closeLabel?: string;
+    ariaLabelledby?: string;
+    ariaDescribedby?: string;
+    panelClass?: string;
+    panelStyle?: string;
+    sheetElement?: HTMLElement | null;
+    initialFocusElement?: HTMLElement | null;
+    onClose?: () => void;
+    children?: () => unknown;
+  }
 
-	let {
-		panelId,
-		panelDataId,
-		isVisible,
-		isOverlayVisible = true,
-		closeLabel = 'Close panel',
-		ariaLabelledby,
-		ariaDescribedby,
-		panelClass = '',
-		panelStyle = '',
-		sheetElement = $bindable<HTMLElement | null>(null),
-		initialFocusElement = null,
-		onClose,
-		children
-	}: Props = $props();
+  let {
+    panelId,
+    panelDataId,
+    isVisible,
+    isOverlayVisible = true,
+    closeLabel = "Close panel",
+    ariaLabelledby,
+    ariaDescribedby,
+    panelClass = "",
+    panelStyle = "",
+    sheetElement = $bindable<HTMLElement | null>(null),
+    initialFocusElement = null,
+    onClose,
+    children,
+  }: Props = $props();
 
-	function getFocusableElements() {
-		return listFocusableElements(sheetElement);
-	}
+  function getFocusableElements() {
+    return listFocusableElements(sheetElement);
+  }
 
-	function trapFocus(event: KeyboardEvent) {
-		if (event.key !== 'Tab') return;
+  function trapFocus(event: KeyboardEvent) {
+    if (event.key !== "Tab") return;
 
-		const focusableElements = getFocusableElements();
-		if (focusableElements.length === 0) {
-			event.preventDefault();
-			return;
-		}
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
 
-		const firstElement = focusableElements[0];
-		const lastElement = focusableElements[focusableElements.length - 1];
-		const activeElement = document.activeElement as HTMLElement | null;
-		const focusIsInsideSheet = !!(activeElement && sheetElement?.contains(activeElement));
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement as HTMLElement | null;
+    const focusIsInsideSheet = !!(
+      activeElement && sheetElement?.contains(activeElement)
+    );
 
-		if (!focusIsInsideSheet) {
-			event.preventDefault();
-			(event.shiftKey ? lastElement : firstElement).focus();
-			return;
-		}
+    if (!focusIsInsideSheet) {
+      event.preventDefault();
+      (event.shiftKey ? lastElement : firstElement).focus();
+      return;
+    }
 
-		if (event.shiftKey && activeElement === firstElement) {
-			event.preventDefault();
-			lastElement.focus();
-			return;
-		}
+    if (event.shiftKey && activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+      return;
+    }
 
-		if (!event.shiftKey && activeElement === lastElement) {
-			event.preventDefault();
-			firstElement.focus();
-		}
-	}
+    if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
 
-	function keepFocusInsideSheet(event: FocusEvent) {
-		if (!isVisible || !sheetElement) return;
+  function keepFocusInsideSheet(event: FocusEvent) {
+    if (!isVisible || !sheetElement) return;
 
-		const nextTarget = event.target as HTMLElement | null;
-		if (!nextTarget || sheetElement.contains(nextTarget)) return;
+    const nextTarget = event.target as HTMLElement | null;
+    if (!nextTarget || sheetElement.contains(nextTarget)) return;
 
-		const [firstElement] = getFocusableElements();
-		(firstElement ?? initialFocusElement)?.focus();
-	}
+    const [firstElement] = getFocusableElements();
+    (firstElement ?? initialFocusElement)?.focus();
+  }
 
-	function handleDocumentKeydown(event: KeyboardEvent) {
-		if (!isVisible) return;
+  function handleDocumentKeydown(event: KeyboardEvent) {
+    if (!isVisible) return;
 
-		trapFocus(event);
-		if (event.key === 'Escape') {
-			onClose?.();
-		}
-	}
+    trapFocus(event);
+    if (event.key === "Escape") {
+      onClose?.();
+    }
+  }
 
-	function handleOverlayPointerDown(event: PointerEvent) {
-		event.preventDefault();
-		event.stopPropagation();
-		onClose?.();
-	}
+  function handleOverlayPointerDown(event: PointerEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    onClose?.();
+  }
 
-	$effect(() => {
-		if (!isVisible) return;
+  $effect(() => {
+    if (!isVisible) return;
 
-		const previousOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-		document.addEventListener('focusin', keepFocusInsideSheet);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("focusin", keepFocusInsideSheet);
 
-		return () => {
-			document.body.style.overflow = previousOverflow;
-			document.removeEventListener('focusin', keepFocusInsideSheet);
-		};
-	});
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("focusin", keepFocusInsideSheet);
+    };
+  });
 
-	$effect(() => {
-		if (!isVisible) return;
+  $effect(() => {
+    if (!isVisible) return;
 
-		tick().then(() => {
-			initialFocusElement?.focus();
-		});
-	});
+    tick().then(() => {
+      initialFocusElement?.focus();
+    });
+  });
 </script>
 
 <svelte:document onkeydown={handleDocumentKeydown} />
 
 {#if isVisible}
-	<div use:portal>
-		<div class="fixed inset-0 z-[140]" aria-hidden="true">
-			<button
-				type="button"
-				class="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity duration-180 ease-out {isOverlayVisible ? 'opacity-100' : 'opacity-0'}"
-				onpointerdown={handleOverlayPointerDown}
-				tabindex="-1"
-				aria-label={closeLabel}
-			></button>
-		</div>
+  <div use:portal>
+    <div class="fixed inset-0 z-[140]" aria-hidden="true">
+      <button
+        type="button"
+        class="duration-180 absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity ease-out {isOverlayVisible
+          ? 'opacity-100'
+          : 'opacity-0'}"
+        onpointerdown={handleOverlayPointerDown}
+        tabindex="-1"
+        aria-label={closeLabel}
+      ></button>
+    </div>
 
-		<div class="fixed inset-x-0 bottom-0 z-[150] pointer-events-none">
-			<div
-				bind:this={sheetElement}
-				id={panelId}
-				data-mobile-sheet-id={panelDataId}
-				class={panelClass}
-				style={panelStyle}
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby={ariaLabelledby}
-				aria-describedby={ariaDescribedby}
-			>
-				{@render children?.()}
-			</div>
-		</div>
-	</div>
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 z-[150]">
+      <div
+        bind:this={sheetElement}
+        id={panelId}
+        data-mobile-sheet-id={panelDataId}
+        class={panelClass}
+        style={panelStyle}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={ariaLabelledby}
+        aria-describedby={ariaDescribedby}
+      >
+        {@render children?.()}
+      </div>
+    </div>
+  </div>
 {/if}

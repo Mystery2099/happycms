@@ -1,13 +1,13 @@
 export function portal(node: HTMLElement) {
-	if (typeof document === 'undefined') {
-		return { destroy() {} };
-	}
+  if (typeof document === "undefined") {
+    return { destroy() {} };
+  }
 
-	document.body.appendChild(node);
+  document.body.appendChild(node);
 
-	return {
-		destroy() {
-			node.remove();
-		}
-	};
+  return {
+    destroy() {
+      node.remove();
+    },
+  };
 }

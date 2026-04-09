@@ -1,9 +1,9 @@
-import { mount } from 'svelte';
-import type { Component, ComponentProps } from 'svelte';
+import { mount } from "svelte";
+import type { Component, ComponentProps } from "svelte";
 
 export type JsonProps = Record<string, unknown>;
 export type ComponentLoader<TComponent extends Component<any>> = () => Promise<{
-	default: TComponent;
+  default: TComponent;
 }>;
 
 /**
@@ -11,20 +11,23 @@ export type ComponentLoader<TComponent extends Component<any>> = () => Promise<{
  * `null` keeps partial pages safe when a mount point exists without payload data.
  */
 export function parseJsonScript<T>(scriptId: string): T | null {
-	const element = document.getElementById(scriptId);
+  const element = document.getElementById(scriptId);
 
-	if (!(element instanceof HTMLScriptElement)) {
-		return null;
-	}
+  if (!(element instanceof HTMLScriptElement)) {
+    return null;
+  }
 
-	try {
-		return JSON.parse(element.textContent ?? '') as T;
-	} catch (error) {
-		if (import.meta.env.DEV) {
-			console.warn(`[mount] Failed to parse JSON from script#${scriptId}:`, error);
-		}
-		return null;
-	}
+  try {
+    return JSON.parse(element.textContent ?? "") as T;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[mount] Failed to parse JSON from script#${scriptId}:`,
+        error,
+      );
+    }
+    return null;
+  }
 }
 
 /**
@@ -32,33 +35,40 @@ export function parseJsonScript<T>(scriptId: string): T | null {
  * and its serialized props are present on the current document.
  */
 export function mountPage<TComponent extends Component<any>>(
-	selector: string,
-	scriptId: string,
-	loader: ComponentLoader<TComponent>,
-	propsTransformer?: (target: HTMLElement, props: Record<string, unknown>) => Record<string, unknown>
+  selector: string,
+  scriptId: string,
+  loader: ComponentLoader<TComponent>,
+  propsTransformer?: (
+    target: HTMLElement,
+    props: Record<string, unknown>,
+  ) => Record<string, unknown>,
 ): void {
-	const target = document.querySelector<HTMLElement>(selector);
-	if (!target) {
-		return;
-	}
+  const target = document.querySelector<HTMLElement>(selector);
+  if (!target) {
+    return;
+  }
 
-	const rawProps = parseJsonScript<ComponentProps<TComponent>>(scriptId);
-	if (!rawProps && !propsTransformer) {
-		return;
-	}
+  const rawProps = parseJsonScript<ComponentProps<TComponent>>(scriptId);
+  if (!rawProps && !propsTransformer) {
+    return;
+  }
 
-	const props = rawProps && propsTransformer
-		? propsTransformer(target, rawProps as Record<string, unknown>) as ComponentProps<TComponent>
-		: rawProps;
+  const props =
+    rawProps && propsTransformer
+      ? (propsTransformer(
+          target,
+          rawProps as Record<string, unknown>,
+        ) as ComponentProps<TComponent>)
+      : rawProps;
 
-	if (!props) {
-		return;
-	}
+  if (!props) {
+    return;
+  }
 
-	loader().then(({ default: Component }) => {
-		mount(Component, {
-			target,
-			props
-		});
-	});
+  loader().then(({ default: Component }) => {
+    mount(Component, {
+      target,
+      props,
+    });
+  });
 }

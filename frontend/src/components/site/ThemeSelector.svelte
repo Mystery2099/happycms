@@ -1,63 +1,61 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { on } from 'svelte/events';
-	import SegmentedControl from './SegmentedControl.svelte';
-	import {
-		getStoredTheme,
-		isTheme,
-		syncTheme,
-		THEME_CHANGE_EVENT,
-		themeOptions,
-		type Theme,
-		type ThemeChangeDetail
-	} from '../../lib/theme';
-	type Variant = 'desktop' | 'mobile';
+  import { onMount } from "svelte";
+  import { on } from "svelte/events";
+  import SegmentedControl from "./SegmentedControl.svelte";
+  import {
+    getStoredTheme,
+    isTheme,
+    syncTheme,
+    THEME_CHANGE_EVENT,
+    themeOptions,
+    type Theme,
+    type ThemeChangeDetail,
+  } from "../../lib/theme";
+  type Variant = "desktop" | "mobile";
 
-	interface Props {
-		variant?: Variant;
-	}
+  interface Props {
+    variant?: Variant;
+  }
 
-	let { variant = 'desktop' }: Props = $props();
-	let theme = $state<Theme>('system');
+  let { variant = "desktop" }: Props = $props();
+  let theme = $state<Theme>("system");
 
-	const isMobileVariant = $derived(variant === 'mobile');
-	const groupClass = 'w-full';
-	const buttonClass = $derived(
-		isMobileVariant
-			? 'min-h-11 px-2 py-2 text-xs'
-			: 'px-2 py-2 text-xs'
-	);
+  const isMobileVariant = $derived(variant === "mobile");
+  const groupClass = "w-full";
+  const buttonClass = $derived(
+    isMobileVariant ? "min-h-11 px-2 py-2 text-xs" : "px-2 py-2 text-xs",
+  );
 
-	function handleThemeChange(nextTheme: string) {
-		if (isTheme(nextTheme)) {
-			theme = nextTheme;
-			syncTheme(nextTheme);
-		}
-	}
+  function handleThemeChange(nextTheme: string) {
+    if (isTheme(nextTheme)) {
+      theme = nextTheme;
+      syncTheme(nextTheme);
+    }
+  }
 
-	onMount(() => {
-		const storedTheme = getStoredTheme();
-		if (storedTheme) {
-			theme = storedTheme;
-		}
+  onMount(() => {
+    const storedTheme = getStoredTheme();
+    if (storedTheme) {
+      theme = storedTheme;
+    }
 
-		const handleExternalThemeChange = (event: Event) => {
-			const customEvent = event as CustomEvent<ThemeChangeDetail>;
-			const nextTheme = customEvent.detail?.theme;
-			if (isTheme(nextTheme)) {
-				theme = nextTheme;
-			}
-		};
+    const handleExternalThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<ThemeChangeDetail>;
+      const nextTheme = customEvent.detail?.theme;
+      if (isTheme(nextTheme)) {
+        theme = nextTheme;
+      }
+    };
 
-		return on(window, THEME_CHANGE_EVENT, handleExternalThemeChange);
-	});
+    return on(window, THEME_CHANGE_EVENT, handleExternalThemeChange);
+  });
 </script>
 
 <SegmentedControl
-	options={[...themeOptions]}
-	bind:value={theme}
-	ariaLabel="Select theme"
-	{groupClass}
-	{buttonClass}
-	onChange={handleThemeChange}
+  options={[...themeOptions]}
+  bind:value={theme}
+  ariaLabel="Select theme"
+  {groupClass}
+  {buttonClass}
+  onChange={handleThemeChange}
 />

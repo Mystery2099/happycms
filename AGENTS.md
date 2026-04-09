@@ -1,4 +1,4 @@
-Use global frontend-design and global ux-designer skills when working on front end. 
+Use global frontend-design and global ux-designer skills when working on front end.
 Make sure to use accessibility-compliance skill once in a while when working on frontend.
 use context7 to check documentation.
 Use global clean-code skill when writing code.

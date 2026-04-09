@@ -1,7 +1,7 @@
-import type { Component } from 'svelte';
+import type { Component } from "svelte";
 
 export interface DropdownOption {
-	value: string;
-	label: string;
-	icon?: Component;
+  value: string;
+  label: string;
+  icon?: Component;
 }
