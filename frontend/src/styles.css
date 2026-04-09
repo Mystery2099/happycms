@@ -3,22 +3,47 @@
 @tailwind utilities;
 
 @layer base {
+	:root {
+		/* Shared design tokens with AA-safe text contrast in light mode */
+		--canvas: #faf9f7;
+		--canvas-elevated: #ffffff;
+		--ink: #1a1a1a;
+		--stone: #57534e;
+		--mist: #e7e5e4;
+		--coral: #a4382d;
+		--coral-soft: rgba(191, 66, 51, 0.15);
+		--moss: #4f6d58;
+		--wheat: #7a5a1f;
+	}
+
+	html.dark {
+		--canvas: #0f172a;
+		--canvas-elevated: #1e293b;
+		--ink: #f8fafc;
+		--stone: #94a3b8;
+		--mist: #334155;
+		--coral: #fb7185;
+		--coral-soft: rgba(251, 113, 133, 0.15);
+		--moss: #93b79e;
+		--wheat: #d4a574;
+	}
+
 	html {
 		@apply scroll-smooth;
 		scroll-bar-gutter: stable;
 	}
 
 	body {
-		font-family: 'Sora', system-ui, sans-serif;
 		@apply bg-canvas text-ink antialiased;
+		font-family: 'Sora', system-ui, sans-serif;
 	}
 
 	a:focus-visible,
 	button:focus-visible,
 	select:focus-visible,
 	textarea:focus-visible {
-		outline: 2px solid var(--coral, #dc5f50);
-		outline-offset: 2px;
+		@apply outline-2 outline-offset-2;
+		outline-color: theme('colors.coral');
 	}
 
 	h1,
@@ -28,144 +53,20 @@
 	h5,
 	h6 {
 		font-family: 'Sora', system-ui, sans-serif;
-		font-weight: 500;
-	}
-
-	/* Theme: Dark mode - Tailwind dark class */
-	html.dark {
-		--canvas: #0f172a;
-		--canvas-elevated: #1e293b;
-		--ink: #f8fafc;
-		--stone: #94a3b8;
-		--mist: #334155;
-		--coral: #fb7185;
-		--coral-soft: rgba(251, 113, 133, 0.15);
-	}
-
-	html.dark body {
-		background-color: var(--canvas);
-		color: var(--ink);
-	}
-
-	html.dark .bg-canvas {
-		background-color: var(--canvas);
-	}
-
-	html.dark .text-ink {
-		color: var(--ink);
-	}
-
-	html.dark .text-stone {
-		color: var(--stone);
-	}
-
-	html.dark .text-coral {
-		color: var(--coral);
-	}
-
-	html.dark .text-wheat {
-		color: #fbbf24;
-	}
-
-	html.dark .border-mist {
-		border-color: var(--mist);
-	}
-
-	html.dark .bg-white {
-		background-color: var(--canvas-elevated);
-	}
-
-	html.dark .bg-white\/50 {
-		background-color: rgba(30, 41, 59, 0.5);
-	}
-
-	html.dark .bg-mist\/50 {
-		background-color: rgba(51, 65, 85, 0.5);
-	}
-
-	html.dark .control-btn:hover {
-		color: var(--ink);
-		border-color: var(--mist);
-	}
-
-	html.dark .control-btn.active {
-		color: var(--coral);
-		border-color: var(--coral);
-	}
-
-	html.dark .editorial-link {
-		color: var(--ink);
-		text-decoration-color: var(--coral);
-	}
-
-	html.dark .input-minimal {
-		background-color: transparent;
-		border-color: var(--mist);
-		color: var(--ink);
-	}
-
-	html.dark .input-minimal::placeholder {
-		color: var(--stone);
-	}
-
-	html.dark .input-minimal:focus {
-		border-color: var(--coral);
-		background-color: var(--canvas-elevated);
-	}
-
-	html.dark select.input-minimal {
-		background-color: var(--canvas);
-	}
-
-	html.dark .btn-primary {
-		background-color: var(--ink);
-		color: var(--canvas);
-	}
-
-	html.dark .btn-primary:hover {
-		background-color: var(--coral);
-	}
-
-	html.dark .btn-secondary {
-		border-color: var(--mist);
-		color: var(--ink);
-	}
-
-	html.dark .btn-secondary:hover {
-		border-color: var(--coral);
-		background-color: var(--canvas-elevated);
-	}
-
-	html.dark .data-table th {
-		color: var(--stone);
-		border-color: var(--mist);
-	}
-
-	html.dark .data-table td {
-		border-color: var(--mist);
-	}
-
-	html.dark .data-table tr:hover td {
-		background-color: var(--canvas-elevated);
-	}
-
-	html.dark .quote-mark {
-		color: var(--coral);
-		opacity: 0.4;
+		@apply font-medium;
 	}
 }
 
 @layer components {
 	/* Subtle control buttons with microinteractions */
 	.control-btn {
-		@apply text-stone px-4 py-2 text-sm font-medium;
-		@apply border-b-2 border-transparent;
-		@apply transition-all duration-200 ease-out;
-		@apply relative;
+		@apply text-stone px-4 py-2 text-sm font-medium border-b-2 border-transparent transition-all duration-200 ease-out relative;
 	}
 
 	.control-btn:hover {
-		@apply text-ink border-mist;
+		@apply text-ink;
+		border-color: color-mix(in srgb, var(--coral) 18%, var(--mist) 82%);
+		background-color: color-mix(in srgb, var(--coral) 4%, transparent);
 	}
 
 	.control-btn.active {
@@ -174,8 +75,7 @@
 
 	.control-btn::after {
 		content: '';
-		@apply bg-coral absolute bottom-0 left-1/2 h-0.5 w-0;
-		@apply transition-all duration-300 ease-out;
+		@apply bg-coral absolute bottom-0 left-1/2 h-0.5 w-0 transition-all duration-300 ease-out;
 		transform: translateX(-50%);
 	}
 
@@ -189,14 +89,12 @@
 
 	/* Editorial link style with microinteractions */
 	.editorial-link {
-		@apply text-ink decoration-coral/40 underline underline-offset-4;
-		@apply transition-all duration-200 ease-out;
-		@apply relative;
+		@apply text-ink underline underline-offset-4 transition-all duration-200 ease-out relative;
+		text-decoration-color: color-mix(in srgb, var(--coral) 40%, transparent);
 	}
 
 	.editorial-link:hover {
-		@apply decoration-coral;
-		@apply underline-offset-8;
+		@apply decoration-coral underline-offset-8 text-coral;
 	}
 
 	.editorial-link:active {
@@ -205,33 +103,32 @@
 
 	/* Form inputs - minimal with microinteractions */
 	.input-minimal {
-		@apply border-mist w-full border-b-2 bg-transparent px-1 py-3;
-		@apply text-ink placeholder:text-stone/60;
-		@apply transition-all duration-300 ease-out;
+		@apply w-full border-b-2 border bg-transparent px-3 py-3 text-ink transition-all duration-300 ease-out rounded-sm;
+		border-color: theme('colors.mist');
+	}
+
+	.input-minimal::placeholder {
+		color: color-mix(in srgb, var(--stone) 85%, transparent);
 	}
 
 	.input-minimal:hover {
-		@apply border-stone;
+		border-color: theme('colors.stone');
 	}
 
 	.input-minimal:focus {
-		@apply border-coral bg-white/50;
+		@apply border-coral;
+		background-color: color-mix(in srgb, var(--canvas-elevated) 88%, var(--canvas) 12%);
 	}
 
 	/* Strong focus-visible states */
 	.input-minimal:focus-visible {
-		@apply border-coral outline-none;
-		outline: 2px solid var(--coral, #dc5f50);
-		outline-offset: 2px;
+		@apply border-coral outline-none outline-2 outline-offset-2;
+		outline-color: theme('colors.coral');
 	}
 
 	/* Primary button - refined with microinteractions */
 	.btn-primary {
-		@apply inline-flex items-center gap-2 px-6 py-3;
-		@apply bg-ink text-canvas text-sm font-medium;
-		@apply transition-all duration-200 ease-out;
-		@apply hover:shadow-coral/20 hover:shadow-lg;
-		@apply active:scale-95;
+		@apply inline-flex items-center gap-2 px-6 py-3 bg-ink text-canvas text-sm font-medium transition-all duration-200 ease-out hover:shadow-button active:scale-95 rounded-sm;
 	}
 
 	.btn-primary:hover {
@@ -239,20 +136,19 @@
 	}
 
 	.btn-primary:focus-visible {
-		outline: 2px solid var(--coral, #dc5f50);
-		outline-offset: 2px;
+		@apply outline-none outline-2 outline-offset-2;
+		outline-color: theme('colors.coral');
 	}
 
 	/* Secondary button - with microinteractions */
 	.btn-secondary {
-		@apply inline-flex items-center gap-2 px-6 py-3;
-		@apply border-mist text-ink border text-sm font-medium;
-		@apply transition-all duration-200 ease-out;
-		@apply active:scale-95;
+		@apply inline-flex items-center gap-2 px-6 py-3 text-ink border text-sm font-medium transition-all duration-200 ease-out active:scale-95 rounded-sm;
+		border-color: theme('colors.mist');
 	}
 
 	.btn-secondary:hover {
-		@apply border-ink -translate-y-0.5 bg-white shadow-md;
+		@apply border-ink -translate-y-0.5 shadow-md;
+		background-color: color-mix(in srgb, var(--canvas-elevated) 90%, var(--canvas) 10%);
 	}
 
 	.btn-secondary:focus-visible {
@@ -261,33 +157,20 @@
 
 	/* Destructive Button - with microinteractions */
 	.btn-destructive {
-		@apply inline-flex items-center justify-center border px-6 py-3 text-sm font-medium;
-		@apply transition-all duration-200 ease-out;
-		@apply active:scale-95;
-		background-color: #dc5f50;
+		@apply inline-flex items-center justify-center border px-6 py-3 text-sm font-medium transition-all duration-200 ease-out active:scale-95 rounded-sm;
+		background-color: #a4382d;
 		color: #faf9f7;
-		border-color: #dc5f50;
+		border-color: #a4382d;
 	}
 
 	.btn-destructive:hover {
-		background-color: #c45245;
-		border-color: #c45245;
-		@apply shadow-coral/30 -translate-y-0.5 shadow-lg;
+		background-color: #8f2d24;
+		border-color: #8f2d24;
+		@apply shadow-button -translate-y-0.5;
 	}
 
 	.btn-destructive:focus-visible {
 		@apply outline-coral outline outline-2 outline-offset-2;
-	}
-
-	html.dark .btn-destructive {
-		background-color: #fb7185;
-		color: #0f172a;
-		border-color: #fb7185;
-	}
-
-	html.dark .btn-destructive:hover {
-		background-color: #f43f5e;
-		border-color: #f43f5e;
 	}
 
 	/* Utility Classes */
@@ -296,11 +179,7 @@
 	}
 
 	.skip-link {
-		position: absolute;
-		top: 0.75rem;
-		left: 1rem;
-		z-index: 200;
-		padding: 0.75rem 1rem;
+		@apply absolute top-3 left-4 z-[200] px-4 py-3;
 		background: #faf9f7;
 		color: #0f172a;
 		border: 1px solid #dc5f50;
@@ -312,29 +191,16 @@
 		transform: translateY(0);
 	}
 
-	html.dark .skip-link {
-		background: #1e293b;
-		color: #f8fafc;
-		border-color: #fb7185;
-	}
-
 	.aspect-card {
 		aspect-ratio: 4 / 3;
 	}
 }
 
 @layer utilities {
-	/* Screen reader only */
+	/* Screen reader only - Tailwind doesn't include this by default in v3 */
 	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
+		@apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
 		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
 	}
 
 	.line-clamp-2 {
@@ -363,11 +229,13 @@
 }
 
 .data-table th {
-	@apply text-stone border-mist border-b-2 px-4 py-4 text-xs font-semibold tracking-wider uppercase;
+	@apply text-stone border-b-2 px-4 py-4 text-xs font-semibold tracking-wider uppercase;
+	border-color: theme('colors.mist');
 }
 
 .data-table td {
-	@apply border-mist/50 border-b px-4 py-4;
+	@apply border-b px-4 py-4;
+	border-color: theme('colors.mist / 50%');
 }
 
 .data-table tr {
@@ -375,7 +243,7 @@
 }
 
 .data-table tr:hover td {
-	@apply bg-white/50;
+	background-color: color-mix(in srgb, var(--coral) 7%, var(--canvas-elevated) 93%);
 }
 
 .data-table tr:active {
@@ -385,7 +253,8 @@
 /* Quote styling */
 .quote-mark {
 	font-family: 'Sora', system-ui, sans-serif;
-	@apply text-coral/30 text-6xl leading-none select-none;
+	@apply text-6xl leading-none select-none;
+	color: color-mix(in srgb, var(--coral) 30%, transparent);
 }
 
 [data-site-header],
@@ -395,9 +264,7 @@
 }
 
 .site-header {
-	position: sticky;
-	top: 0;
-	z-index: 50;
+	@apply sticky top-0 z-50;
 	background: rgba(250, 249, 247, 0.96);
 	border-bottom: 1px solid rgba(231, 229, 228, 1);
 	transition:
@@ -425,22 +292,15 @@ html.dark .site-header.is-scrolled {
 }
 
 .site-header .header-inner {
-	height: 80px;
-	transition: height 0.2s ease-out;
+	@apply h-20 transition-all duration-200 ease-out;
 }
 
 .dropdown-trigger-inline {
-	min-width: 8.75rem;
-	padding-right: 0.875rem;
-	padding-left: 0.875rem;
+	@apply min-w-[8.75rem] px-3.5;
 }
 
 .bottom-nav {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: 100;
+	@apply fixed bottom-0 left-0 right-0 z-[100];
 	background: rgba(250, 249, 247, 0.98);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
@@ -454,25 +314,13 @@ html.dark .bottom-nav {
 }
 
 .bottom-nav-items {
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	height: 64px;
+	@apply flex justify-around items-center h-16;
 }
 
 .bottom-nav-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 4px;
-	flex: 1;
-	height: 100%;
-	padding: 8px 4px;
+	@apply flex flex-col items-center justify-center gap-1 flex-1 h-full p-2 relative;
 	color: var(--stone, #57534e);
-	text-decoration: none;
 	transition: color 0.15s ease;
-	position: relative;
 }
 
 .bottom-nav-item:hover,
@@ -490,7 +338,7 @@ html.dark .bottom-nav-item:active {
 }
 
 .bottom-nav-item.is-active {
-	color: #dc5f50;
+	color: var(--coral, #a4382d);
 }
 
 html.dark .bottom-nav-item.is-active {
@@ -498,39 +346,26 @@ html.dark .bottom-nav-item.is-active {
 }
 
 .bottom-nav-item svg {
-	opacity: 0.7;
-	transition:
-		opacity 0.15s ease,
-		transform 0.15s ease;
+	@apply opacity-70 transition-all duration-150;
 }
 
 .bottom-nav-item.is-active svg {
-	opacity: 1;
-	transform: translateY(-2px);
+	@apply opacity-100 -translate-y-0.5;
 }
 
 .bottom-nav-label {
-	font-size: 11px;
-	font-weight: 500;
-	line-height: 1;
+	@apply text-[11px] font-medium leading-none;
 }
 
 .bottom-nav-item.is-active::before {
 	content: '';
-	position: absolute;
-	top: 6px;
-	left: 50%;
+	@apply absolute top-1.5 left-1/2 w-1 h-1 rounded-full opacity-0 transition-opacity duration-150;
 	transform: translateX(-50%);
-	width: 4px;
-	height: 4px;
 	background: currentColor;
-	border-radius: 50%;
-	opacity: 0;
-	transition: opacity 0.15s ease;
 }
 
 .bottom-nav-item.is-active::before {
-	opacity: 1;
+	@apply opacity-100;
 }
 
 @media (prefers-reduced-motion: reduce) {
