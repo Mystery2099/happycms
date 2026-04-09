@@ -51,12 +51,12 @@
 	<div class="max-h-60 overflow-y-auto p-2">
 		{#each options as option, index (option.value)}
 			{@const Icon = option.icon}
-			<button
-				bind:this={optionElements[index]}
-				type="button"
-				class="{optionClass || defaultOptionClass} {value === option.value
-					? 'bg-coral/10 text-coral dark:bg-rose-400/15 dark:text-rose-300'
-					: 'text-stone dark:text-slate-300'}"
+				<button
+					bind:this={optionElements[index]}
+					type="button"
+					class="{optionClass || defaultOptionClass} {value === option.value
+						? 'bg-coral/10 text-coral ring-1 ring-coral/20 dark:bg-slate-700 dark:text-slate-50 dark:ring-rose-300/30'
+						: 'text-stone hover:ring-1 hover:ring-coral/10 dark:text-slate-300 dark:hover:ring-slate-500/30'}"
 				onclick={() => onSelect(option.value)}
 				onkeydown={(event) => onOptionKeydown(event, index)}
 				role="option"

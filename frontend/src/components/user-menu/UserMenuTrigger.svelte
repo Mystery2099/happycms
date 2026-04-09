@@ -30,7 +30,12 @@
 	const triggerClass = $derived(
 		isMobileVariant
 			? 'bottom-nav-item user-menu-trigger-mobile w-full border-0 bg-transparent shadow-none'
-			: 'input-minimal hover:border-stone dropdown-trigger-inline flex min-h-[48px] items-center justify-between gap-3 rounded-xl border border-mist/80 bg-white/70 px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition-all duration-200 hover:bg-white focus:translate-y-[-1px] dark:border-slate-700 dark:bg-slate-900/80 dark:hover:bg-slate-900'
+			: [
+					'input-minimal hover:border-coral/40 dropdown-trigger-inline flex min-h-[48px] items-center justify-between gap-3 rounded-md border border-mist/80 bg-canvas-elevated px-4 py-3 text-left text-sm font-medium text-ink shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-coral/5 hover:shadow-card focus:-translate-y-px dark:border-slate-700 dark:bg-slate-800/95 dark:hover:border-slate-500 dark:hover:bg-slate-700/95 dark:hover:text-slate-50',
+					isOpen
+						? 'border-coral bg-canvas-elevated shadow-card dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
+						: ''
+				]
 	);
 </script>
 

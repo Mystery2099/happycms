@@ -69,11 +69,11 @@
 		bind:sheetElement
 		initialFocusElement={sheetCloseRef}
 		{onClose}
-		panelClass="pointer-events-auto overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
+		panelClass="pointer-events-auto overflow-hidden rounded-t-sheet border border-b-0 border-stone-200/80 bg-canvas shadow-sheet dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
 		panelStyle={`transform: translateY(${Math.max(0, currentTranslateY)}px);`}
 	>
 		<div id={menuId}>
-			<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
+			<div class="sticky top-0 z-10 bg-canvas/95 backdrop-blur-sm dark:bg-slate-900/95">
 				<button
 					bind:this={sheetHandleRef}
 					type="button"
@@ -99,7 +99,7 @@
 					<button
 						bind:this={sheetCloseRef}
 						type="button"
-						class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+						class="flex h-11 w-11 items-center justify-center rounded-md bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
 						onclick={onClose}
 						aria-label="Close site menu"
 					>
@@ -113,7 +113,7 @@
 				aria-busy={isClosingSheet || isAnimatingIntro}
 			>
 				<div class="space-y-4 pb-4">
-					<div class="rounded-2xl bg-mist/35 px-4 py-4 dark:bg-slate-800/60">
+					<div class="rounded-lg bg-mist/35 px-4 py-4 dark:bg-slate-800/60">
 						<div class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone dark:text-slate-400">
 							<Palette size={14} />
 							Theme

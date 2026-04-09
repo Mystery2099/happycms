@@ -67,9 +67,9 @@
 	bind:sheetElement
 	initialFocusElement={handleElement}
 	{onClose}
-		panelClass="pointer-events-auto overflow-hidden rounded-t-[28px] border border-b-0 border-stone-200/80 bg-[#faf9f7] shadow-[0_-12px_40px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
+		panelClass="pointer-events-auto overflow-hidden rounded-t-sheet border border-b-0 border-stone-200/80 bg-canvas shadow-sheet dark:border-slate-700 dark:bg-slate-900 {isDragging ? 'transition-none' : 'transition-transform duration-220 ease-out'}"
 	>
-		<div class="sticky top-0 z-10 bg-[#faf9f7]/95 backdrop-blur-sm dark:bg-slate-900/95">
+		<div class="sticky top-0 z-10 bg-canvas/95 backdrop-blur-sm dark:bg-slate-900/95">
 			<button
 				bind:this={handleElement}
 				type="button"
@@ -111,7 +111,7 @@
 					</button>
 					<button
 						type="button"
-						class="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
+						class="flex h-11 w-11 items-center justify-center rounded-md bg-stone-200/70 text-stone transition-colors hover:bg-stone-300/80 hover:text-ink dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50"
 						onclick={onClose}
 						aria-label="Close options"
 					>
@@ -130,18 +130,18 @@
 			>
 				{#each options as option (option.value)}
 					{@const Icon = option.icon}
-					<button
-						type="button"
-						class="flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors {value === option.value
-							? 'border-coral bg-coral/10 text-ink dark:border-rose-400 dark:bg-rose-400/15 dark:text-slate-50'
-							: 'border-stone-200/80 bg-white/80 text-stone hover:border-stone-300 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50'}"
-						onclick={() => onSelect(option.value)}
+						<button
+							type="button"
+							class="flex min-h-14 w-full items-center justify-between gap-3 rounded-md border px-4 py-3 text-left transition-colors {value === option.value
+								? 'border-coral bg-coral/10 text-ink shadow-sm dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
+								: 'border-stone-200/80 bg-white/90 text-stone hover:border-stone-300 hover:bg-stone-50 hover:text-ink dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700/95 dark:hover:text-slate-50'}"
+							onclick={() => onSelect(option.value)}
 						role="option"
 						aria-selected={value === option.value}
 					>
 						<span class="flex min-w-0 items-center gap-3">
 							{#if Icon}
-								<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone dark:bg-slate-700 dark:text-slate-200">
+								<span class="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone dark:bg-slate-700 dark:text-slate-200">
 									<Icon size={18} />
 								</span>
 							{/if}
@@ -158,7 +158,7 @@
 
 			{#if shouldHintMoreContent}
 				<div
-					class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-[24px] bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
+					class="pointer-events-none absolute inset-x-4 bottom-0 h-24 rounded-t-xl bg-gradient-to-t from-canvas via-canvas/92 to-transparent dark:from-slate-900 dark:via-slate-900/90"
 					aria-hidden="true"
 				></div>
 			{/if}

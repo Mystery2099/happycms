@@ -11,7 +11,7 @@
 
 <div
 	class={[
-		'rounded-2xl border border-stone-200/80 bg-white/80 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/90',
+		'rounded-lg border border-stone-200/80 bg-white/80 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/90',
 		variant === 'desktop' ? 'shadow-sm' : ''
 	]}
 >

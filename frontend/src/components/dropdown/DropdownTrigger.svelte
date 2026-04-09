@@ -46,7 +46,12 @@
 <button
 	bind:this={triggerElement}
 	type="button"
-	class={triggerClass || defaultTriggerClass}
+	class={[
+		triggerClass || defaultTriggerClass,
+		isOpen
+			? 'border-coral bg-canvas-elevated text-ink shadow-card dark:border-rose-400 dark:bg-slate-700 dark:text-slate-50'
+			: ''
+	]}
 	{onclick}
 	{onkeydown}
 	id={triggerId}
