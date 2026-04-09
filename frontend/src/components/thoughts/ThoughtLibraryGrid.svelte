@@ -14,6 +14,14 @@
 	}
 
 	let { thoughts, gridClass, bodyClass, titleClass, metaClass, actionRowClass }: Props = $props();
+
+	function normalizeImageUrl(url: string | null): string | null {
+		if (!url) return null;
+		if (url.startsWith('https://') && typeof location !== 'undefined' && location.protocol === 'http:') {
+			return url.replace('https://', 'http://');
+		}
+		return url;
+	}
 </script>
 
 <div class={`grid ${gridClass}`}>
@@ -24,7 +32,7 @@
 			{#if thought.imageUrl}
 				<div class="aspect-[16/10] overflow-hidden">
 					<img
-						src={thought.imageUrl}
+						src={normalizeImageUrl(thought.imageUrl) ?? ''}
 						alt={thought.title}
 						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 					/>
