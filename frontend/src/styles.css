@@ -368,6 +368,8 @@ html.dark .bottom-nav-item.is-active {
 	@apply opacity-100;
 }
 
+/* Skip link focus reveal */
+
 @media (prefers-reduced-motion: reduce) {
 	.site-header,
 	.site-header .header-inner {

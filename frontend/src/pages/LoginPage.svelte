@@ -133,13 +133,6 @@
 				</a>
 			</div>
 		</div>
-
-		<div class="mt-6 text-center">
-			<p class="text-sm text-stone">
-				<!-- Don't have an account? 
-				<a href="/register" class="text-coral hover:underline font-medium">Create one</a> -->
-			</p>
-		</div>
 	</div>
 </section>
 
