@@ -1,6 +1,6 @@
 # Authentication
 
-HappyCMS now uses PHP session-based authentication with role-based authorization.
+HappyCMS uses PHP session-based authentication with role-based authorization.
 
 ## Current Behavior
 
